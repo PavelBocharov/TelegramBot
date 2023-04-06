@@ -1,4 +1,4 @@
-package org.mar.telegram.bot.service;
+package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.Callback;
 import com.pengrad.telegrambot.TelegramBot;
@@ -14,33 +14,32 @@ import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.GetMeResponse;
 import jakarta.annotation.PostConstruct;
 import okhttp3.OkHttpClient;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.mar.telegram.bot.service.jms.LoadFileInfo;
+import org.mar.telegram.bot.service.jms.OrderSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Service
-public class TelegramBotService {
-
-    private Logger logger = Logger.getLogger(TelegramBotService.class.getSimpleName());
+public class TelegramBotController {
 
     public static final String START_TAG = "/start";
     private static String caption = null;
     private static volatile int number = 0;
 
+
+    @Value("${application.bot.directory.path}")
+    private String downloadPath;
+
     @Value("${application.bot.token}")
     private String BOT_TOKEN;
 
-    @Value("${application.bot.directory.path}")
-    private String DOWNLOAD_PATH;
+    @Autowired
+    private OrderSender orderSender;
 
     @PostConstruct
     public void postInit() {
@@ -73,14 +72,6 @@ public class TelegramBotService {
         if (updates != null) {
             for (Update update : updates) {
                 if (update != null && update.message() != null) {
-                    logger.log(Level.INFO,"MsgId: " + update.message().messageId() +
-                            "\n\tText: " + update.message().text() +
-                            "\n\tCaption: " + update.message().caption() +
-                            "\n\tDoc: " + update.message().document() +
-                            "\n\tVideo: " + update.message().video() +
-                            "\n\tAnim: " + update.message().animation() +
-                            "\n\tPhoto: " + update.message().photo()
-                    );
                     parsText(bot, update.message());
                     savePhoto(bot, update.message());
                     saveVideo(bot, update.message());
@@ -137,13 +128,13 @@ public class TelegramBotService {
             @Override
             public void onResponse(GetFile getFile, GetFileResponse getFileResponse) {
                 try {
-                    String savePath = DOWNLOAD_PATH + getFileResponse.file().filePath();
-                    String fileName = saveToDisk(
+                    String savePath = downloadPath + getFileResponse.file().filePath();
+                    saveToDisk(
                             bot.getFullFilePath(getFileResponse.file()),
                             savePath,
                             typeDir
                     );
-                    bot.execute(new SendMessage(message.chat().id(), "Save file: " + fileName));
+                    bot.execute(new SendMessage(message.chat().id(), "Work with file: " + getFileResponse.file().filePath()));
                 } catch (Exception ex) {
                     bot.execute(new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
                 }
@@ -157,32 +148,13 @@ public class TelegramBotService {
 
     }
 
-    private synchronized String saveToDisk(String urlToFile, String saveDiskPath, String typeDir) {
-        String diskPath = saveDiskPath;
-        try {
-            File file = new File(diskPath);
-
-            if (caption != null && !caption.isEmpty()) {
-                String type = FilenameUtils.getExtension(file.getName());
-                String fileName = null;
-                String[] aStr = caption.split("\n");
-                if (aStr != null && aStr.length > 0) {
-                    fileName = aStr[0];
-                }
-
-                diskPath = DOWNLOAD_PATH + typeDir + "//" + fileName + '.' + type;
-                file = new File(diskPath);
-                while (file.exists()) {
-                    diskPath = DOWNLOAD_PATH + typeDir + "//" + fileName + '_' + number++ + '.' + type;
-                    file = new File(diskPath);
-                }
-            }
-
-            logger.log(Level.INFO,"File name: " + file.getName() + ", path: " + urlToFile + ", save path: " + diskPath);
-            FileUtils.copyURLToFile(new URL(urlToFile), file);
-            return file.getName();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private void saveToDisk(String urlToFile, String saveDiskPath, String typeDir) {
+            orderSender.send(LoadFileInfo.builder()
+                    .fileUrl(urlToFile)
+                    .saveToPath(saveDiskPath)
+                    .fileName(caption)
+                    .typeDir(typeDir)
+                    .build()
+            );
     }
 }
