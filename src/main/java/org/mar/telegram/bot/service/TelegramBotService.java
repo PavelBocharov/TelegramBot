@@ -45,7 +45,7 @@ public class TelegramBotService {
     @PostConstruct
     public void postInit() {
         OkHttpClient client = new OkHttpClient();
-        TelegramBot bot = new TelegramBot.Builder(System.getenv("BOT_TOKEN")).okHttpClient(client).build();
+        TelegramBot bot = new TelegramBot.Builder(BOT_TOKEN).okHttpClient(client).build();
 
         GetMe getMe = new GetMe();
         bot.execute(getMe, new Callback<GetMe, GetMeResponse>() {
@@ -137,7 +137,7 @@ public class TelegramBotService {
             @Override
             public void onResponse(GetFile getFile, GetFileResponse getFileResponse) {
                 try {
-                    String savePath = System.getenv("DOWNLOAD_PATH") + getFileResponse.file().filePath();
+                    String savePath = DOWNLOAD_PATH + getFileResponse.file().filePath();
                     String fileName = saveToDisk(
                             bot.getFullFilePath(getFileResponse.file()),
                             savePath,
@@ -170,10 +170,10 @@ public class TelegramBotService {
                     fileName = aStr[0];
                 }
 
-                diskPath = System.getenv("DOWNLOAD_PATH") + typeDir + "//" + fileName + '.' + type;
+                diskPath = DOWNLOAD_PATH + typeDir + "//" + fileName + '.' + type;
                 file = new File(diskPath);
                 while (file.exists()) {
-                    diskPath = System.getenv("DOWNLOAD_PATH") + typeDir + "//" + fileName + '_' + number++ + '.' + type;
+                    diskPath = DOWNLOAD_PATH + typeDir + "//" + fileName + '_' + number++ + '.' + type;
                     file = new File(diskPath);
                 }
             }
@@ -183,8 +183,6 @@ public class TelegramBotService {
             return file.getName();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            caption = null;
         }
     }
 }
