@@ -10,6 +10,7 @@ import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.jms.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.OrderSender;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @Service
 public class TelegramBotController {
 
@@ -27,9 +29,6 @@ public class TelegramBotController {
 
     @Value("${application.bot.directory.path}")
     private String downloadPath;
-
-    @Value("${application.bot.token}")
-    private String botToken;
 
     @Autowired
     private OrderSender orderSender;
@@ -43,7 +42,6 @@ public class TelegramBotController {
             worker(bot, updates);
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
-
     }
 
     private void worker(TelegramBot bot, List<Update> updates) {
@@ -105,6 +103,9 @@ public class TelegramBotController {
             @Override
             public void onResponse(GetFile getFile, GetFileResponse getFileResponse) {
                 try {
+                    if (getFileResponse.file() == null) {
+                        throw new Exception(getFileResponse.description());
+                    }
                     String savePath = downloadPath + getFileResponse.file().filePath();
                     saveToDisk(
                             bot.getFullFilePath(getFileResponse.file()),
@@ -114,12 +115,14 @@ public class TelegramBotController {
                     );
                     bot.execute(new SendMessage(message.chat().id(), "Work with file: " + getFileResponse.file().filePath()));
                 } catch (Exception ex) {
+                    log.error(ExceptionUtils.getRootCauseMessage(ex));
                     bot.execute(new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
                 }
             }
 
             @Override
             public void onFailure(GetFile getFile, IOException ex) {
+                log.error(ExceptionUtils.getRootCauseMessage(ex));
                 bot.execute(new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getMessage(ex)));
             }
         });

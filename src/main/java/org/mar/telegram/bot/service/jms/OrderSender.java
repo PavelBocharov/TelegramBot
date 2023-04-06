@@ -15,7 +15,7 @@ public class OrderSender {
     private JmsTemplate jmsTemplate;
 
     public void send(LoadFileInfo fileInfo) {
-        log.info("SEND slf -> {}", fileInfo);
+        log.info("WRITE to MQ -> {}", fileInfo);
         jmsTemplate.convertAndSend(TELEGRAM_BOT_MQ, fileInfo);
     }
 }

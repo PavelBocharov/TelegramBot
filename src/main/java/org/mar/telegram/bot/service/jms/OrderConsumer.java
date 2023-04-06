@@ -17,7 +17,7 @@ public class OrderConsumer {
 
     @JmsListener(destination = TELEGRAM_BOT_MQ)
     public void onMessage(LoadFileInfo content){
-        log.info("CALL slf <- " + content);
+        log.info("READ from MQ <- " + content);
         workService.work(content);
     }
 
