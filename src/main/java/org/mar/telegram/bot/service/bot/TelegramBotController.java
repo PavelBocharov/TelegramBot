@@ -7,13 +7,9 @@ import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetFile;
-import com.pengrad.telegrambot.request.GetMe;
-import com.pengrad.telegrambot.request.GetUpdates;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
-import com.pengrad.telegrambot.response.GetMeResponse;
 import jakarta.annotation.PostConstruct;
-import okhttp3.OkHttpClient;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.jms.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.OrderSender;
@@ -27,45 +23,27 @@ import java.util.List;
 @Service
 public class TelegramBotController {
 
-    public static final String START_TAG = "/start";
     private static String caption = null;
-    private static volatile int number = 0;
-
 
     @Value("${application.bot.directory.path}")
     private String downloadPath;
 
     @Value("${application.bot.token}")
-    private String BOT_TOKEN;
+    private String botToken;
 
     @Autowired
     private OrderSender orderSender;
 
+    @Autowired
+    private TelegramBot bot;
+
     @PostConstruct
     public void postInit() {
-        OkHttpClient client = new OkHttpClient();
-        TelegramBot bot = new TelegramBot.Builder(BOT_TOKEN).okHttpClient(client).build();
-
-        GetMe getMe = new GetMe();
-        bot.execute(getMe, new Callback<GetMe, GetMeResponse>() {
-            @Override
-            public void onResponse(GetMe getMe, GetMeResponse getMeResponse) {
-                getMeResponse.user();
-            }
-
-            @Override
-            public void onFailure(GetMe getMe, IOException e) {
-                e.printStackTrace();
-            }
-        });
-
         bot.setUpdatesListener(updates -> {
             worker(bot, updates);
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         });
 
-        GetUpdates getUpdates = new GetUpdates().limit(999).offset(0).timeout(0);
-        worker(bot, bot.execute(getUpdates).updates());
     }
 
     private void worker(TelegramBot bot, List<Update> updates) {
@@ -87,7 +65,6 @@ public class TelegramBotController {
             text = text.trim();
             if (!text.isEmpty()) {
                 caption = text;
-                number = 0;
                 bot.execute(new SendMessage(message.chat().id(), "New caption - " + caption));
             }
         }
@@ -132,7 +109,8 @@ public class TelegramBotController {
                     saveToDisk(
                             bot.getFullFilePath(getFileResponse.file()),
                             savePath,
-                            typeDir
+                            typeDir,
+                            message.chat().id()
                     );
                     bot.execute(new SendMessage(message.chat().id(), "Work with file: " + getFileResponse.file().filePath()));
                 } catch (Exception ex) {
@@ -148,13 +126,14 @@ public class TelegramBotController {
 
     }
 
-    private void saveToDisk(String urlToFile, String saveDiskPath, String typeDir) {
-            orderSender.send(LoadFileInfo.builder()
-                    .fileUrl(urlToFile)
-                    .saveToPath(saveDiskPath)
-                    .fileName(caption)
-                    .typeDir(typeDir)
-                    .build()
-            );
+    private void saveToDisk(String urlToFile, String saveDiskPath, String typeDir, Long chatId) {
+        orderSender.send(LoadFileInfo.builder()
+                .fileUrl(urlToFile)
+                .saveToPath(saveDiskPath)
+                .fileName(caption)
+                .typeDir(typeDir)
+                .chatId(chatId)
+                .build()
+        );
     }
 }

@@ -1,9 +1,12 @@
 package org.mar.telegram.bot.service.bot;
 
+import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.mar.telegram.bot.service.jms.LoadFileInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,9 @@ public class TelegramBotWorkService {
 
     @Value("${application.bot.directory.path}")
     private String downloadPath;
+
+    @Autowired
+    private TelegramBot bot;
 
     public void work(LoadFileInfo fileInfo) {
         String diskPath = fileInfo.getSaveToPath();
@@ -43,6 +49,7 @@ public class TelegramBotWorkService {
 
             log.info("File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
             FileUtils.copyURLToFile(new URL(fileInfo.getFileUrl()), file);
+            bot.execute(new SendMessage(fileInfo.getChatId(), "Save file: " + file.getName()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
