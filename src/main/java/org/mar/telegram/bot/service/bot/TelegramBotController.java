@@ -11,15 +11,21 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.mar.telegram.bot.service.jms.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.OrderSender;
+import org.mar.telegram.bot.utils.ContentType;
+import org.mar.telegram.bot.utils.ParsingTextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+
+import static java.lang.String.format;
 
 @Slf4j
 @Service
@@ -62,10 +68,35 @@ public class TelegramBotController {
         if (text != null) {
             text = text.trim();
             if (!text.isEmpty()) {
+                if (checkContent(message)) {
+                    return;
+                }
+
                 caption = text;
                 bot.execute(new SendMessage(message.chat().id(), "New caption - " + caption));
             }
         }
+    }
+
+    // TODO https://leonardo.osnova.io/9f2c5e2b-0a94-5aed-84e5-87422011bc3b/ -> picture
+    private boolean checkContent(Message message) {
+        String text = message.text();
+        Pair<ContentType, String> pair = ParsingTextUtils.whatIsUrl(text);
+        if (pair != null
+                && pair.getKey() != null
+                && !pair.getKey().equals(ContentType.Text)
+        ) {
+            bot.execute(new SendMessage(message.chat().id(), format("Detect '%s' URL - %s", pair.getKey().getTypeDit(), pair.getValue())));
+            String savePath = downloadPath + pair.getKey().getTypeDit() + "//" + FilenameUtils.getName(pair.getValue());
+            saveToDisk(
+                    pair.getValue(),
+                    savePath,
+                    pair.getKey().getTypeDit(),
+                    message.chat().id()
+            );
+            return true;
+        }
+        return false;
     }
 
     private void savePhoto(TelegramBot bot, Message message) {
