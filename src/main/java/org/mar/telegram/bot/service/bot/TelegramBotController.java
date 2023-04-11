@@ -13,9 +13,9 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.mar.telegram.bot.service.jms.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.OrderSender;
+import org.mar.telegram.bot.service.jms.URLInfo;
 import org.mar.telegram.bot.utils.ContentType;
 import org.mar.telegram.bot.utils.ParsingTextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,22 +78,16 @@ public class TelegramBotController {
         }
     }
 
-    // TODO https://leonardo.osnova.io/9f2c5e2b-0a94-5aed-84e5-87422011bc3b/ -> picture
     private boolean checkContent(Message message) {
         String text = message.text();
-        Pair<ContentType, String> pair = ParsingTextUtils.whatIsUrl(text);
-        if (pair != null
-                && pair.getKey() != null
-                && !pair.getKey().equals(ContentType.Text)
+        URLInfo info = ParsingTextUtils.whatIsUrl(text);
+        if (info != null
+                && info.getContentType() != null
+                && !info.getContentType().equals(ContentType.Text)
         ) {
-            bot.execute(new SendMessage(message.chat().id(), format("Detect '%s' URL - %s", pair.getKey().getTypeDit(), pair.getValue())));
-            String savePath = downloadPath + pair.getKey().getTypeDit() + "//" + FilenameUtils.getName(pair.getValue());
-            saveToDisk(
-                    pair.getValue(),
-                    savePath,
-                    pair.getKey().getTypeDit(),
-                    message.chat().id()
-            );
+            bot.execute(new SendMessage(message.chat().id(), format("Detect '%s' URL - %s", info.getContentType().getTypeDit(), info.getUrl())));
+            String savePath = downloadPath + info.getContentType().getTypeDit() + "//" + FilenameUtils.getName(info.getUrl());
+            saveToDisk(info, savePath, message.chat().id());
             return true;
         }
         return false;
@@ -111,23 +105,23 @@ public class TelegramBotController {
                     }
                 }
             }
-            if (ps != null) saveFile(bot, message, ps.fileId(), "photos");
+            if (ps != null) saveFile(bot, message, ps.fileId(), ContentType.Picture);
         }
     }
 
     private void saveDocs(TelegramBot bot, Message message) {
         if (message.document() != null) {
-            saveFile(bot, message, message.document().fileId(), "documents");
+            saveFile(bot, message, message.document().fileId(), ContentType.Doc);
         }
     }
 
     private void saveVideo(TelegramBot bot, Message message) {
         if (message.video() != null) {
-            saveFile(bot, message, message.video().fileId(), "videos");
+            saveFile(bot, message, message.video().fileId(), ContentType.Video);
         }
     }
 
-    private void saveFile(TelegramBot bot, Message message, String fileId, String typeDir) {
+    private void saveFile(TelegramBot bot, Message message, String fileId, ContentType typeDir) {
         GetFile request = new GetFile(fileId);
 
         bot.execute(request, new Callback<GetFile, GetFileResponse>() {
@@ -139,9 +133,8 @@ public class TelegramBotController {
                     }
                     String savePath = downloadPath + getFileResponse.file().filePath();
                     saveToDisk(
-                            bot.getFullFilePath(getFileResponse.file()),
+                            URLInfo.builder().contentType(typeDir).url(bot.getFullFilePath(getFileResponse.file())).build(),
                             savePath,
-                            typeDir,
                             message.chat().id()
                     );
                     bot.execute(new SendMessage(message.chat().id(), "Work with file: " + getFileResponse.file().filePath()));
@@ -160,13 +153,14 @@ public class TelegramBotController {
 
     }
 
-    private void saveToDisk(String urlToFile, String saveDiskPath, String typeDir, Long chatId) {
+    private void saveToDisk(URLInfo urlInfo, String saveDiskPath, Long chatId) {
         orderSender.send(LoadFileInfo.builder()
-                .fileUrl(urlToFile)
+                .fileUrl(urlInfo.getUrl())
                 .saveToPath(saveDiskPath)
                 .fileName(caption)
-                .typeDir(typeDir)
+                .typeDir(urlInfo.getContentType().getTypeDit())
                 .chatId(chatId)
+                .fileType(urlInfo.getFileType())
                 .build()
         );
     }

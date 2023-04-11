@@ -5,6 +5,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.jms.LoadFileInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,14 +33,14 @@ public class TelegramBotWorkService {
             String typeDir = fileInfo.getTypeDir();
             int number = 0;
             if (caption != null && !caption.isEmpty()) {
-                String type = FilenameUtils.getExtension(file.getName());
+                String type = fileInfo.getFileType() == null ? '.' + FilenameUtils.getExtension(file.getName()) : fileInfo.getFileType();
                 String fileName = null;
                 String[] aStr = caption.split("\n");
                 if (aStr != null && aStr.length > 0) {
                     fileName = aStr[0];
                 }
 
-                diskPath = downloadPath + typeDir + "//" + fileName + '.' + type;
+                diskPath = downloadPath + typeDir + "//" + fileName + type;
                 file = new File(diskPath);
                 while (file.exists()) {
                     diskPath = downloadPath + typeDir + "//" + fileName + '_' + number++ + '.' + type;
@@ -51,7 +52,8 @@ public class TelegramBotWorkService {
             FileUtils.copyURLToFile(new URL(fileInfo.getFileUrl()), file);
             bot.execute(new SendMessage(fileInfo.getChatId(), "Save file: " + file.getName()));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            bot.execute(new SendMessage(fileInfo.getChatId(), "Save file failed: " + ExceptionUtils.getRootCauseMessage(e)));
+            e.printStackTrace();
         }
     }
 

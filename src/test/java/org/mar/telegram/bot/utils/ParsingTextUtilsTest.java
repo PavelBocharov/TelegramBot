@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mar.telegram.bot.service.jms.URLInfo;
 
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -27,16 +28,16 @@ class ParsingTextUtilsTest {
     @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("argsProviderFactory")
     void whatIsUrl_test(Pair<String, ContentType> testUrl) {
-        Pair<ContentType, String> content = ParsingTextUtils.whatIsUrl(testUrl.getKey());
+        URLInfo content = ParsingTextUtils.whatIsUrl(testUrl.getKey());
 
         assertNotNull(content);
-        assertEquals(testUrl.getValue(), content.getKey());
-        assertFalse(isBlank(content.getValue()));
+        assertEquals(testUrl.getValue(), content.getContentType());
+        assertFalse(isBlank(content.getUrl()));
         if (testUrl.getLeft().equals(GIFV_TEST_URL)) {
-            assertNotEquals(content.getValue(), testUrl.getKey());
-            assertTrue(content.getValue().endsWith(MP4_Type));
+            assertNotEquals(content.getUrl(), testUrl.getKey());
+            assertTrue(content.getUrl().endsWith(MP4_Type));
         } else {
-            assertEquals(content.getValue(), testUrl.getKey());
+            assertEquals(content.getUrl(), testUrl.getKey());
         }
     }
 

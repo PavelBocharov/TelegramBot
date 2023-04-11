@@ -16,4 +16,5 @@ public class LoadFileInfo implements Serializable {
     private String typeDir;
     private String fileName;
     private Long chatId;
+    private String fileType;
 }
