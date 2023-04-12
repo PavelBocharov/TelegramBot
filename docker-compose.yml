@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - "${LOCAL_PC_MOUNT_DIR}:${IMAGE_TEMP_DIR}"
+    tty: true
+    restart: always
+    networks:
+      - bridge
+
+networks:
+  bridge:
+    driver: bridge
