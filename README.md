@@ -21,7 +21,7 @@ Small project for learn etc. and actual skills.
      1) Compile jar - `mvn clean install`
      2) Start app - `java -jar ./target/TelegramBot*.jar`
 ### Docker compose
-1) Set environment in [.end](./.env)
+1) Set environment in [.env](./.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files 
     - `TELEGRAM_BOT_TOKEN` - Telegram Bot token
 2) Start - `docker compose up`
@@ -29,14 +29,14 @@ Small project for learn etc. and actual skills.
 
 ## How to use
 - Start chat with your Bot
-- `Send text` - set file name for next file
-- `Send file` - directory select by type file
+- `Send text` - set file name for next file - [example](#send-text-and-image)
+- `Send file` - directory select by type file - [example](#send-text-and-image)
   - _photos_ - jpg, jpeg, png, bmp
   - _videos_ - mp4
   - _gif_ - gif
   - _document_ -  non compress file
 - `Send URL` - directory select by detected type
-  - By MIME type
+  - By MIME type - [example](#send-url-with-mime-type)
   - If full path has type (_http://test.org/test.png_ -> photos)
     - `.gifv` by [imgur.com](https://imgur.com/) converted to `.mp4`
 
