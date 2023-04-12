@@ -43,7 +43,7 @@ public class TelegramBotWorkService {
                 diskPath = downloadPath + typeDir + "//" + fileName + type;
                 file = new File(diskPath);
                 while (file.exists()) {
-                    diskPath = downloadPath + typeDir + "//" + fileName + '_' + number++ + '.' + type;
+                    diskPath = downloadPath + typeDir + "//" + fileName + '_' + number++ + type;
                     file = new File(diskPath);
                 }
             }
