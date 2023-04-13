@@ -33,14 +33,14 @@ Small project for learn etc. and actual skills.
 
 ## <img src="./src/main/resources/img/icon/direction.png" width="24"/> How to use
 - Start chat with your Bot
-- `Send text` - set file name for next file - [example](#send-text-and-image)
-- `Send file` - directory select by type file - [example](#send-text-and-image)
+- `Send text` - set file name for next file - [example](#-send-text-and-image)
+- `Send file` - directory select by type file - [example](#-send-text-and-image)
   - _photos_ - jpg, jpeg, png, bmp
   - _videos_ - mp4
   - _gif_ - gif
   - _document_ -  non compress file
 - `Send URL` - directory select by detected type
-  - By MIME type - [example](#send-url-with-mime-type)
+  - By MIME type - [example](#-send-url-with-mime-type)
   - If full path has type (_http://test.org/test.png_ -> photos)
     - `.gifv` by [imgur.com](https://imgur.com/) converted to `.mp4`
 
