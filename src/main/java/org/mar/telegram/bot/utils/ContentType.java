@@ -9,7 +9,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum ContentType {
     Text(null),
-    Picture("pictures"),
+    Picture("photos"),
     Video("videos"),
     Gif("gif"),
     Doc("documents");

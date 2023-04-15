@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
-import org.mar.telegram.bot.service.jms.URLInfo;
+import org.mar.telegram.bot.service.jms.dto.URLInfo;
 
 import java.util.Arrays;
 import java.util.List;

@@ -4,7 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mar.telegram.bot.service.jms.URLInfo;
+import org.mar.telegram.bot.service.jms.dto.URLInfo;
 
 import java.util.UUID;
 import java.util.stream.Stream;

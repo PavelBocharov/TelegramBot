@@ -1,4 +1,4 @@
-package org.mar.telegram.bot.service.jms;
+package org.mar.telegram.bot.service.jms.dto;
 
 import lombok.*;
 import org.mar.telegram.bot.utils.ContentType;

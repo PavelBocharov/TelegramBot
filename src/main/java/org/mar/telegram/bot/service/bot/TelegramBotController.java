@@ -13,12 +13,13 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mar.telegram.bot.service.jms.LoadFileInfo;
-import org.mar.telegram.bot.service.jms.OrderSender;
-import org.mar.telegram.bot.service.jms.URLInfo;
+import org.mar.telegram.bot.service.jms.MQSender;
+import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
+import org.mar.telegram.bot.service.jms.dto.URLInfo;
 import org.mar.telegram.bot.utils.ContentType;
 import org.mar.telegram.bot.utils.ParsingTextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,8 @@ public class TelegramBotController {
     private String downloadPath;
 
     @Autowired
-    private OrderSender orderSender;
+    @Qualifier("telegram_bot_sender")
+    private MQSender telegramBotMqSender;
 
     @Autowired
     private TelegramBot bot;
@@ -57,6 +59,7 @@ public class TelegramBotController {
                     parsText(bot, update.message());
                     savePhoto(bot, update.message());
                     saveVideo(bot, update.message());
+                    saveAnimation(bot, update.message());
                     saveDocs(bot, update.message());
                 }
             }
@@ -120,6 +123,11 @@ public class TelegramBotController {
             saveFile(bot, message, message.video().fileId(), ContentType.Video);
         }
     }
+    private void saveAnimation(TelegramBot bot, Message message) {
+        if (message.animation() != null) {
+            saveFile(bot, message, message.animation().fileId(), ContentType.Gif);
+        }
+    }
 
     private void saveFile(TelegramBot bot, Message message, String fileId, ContentType typeDir) {
         GetFile request = new GetFile(fileId);
@@ -154,7 +162,7 @@ public class TelegramBotController {
     }
 
     private void saveToDisk(URLInfo urlInfo, String saveDiskPath, Long chatId) {
-        orderSender.send(LoadFileInfo.builder()
+        telegramBotMqSender.send(LoadFileInfo.builder()
                 .fileUrl(urlInfo.getUrl())
                 .saveToPath(saveDiskPath)
                 .fileName(caption)

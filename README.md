@@ -8,6 +8,7 @@ Small project for learn etc. and actual skills.
 - Spring Boot
 - Artemis MQ
 - Docker/Docker compose
+- Kubernetes
 - Maven
 
 ## <img src="./src/main/resources/img/icon/arrow-right.png" width="24"/> Start application
@@ -27,9 +28,12 @@ Small project for learn etc. and actual skills.
 2) Start - `docker compose up`
 3) Stop - `docker compose down`
 ### <img src="./src/main/resources/img/icon/kubernetes.png" width="16"/> Kubernetes
-1) Set environment in 
-2) Start - 
-3) Stop - 
+0) Install Kubernetes - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**
+1) Build docker image - `docker build -t marolok/telegram_bot:1.0.0 .`
+1) Push docker image - `docker push marolok/telegram_bot:1.0.0`
+2) Set environment in [kube_pod.yaml](./k8s/kube_pod.yaml)
+2) Start - `kubectl apply -f .\k8s\kube_pod.yaml`
+3) Stop - `kubectl delete pod telegram-bot`
 
 ## <img src="./src/main/resources/img/icon/direction.png" width="24"/> How to use
 - Start chat with your Bot
