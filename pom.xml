@@ -25,6 +25,14 @@
         <telegram.bot.api.version>6.5.0</telegram.bot.api.version>
         <commons-io.version>2.11.0</commons-io.version>
         <jsoup.version>1.15.4</jsoup.version>
+
+        <jkube.version>1.12.0</jkube.version>
+        <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>
+
+        <TELEGRAM_BOT_TOKEN>123456789:12312312313123123123123213123123</TELEGRAM_BOT_TOKEN>
+        <IMAGE_TEMP_DIR>/opt/app/temp/</IMAGE_TEMP_DIR>
+        <LOGGER_DIR>/opt/app/temp/logs/</LOGGER_DIR>
+        <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
     </properties>
 
     <dependencies>
@@ -89,6 +97,41 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jkube</groupId>
+                <artifactId>kubernetes-maven-plugin</artifactId>
+                <version>${jkube.version}</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>marolok/telegram-bot:v${project.version}</name>
+                            <alias>telegram-bot</alias>
+                            <build>
+                                <from>eclipse-temurin:17.0.6_10-jre-alpine</from>
+                                <cmd>
+                                    java -jar /maven/${project.artifactId}-${project.version}.jar --spring.profiles.active=dev --logging.file.path=${LOGGER_DIR} --application.bot.token=${TELEGRAM_BOT_TOKEN} --application.bot.directory.path=${IMAGE_TEMP_DIR}
+                                </cmd>
+                            </build>
+                        </image>
+                    </images>
+
+                    <resources>
+                        <controller>
+                            <volumes>
+                                <volume>
+                                    <name>local-dir-val</name>
+                                    <type>hostPath</type>
+                                    <!-- Look path in minikube mount <target directory> -->
+                                    <path>${MOUNT_VM_PATH}</path>
+                                    <mounts>
+                                        <mount>${IMAGE_TEMP_DIR}</mount>
+                                    </mounts>
+                                </volume>
+                            </volumes>
+                        </controller>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
