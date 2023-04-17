@@ -6,10 +6,18 @@ spec:
   containers:
     - name: tbot
       image: marolok/telegram_bot:1.0.0
+      volumeMounts:
+        - mountPath: /opt/app/temp/
+          name: local-dir-val
+          readOnly: false
       envFrom:
         - configMapRef:
             name: telegram-bot-conf
-  restartPolicy: Never
+  restartPolicy: OnFailure
+  volumes:
+    - name: local-dir-val
+      hostPath:
+        path: /local/
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -19,7 +27,6 @@ metadata:
     app: telegram-conf-app-label
     tier: telegram-conf-tier-label
 data:
-  LOCAL_PC_MOUNT_DIR: D:\temp
   TELEGRAM_BOT_TOKEN: 123456789:12312312313123123123123213123123
   IMAGE_TEMP_DIR: /opt/app/temp/
   LOGGER_DIR: /opt/app/temp/logs/
