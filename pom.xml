@@ -114,9 +114,17 @@
                             <alias>telegram-bot</alias>
                             <build>
                                 <from>eclipse-temurin:17.0.6_10-jre-alpine</from>
-                                <cmd>
-                                    java -jar /maven/${project.artifactId}-${project.version}.jar --spring.profiles.active=dev --logging.file.path=${LOGGER_DIR} --application.bot.token=${TELEGRAM_BOT_TOKEN} --application.bot.directory.path=${IMAGE_TEMP_DIR}
-                                </cmd>
+                                <entryPoint>
+                                    <exec>
+                                        <arg>java</arg>
+                                        <arg>-jar</arg>
+                                        <arg>/maven/${project.artifactId}-${project.version}.jar</arg>
+                                        <arg>--spring.profiles.active=production</arg>
+                                        <arg>--logging.file.path=${LOGGER_DIR}</arg>
+                                        <arg>--application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>
+                                        <arg>--application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>
+                                    </exec>
+                                </entryPoint>
                             </build>
                         </image>
                     </images>
