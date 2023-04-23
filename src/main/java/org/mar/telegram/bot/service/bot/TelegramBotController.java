@@ -13,6 +13,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.mar.telegram.bot.cache.BotCache;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
@@ -32,14 +33,15 @@ import static java.lang.String.format;
 @Service
 public class TelegramBotController {
 
-    private static String caption = null;
-
     @Value("${application.bot.directory.path}")
     private String downloadPath;
 
     @Autowired
     @Qualifier("telegram_bot_sender")
     private MQSender telegramBotMqSender;
+
+    @Autowired
+    private BotCache cache;
 
     @Autowired
     private TelegramBot bot;
@@ -75,8 +77,8 @@ public class TelegramBotController {
                     return;
                 }
 
-                caption = text;
-                bot.execute(new SendMessage(message.chat().id(), "New caption - " + caption));
+                cache.setFileName(message.chat().id(), text);
+                bot.execute(new SendMessage(message.chat().id(), "New caption - " + text));
             }
         }
     }
@@ -165,7 +167,7 @@ public class TelegramBotController {
         telegramBotMqSender.send(LoadFileInfo.builder()
                 .fileUrl(urlInfo.getUrl())
                 .saveToPath(saveDiskPath)
-                .fileName(caption)
+                .fileName(cache.getFileName(chatId))
                 .typeDir(urlInfo.getContentType().getTypeDit())
                 .chatId(chatId)
                 .fileType(urlInfo.getFileType())

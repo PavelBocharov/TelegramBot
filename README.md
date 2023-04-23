@@ -24,7 +24,8 @@ Small project for learn etc. and actual skills.
      2) Start app - `java -jar ./target/TelegramBot*.jar`
 
 ### <img src="./src/main/resources/img/icon/docker-icon.png" width="16"/> Docker compose
-1) Set environment in [.env](./.env)
+1) Build JAR - `mvn clean install`
+2) Set environment in [.env](./.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files 
     - `TELEGRAM_BOT_TOKEN` - Telegram Bot token
 2) Start - `docker compose up`

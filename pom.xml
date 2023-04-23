@@ -25,6 +25,8 @@
         <telegram.bot.api.version>6.5.0</telegram.bot.api.version>
         <commons-io.version>2.11.0</commons-io.version>
         <jsoup.version>1.15.4</jsoup.version>
+        <ehcache.version>3.10.8</ehcache.version>
+        <jredis.version>5.0.0-alpha1</jredis.version>
 
         <jkube.version>1.12.0</jkube.version>
         <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>
@@ -33,6 +35,7 @@
         <IMAGE_TEMP_DIR>/opt/app/temp/</IMAGE_TEMP_DIR>
         <LOGGER_DIR>/opt/app/temp/logs/</LOGGER_DIR>
         <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
+        <LOCAL_PC_MOUNT_DIR>D:/temp/</LOCAL_PC_MOUNT_DIR>
     </properties>
 
     <dependencies>
@@ -47,6 +50,16 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
             <version>${spring.starter.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+            <version>${spring.starter.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <version>${spring.starter.version}</version>
+        </dependency>
 
         <!--    MQ    -->
         <dependency>
@@ -59,7 +72,6 @@
             <artifactId>artemis-jms-server</artifactId>
             <version>${artemis.jms.serve.version}</version>
         </dependency>
-
 
         <!--    UTILS    -->
         <dependency>
@@ -86,7 +98,17 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
-
+        <!--    Cache    -->
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${ehcache.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jredis.version}</version>
+        </dependency>
 
         <!--    TEST    -->
         <dependency>

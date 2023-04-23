@@ -15,6 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Slf4j
 @Service
 public class TelegramBotWorkService {
@@ -32,7 +34,7 @@ public class TelegramBotWorkService {
             String caption = fileInfo.getFileName();
             String typeDir = fileInfo.getTypeDir();
             int number = 0;
-            if (caption != null && !caption.isEmpty()) {
+            if (isNotBlank(caption)) {
                 String type = fileInfo.getFileType() == null ? '.' + FilenameUtils.getExtension(file.getName()) : fileInfo.getFileType();
                 String fileName = null;
                 String[] aStr = caption.split("\n");
