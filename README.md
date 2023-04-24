@@ -1,7 +1,7 @@
 # <img src="./src/main/resources/img/icon/bot.png" width="32"/> TelegramBot
 Small project for learn etc. and actual skills.
 
-<img src="./src/main/resources/img/telegram.jpg" width="" height="512"/>
+<img src="./src/main/resources/img/telegram.jpg" width="" height="512" alt="Art by Olena Yemelianova"/>
 
 ## <img src="./src/main/resources/img/icon/roadmap.png" width="24"/> Project stack
 - Java 17
@@ -11,6 +11,7 @@ Small project for learn etc. and actual skills.
 - Docker/Docker compose
 - Kubernetes
 - Eclipse JKube - Maven plugin for work with Docker/Kubernetes
+- Cache - Ehcache (for local) & Redis (for Docker)
 
 ## <img src="./src/main/resources/img/icon/arrow-right.png" width="24"/> Start application
 ### <img src="./src/main/resources/img/icon/spring.png" width="16"/> Spring Boot application
