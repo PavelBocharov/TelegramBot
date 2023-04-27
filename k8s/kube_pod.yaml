@@ -1,32 +1,66 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: telegram-bot
+  name: telegram-bot-deployment
 spec:
-  containers:
-    - name: tbot
-      image: marolok/telegram_bot:1.0.0
-      volumeMounts:
-        - mountPath: /opt/app/temp/
-          name: local-dir-val
-          readOnly: false
-      envFrom:
-        - configMapRef:
-            name: telegram-bot-conf
-  restartPolicy: OnFailure
-  volumes:
-    - name: local-dir-val
-      hostPath:
-        path: /local/
+  selector:
+    matchLabels:
+      app: telegram-bot-deployment
+  template:
+    metadata:
+      labels:
+        app: telegram-bot-deployment
+    spec:
+      containers:
+        - name: tbot
+          image: marolok/telegram-bot:1.0.0
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /opt/app/temp/
+              name: local-dir-val
+              readOnly: false
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
+      volumes:
+        - name: local-dir-val
+          hostPath:
+            path: /local/
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  selector:
+    matchLabels:
+      app: redis-deployment
+  template:
+    metadata:
+      labels:
+        app: redis-deployment
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /srv/www
+              name: redis-storage
+      volumes:
+        - name: redis-storage
+          emptyDir: {}
+
 ---
 apiVersion: v1
-kind: ConfigMap
+kind: Service
 metadata:
-  name: telegram-bot-conf
-  labels:
-    app: telegram-conf-app-label
-    tier: telegram-conf-tier-label
-data:
-  TELEGRAM_BOT_TOKEN: 123456789:12312312313123123123123213123123
-  IMAGE_TEMP_DIR: /opt/app/temp/
-  LOGGER_DIR: /opt/app/temp/logs/
+  name: redis-service
+spec:
+  ports:
+    - port: 6379
+      targetPort: 6379
+  selector:
+    app: redis-deployment

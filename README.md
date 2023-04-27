@@ -43,6 +43,7 @@ Small project for learn etc. and actual skills.
 * Build docker image - `docker build -t marolok/telegram_bot:1.0.0 .`
 * Push docker image - `docker push marolok/telegram_bot:1.0.0`
 * Set environment in [kube_pod.yaml](./k8s/kube_pod.yaml) - use mount target directory from `Start Minikube`
+* Init config - `kubectl apply -f .\k8s\kube_config.yaml`
 * Start - `kubectl apply -f .\k8s\kube_pod.yaml`
 * Stop - `kubectl delete pod telegram-bot`
 
