@@ -36,6 +36,8 @@
         <LOGGER_DIR>/opt/app/temp/logs/</LOGGER_DIR>
         <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
         <LOCAL_PC_MOUNT_DIR>D:/temp/</LOCAL_PC_MOUNT_DIR>
+        <REDIS_HOST>redis_temp</REDIS_HOST>
+        <REDIS_PORT>6379</REDIS_PORT>
     </properties>
 
     <dependencies>
