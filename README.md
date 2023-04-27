@@ -47,7 +47,7 @@ Small project for learn etc. and actual skills.
 * Start - `kubectl apply -f .\k8s\kube_pod.yaml`
 * Stop - `kubectl delete pod telegram-bot`
 
-#### <img src="./src/main/resources/img/icon/jkube.png" width="20"/> Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT STABLE⚠️
+#### <img src="./src/main/resources/img/icon/jkube.png" width="20"/> 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT STABLE⚠️
 * Set environment in [pom.xml](./pom.xml) - use mount target directory from `Start Minikube`
 * Package application - `mvn clean package`
 * Build Docker image - `mvn k8s:build`
