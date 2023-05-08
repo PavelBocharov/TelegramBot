@@ -21,23 +21,30 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <spring.starter.version>${parent.version}</spring.starter.version>
-        <artemis.jms.serve.version>2.28.0</artemis.jms.serve.version>
         <telegram.bot.api.version>6.5.0</telegram.bot.api.version>
+        <!--    Utils    -->
         <commons-io.version>2.11.0</commons-io.version>
         <jsoup.version>1.15.4</jsoup.version>
+        <!--    Cache    -->
         <ehcache.version>3.10.8</ehcache.version>
         <jredis.version>5.0.0-alpha1</jredis.version>
+        <!--    MQ    -->
+        <artemis.jms.serve.version>2.28.0</artemis.jms.serve.version>
+        <spring.kafka.version>3.0.6</spring.kafka.version>
+        <kafka.client.version>3.4.0</kafka.client.version>
 
         <jkube.version>1.12.0</jkube.version>
         <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>
-
+        <!--    User's    -->
         <TELEGRAM_BOT_TOKEN>123456789:12312312313123123123123213123123</TELEGRAM_BOT_TOKEN>
-        <IMAGE_TEMP_DIR>/opt/app/temp/</IMAGE_TEMP_DIR>
-        <LOGGER_DIR>/opt/app/temp/logs/</LOGGER_DIR>
-        <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
         <LOCAL_PC_MOUNT_DIR>D:/temp/</LOCAL_PC_MOUNT_DIR>
-        <REDIS_HOST>redis_temp</REDIS_HOST>
+        <!--    Tech    -->
+        <IMAGE_TEMP_DIR>/opt/app/temp/</IMAGE_TEMP_DIR>
+        <REDIS_HOST>redis</REDIS_HOST>
         <REDIS_PORT>6379</REDIS_PORT>
+        <KAFKA_BOOTSTRAP>kafka:9092</KAFKA_BOOTSTRAP>
+        <!--    JKube    -->
+        <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
     </properties>
 
     <dependencies>
@@ -73,6 +80,16 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-jms-server</artifactId>
             <version>${artemis.jms.serve.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>${spring.kafka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.client.version}</version>
         </dependency>
 
         <!--    UTILS    -->
@@ -144,7 +161,6 @@
                                         <arg>-jar</arg>
                                         <arg>/maven/${project.artifactId}-${project.version}.jar</arg>
                                         <arg>--spring.profiles.active=production</arg>
-                                        <arg>--logging.file.path=${LOGGER_DIR}</arg>
                                         <arg>--application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>
                                         <arg>--application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>
                                     </exec>

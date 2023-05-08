@@ -8,6 +8,5 @@ metadata:
 data:
   TELEGRAM_BOT_TOKEN: '123456789:12312312313123123123123213123123'
   IMAGE_TEMP_DIR: '/opt/app/temp/'
-  LOGGER_DIR: '/opt/app/temp/logs/'
   REDIS_HOST: 'redis-service'
   REDIS_PORT: '6379'

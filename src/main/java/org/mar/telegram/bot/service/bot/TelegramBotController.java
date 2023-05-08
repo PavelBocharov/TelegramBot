@@ -20,7 +20,6 @@ import org.mar.telegram.bot.service.jms.dto.URLInfo;
 import org.mar.telegram.bot.utils.ContentType;
 import org.mar.telegram.bot.utils.ParsingTextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +36,7 @@ public class TelegramBotController {
     private String downloadPath;
 
     @Autowired
-    @Qualifier("telegram_bot_sender")
-    private MQSender telegramBotMqSender;
+    private MQSender<LoadFileInfo> telegramBotMqSender;
 
     @Autowired
     private BotCache cache;

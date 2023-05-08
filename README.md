@@ -4,14 +4,20 @@ Small project for learn etc. and actual skills.
 <img src="./src/main/resources/img/telegram.jpg" width="" height="512" alt="Art by Olena Yemelianova"/>
 
 ## <img src="./src/main/resources/img/icon/roadmap.png" width="24"/> Project stack
-- Java 17
-- Spring Boot
-- Apache Maven
-- Apache Artemis MQ (Active MQ)
-- Docker/Docker compose
-- Kubernetes
-- Eclipse JKube - Maven plugin for work with Docker/Kubernetes
-- Cache - Ehcache (for local) & Redis (for Docker)
+- Language - Java 17
+- Framework - Spring Boot
+- Build - [Apache Maven](https://maven.apache.org/)
+- MQ
+  - Local - [Apache Artemis MQ (Active MQ)](https://activemq.apache.org/components/artemis/)
+  - Docker - [Apache Kafka](https://kafka.apache.org/)
+- Image
+  - Docker/Docker compose
+  - Kubernetes
+    - Classic [.yaml](https://kubernetes.io/docs/home/)
+    - Maven - [Eclipse JKube](https://www.eclipse.org/jkube/)
+- Cache
+  - Local - [Ehcache](https://www.ehcache.org/)
+  - Docker - [Redis](https://redis.io/)
 
 ## <img src="./src/main/resources/img/icon/arrow-right.png" width="24"/> Start application
 ### <img src="./src/main/resources/img/icon/spring.png" width="16"/> Spring Boot application
@@ -25,6 +31,7 @@ Small project for learn etc. and actual skills.
      2) Start app - `java -jar ./target/TelegramBot*.jar`
 
 ### <img src="./src/main/resources/img/icon/docker-icon.png" width="16"/> Docker compose
+0) [Start info](https://www.baeldung.com/ops/docker-compose)
 1) Build JAR - `mvn clean install`
 2) Set environment in [.env](./.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files 
