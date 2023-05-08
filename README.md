@@ -3,6 +3,10 @@ Small project for learn etc. and actual skills.
 
 <img src="./src/main/resources/img/telegram.jpg" width="" height="512" alt="Art by Olena Yemelianova"/>
 
+## Links
+* [Docker HUB](https://hub.docker.com/repository/docker/marolok/telegram_bot/general)
+* [GitHub](https://github.com/PavelBocharov/TelegramBot)
+
 ## <img src="./src/main/resources/img/icon/roadmap.png" width="24"/> Project stack
 - Language - Java 17
 - Framework - Spring Boot
