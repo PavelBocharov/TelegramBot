@@ -1,7 +1,8 @@
 # <img src="./src/main/resources/img/icon/bot.png" width="32"/> TelegramBot
 Small project for learn etc. and actual skills.
 
-<img src="./src/main/resources/img/telegram.jpg" width="" height="512" alt="Art by Olena Yemelianova"/>
+<img src="./src/main/resources/img/telegram.jpg" width="" height="512" alt="Art by Olena Yemelianova"/></br><sup><sub>Art by Olena Yemelianova</sub></sup>
+
 
 ## Links
 * [Docker HUB](https://hub.docker.com/repository/docker/marolok/telegram_bot/general)
