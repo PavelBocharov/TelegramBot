@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.mar.telegram.bot.db.entity.PostInfo;
+import org.mar.telegram.bot.db.service.PostInfoService;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +28,9 @@ public class TelegramBotWorkService {
 
     @Autowired
     private TelegramBot bot;
+
+    @Autowired
+    private PostInfoService postInfoService;
 
     public void work(LoadFileInfo fileInfo) {
         String diskPath = fileInfo.getSaveToPath();
@@ -52,6 +57,12 @@ public class TelegramBotWorkService {
 
             log.info("File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
             FileUtils.copyURLToFile(new URL(fileInfo.getFileUrl()), file);
+
+            PostInfo postInfo = postInfoService.getNotSendPost();
+            postInfo.setMediaPath(diskPath);
+            postInfo.setType(fileInfo.getMediaType());
+            postInfoService.save(postInfo);
+
             bot.execute(new SendMessage(fileInfo.getChatId(), "Save file: " + file.getName()));
         } catch (IOException e) {
             bot.execute(new SendMessage(fileInfo.getChatId(), "Save file failed: " + ExceptionUtils.getRootCauseMessage(e)));

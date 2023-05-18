@@ -1,6 +1,7 @@
 package org.mar.telegram.bot.service.jms.dto;
 
 import lombok.*;
+import org.mar.telegram.bot.utils.ContentType;
 
 import java.io.Serializable;
 
@@ -17,4 +18,5 @@ public class LoadFileInfo implements Serializable {
     private String fileName;
     private Long chatId;
     private String fileType;
+    private ContentType mediaType;
 }

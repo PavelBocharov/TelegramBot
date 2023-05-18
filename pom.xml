@@ -15,6 +15,24 @@
     <artifactId>TelegramBot</artifactId>
     <version>1.0.0</version>
 
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>local</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>image</id>
+            <properties>
+                <spring.profiles.active>image</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -37,6 +55,8 @@
         <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>
         <!--    User's    -->
         <TELEGRAM_BOT_TOKEN>123456789:12312312313123123123123213123123</TELEGRAM_BOT_TOKEN>
+        <!--    Look from bot - @username_to_id_bot   -->
+        <GROUP_CHAT_ID>Long</GROUP_CHAT_ID>
         <LOCAL_PC_MOUNT_DIR>D:/temp/</LOCAL_PC_MOUNT_DIR>
         <!--    Tech    -->
         <IMAGE_TEMP_DIR>/opt/app/temp/</IMAGE_TEMP_DIR>
@@ -92,6 +112,20 @@
             <version>${kafka.client.version}</version>
         </dependency>
 
+        <!--    JPA    -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+        </dependency>
+
         <!--    UTILS    -->
         <dependency>
             <groupId>com.github.pengrad</groupId>
@@ -139,6 +173,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
