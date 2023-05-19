@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface PostInfoRepository  extends JpaRepository<PostInfo, Long> {
 
     PostInfo getByIsSend(Boolean isSend);
+    PostInfo getByChatIdAndMessageId(Long chatId, Integer messageId);
 
 }

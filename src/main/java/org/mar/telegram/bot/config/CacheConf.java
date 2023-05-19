@@ -25,7 +25,7 @@ public class CacheConf {
     private Integer redisPort;
 
     @Bean
-    @Profile("!image")
+    @Profile("local")
     public CacheManager getEhcacheManager() {
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder().build();
         cacheManager.init();
@@ -33,7 +33,7 @@ public class CacheConf {
     }
 
     @Bean
-    @Profile("!image")
+    @Profile("local")
     public Ehcache<Long, String> getFileNameCache(@Autowired CacheManager cacheManager) {
         Ehcache<Long, String> rez = (Ehcache<Long, String>) cacheManager.createCache(FILENAME_CACHE, CacheConfigurationBuilder
                 .newCacheConfigurationBuilder(

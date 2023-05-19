@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.utils;
 
+import com.pengrad.telegrambot.model.PhotoSize;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -13,9 +14,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mar.telegram.bot.utils.ContentType.*;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @UtilityClass
-public class ParsingTextUtils {
+public class Utils {
 
     public static final String IMGUR_URL = "https://i.imgur.com/";
     public static final String IMGUR_GIFV_TYPE = ".gifv";
@@ -59,10 +61,7 @@ public class ParsingTextUtils {
         if (PICTURE_Type_List.contains(type)) {
             return URLInfo.builder().contentType(Picture).url(url).build();
         }
-        if ((rez = itsImgurHosting(url)) != null
-                || (rez = itsXVideoHosting(url)) != null
-                || (rez = itsRedGifHosting(url)) != null
-        ) {
+        if ((rez = itsImgurHosting(url)) != null) {
             return rez;
         }
 
@@ -110,14 +109,20 @@ public class ParsingTextUtils {
         return null;
     }
 
-    private static URLInfo itsXVideoHosting(String url) {
-        // TODO Load from XVideo
-        return null;
-    }
+    public static PhotoSize getMaxPhotoSize(PhotoSize... photoSizes) {
+        if (isEmpty(photoSizes)) return null;
 
-    private static URLInfo itsRedGifHosting(String url) {
-        // TODO Load from RedGif
-        return null;
+        PhotoSize ps = null;
+        for (PhotoSize photoSize : photoSizes) {
+            if (ps == null) {
+                ps = photoSize;
+            } else {
+                if (ps.fileSize() < photoSize.fileSize()) {
+                    ps = photoSize;
+                }
+            }
+        }
+        return ps;
     }
 
 }

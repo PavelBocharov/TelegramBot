@@ -7,12 +7,13 @@ import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.db.entity.PostInfo;
-import org.mar.telegram.bot.db.service.PostInfoService;
+import org.mar.telegram.bot.service.bot.db.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Slf4j
@@ -22,7 +23,7 @@ public class BotExecutor {
     @Autowired
     private TelegramBot bot;
     @Autowired
-    private PostInfoService postInfoService;
+    private PostService postService;
 
     public BaseResponse execute(BaseRequest sendMessage) {
         return execute(
@@ -31,17 +32,15 @@ public class BotExecutor {
                     if (!baseResponse.isOk()) {
                         log.error(baseResponse.description());
                     } else {
-                        log.debug("Send message params: {}", sendMessage.getParameters());
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
-                            log.debug("Send message RS: {}", rs);
-                            if (nonNull(rs.message())) {
-                                PostInfo postInfo = postInfoService.getNotSendPost();
+                            if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
+                                PostInfo postInfo = postService.getNotSendPost();
 
                                 postInfo.setMessageId(rs.message().messageId());
                                 postInfo.setChatId(rs.message().chat().id());
 
-                                postInfoService.save(postInfo);
+                                postService.save(postInfo);
                             }
                         }
                     }

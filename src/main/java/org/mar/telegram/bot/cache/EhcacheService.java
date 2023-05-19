@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("!image")
+@Profile("local")
 public class EhcacheService implements BotCache {
 
     @Autowired

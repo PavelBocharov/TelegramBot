@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mar.telegram.bot.utils.ParsingTextUtils.MP4_Type;
+import static org.mar.telegram.bot.utils.Utils.MP4_Type;
 
 class ParsingTextUtilsTest {
 
@@ -28,7 +28,7 @@ class ParsingTextUtilsTest {
     @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("argsProviderFactory")
     void whatIsUrl_test(Pair<String, ContentType> testUrl) {
-        URLInfo content = ParsingTextUtils.whatIsUrl(testUrl.getKey());
+        URLInfo content = Utils.whatIsUrl(testUrl.getKey());
 
         assertNotNull(content);
         assertEquals(testUrl.getValue(), content.getContentType());
