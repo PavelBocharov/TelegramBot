@@ -6,7 +6,7 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mar.telegram.bot.db.entity.PostInfo;
+import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class BotExecutor {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
-                                PostInfo postInfo = postService.getNotSendPost();
+                                PostInfoDto postInfo = postService.getNotSendPost();
 
                                 postInfo.setMessageId(rs.message().messageId());
                                 postInfo.setChatId(rs.message().chat().id());

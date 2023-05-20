@@ -1,11 +1,11 @@
 package org.mar.telegram.bot.service.bot.db;
 
-import org.mar.telegram.bot.db.entity.PostInfo;
+import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
 
 public interface PostService {
 
-    PostInfo getNotSendPost();
-    PostInfo save(PostInfo postInfo);
-    PostInfo getByChatIdAndMessageId(Long chatId, Integer messageId);
+    PostInfoDto getNotSendPost();
+    PostInfoDto save(PostInfoDto postInfo);
+    PostInfoDto getByChatIdAndMessageId(Long chatId, Integer messageId);
 
 }

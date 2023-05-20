@@ -5,7 +5,7 @@ import com.pengrad.telegrambot.model.Update;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mar.telegram.bot.db.service.UserInfoService;
+import org.mar.telegram.bot.service.bot.db.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -17,7 +17,7 @@ import java.util.List;
 public class TelegramBotController extends TelegramBotUtils {
 
     @Autowired
-    private UserInfoService userInfoService;
+    private UserService userInfoService;
 
     @PostConstruct
     public void postInit() {

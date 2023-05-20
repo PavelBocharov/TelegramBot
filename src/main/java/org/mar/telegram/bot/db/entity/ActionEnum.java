@@ -17,9 +17,9 @@ public enum ActionEnum {
     private String code;
     private String callbackData;
 
-    public static ActionEnum getActionByCode(String code) {
+    public static ActionEnum getActionByCallbackData(Object callbackData) {
         return Arrays.stream(ActionEnum.values())
-                .filter(actionEnum -> actionEnum.getCallbackData().equals(code))
+                .filter(actionEnum -> actionEnum.getCallbackData().equals(callbackData))
                 .findFirst()
                 .get();
     }

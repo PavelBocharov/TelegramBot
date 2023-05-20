@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.cache.BotCache;
-import org.mar.telegram.bot.db.entity.PostInfo;
-import org.mar.telegram.bot.db.service.PostInfoService;
+import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
+import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
@@ -49,7 +49,7 @@ public class TelegramBotUtils {
     @Autowired
     protected BotExecutor botExecutor;
     @Autowired
-    protected PostInfoService postInfoService;
+    protected PostService postInfoService;
     
     protected MessageStatus createMessageStatus(Update update) {
         if (nonNull(update)) {
@@ -98,7 +98,7 @@ public class TelegramBotUtils {
         if (text.startsWith(ACTION_CAPTION)) {
             String caption = text.substring(ACTION_CAPTION.length()).trim();
             if (isNotBlank(caption)) {
-                PostInfo postInfo = postInfoService.getNotSendPost();
+                PostInfoDto postInfo = postInfoService.getNotSendPost();
                 postInfo.setCaption(caption);
                 postInfoService.save(postInfo);
             } else {
@@ -107,7 +107,7 @@ public class TelegramBotUtils {
             return true;
         }
         if (text.equals(ACTION_SEND_POST)) {
-            PostInfo postInfo = postInfoService.getNotSendPost();
+            PostInfoDto postInfo = postInfoService.getNotSendPost();
 
             if (isNotBlank(postInfo.getMediaPath())) {
                 callbackDataService.sendPost(groupChatId, postInfo);

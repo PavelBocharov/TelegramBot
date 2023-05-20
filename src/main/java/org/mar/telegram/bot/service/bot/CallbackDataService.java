@@ -9,11 +9,10 @@ import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.mar.telegram.bot.db.entity.ActionEnum;
-import org.mar.telegram.bot.db.entity.ActionPost;
-import org.mar.telegram.bot.db.entity.PostInfo;
-import org.mar.telegram.bot.db.entity.UserInfo;
+import org.mar.telegram.bot.db.service.image.dto.ActionPostDto;
+import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
+import org.mar.telegram.bot.db.service.image.dto.UserDto;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
@@ -22,13 +21,16 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.UUID;
+import java.net.URLConnection;
+import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.mar.telegram.bot.db.entity.ActionEnum.*;
+import static org.mar.telegram.bot.utils.ContentType.*;
 import static org.mar.telegram.bot.utils.Utils.getMaxPhotoSize;
 
 @Slf4j
@@ -50,11 +52,11 @@ public class CallbackDataService {
             Long userId = callbackQuery.from().id();
 
             // create/update user action
-            PostInfo postInfo = postService.getByChatIdAndMessageId(chatId, messageId);
-            UserInfo user = userService.getByUserId(userId);
+            PostInfoDto postInfo = postService.getByChatIdAndMessageId(chatId, messageId);
+            UserDto user = userService.getByUserId(userId);
 
-            ActionPost actionPost = actionService.getByPostIdAndUserInfoId(postInfo, user);
-            actionPost.setAction(ActionEnum.getActionByCode(callbackQuery.data()));
+            ActionPostDto actionPost = actionService.getByPostIdAndUserInfoId(postInfo.getId(), user.getId());
+            actionPost.setActionCallbackData(callbackQuery.data());
             actionService.save(actionPost);
 
             InputMedia media = getInputMedia(callbackQuery.message());
@@ -67,8 +69,9 @@ public class CallbackDataService {
         return false;
     }
 
-    public void sendPost(Long groupChatID, PostInfo postInfo) {
-        switch (postInfo.getType()) {
+    public void sendPost(Long groupChatID, PostInfoDto postInfo) {
+        ContentType postType = ContentType.getTypeByDir(postInfo.getTypeDir());
+        switch (postType) {
             case Video -> {
                 sendVideoPost(groupChatID, postInfo);
                 break;
@@ -84,21 +87,21 @@ public class CallbackDataService {
         }
     }
 
-    private void sendVideoPost(Long chatId, PostInfo postInfo) {
+    private void sendVideoPost(Long chatId, PostInfoDto postInfo) {
         SendVideo msg = new SendVideo(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
         botExecutor.execute(msg);
     }
 
-    private void sendGifPost(Long chatId, PostInfo postInfo) {
+    private void sendGifPost(Long chatId, PostInfoDto postInfo) {
         SendAnimation msg = new SendAnimation(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
         botExecutor.execute(msg);
     }
 
-    private void sendPhotoPost(Long chatId, PostInfo postInfo) {
+    private void sendPhotoPost(Long chatId, PostInfoDto postInfo) {
         SendPhoto msg = new SendPhoto(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
@@ -111,18 +114,18 @@ public class CallbackDataService {
 
         if (nonNull(msg.video())) {
             request = new GetFile(msg.video().fileId());
-            type = ContentType.Video;
+            type = Video;
         } else if (nonNull(msg.animation())) {
             request = new GetFile(msg.animation().fileId());
-            type = ContentType.Gif;
+            type = Gif;
         } else if (nonNull(msg.document())) {
             request = new GetFile(msg.document().fileId());
-            type = ContentType.Gif;
+            type = Gif;
         } else if (nonNull(msg.photo())) {
             PhotoSize ps = getMaxPhotoSize(msg.photo());
             if (nonNull(ps)) {
                 request = new GetFile(ps.fileId());
-                type = ContentType.Picture;
+                type = Picture;
             }
         }
 
@@ -136,17 +139,14 @@ public class CallbackDataService {
     }
 
     private InputMedia getInputMedia(String filePath, ContentType mediaType, String caption) {
-        byte[] mediaFile;
-        File file;
         try {
-            file = new File(UUID.randomUUID().toString());
-            FileUtils.copyURLToFile(new URL(filePath), file);
-            mediaFile = FileUtils.readFileToByteArray(file);
+            URLConnection connection = new URL(filePath).openConnection();
+            InputStream byteStream = connection.getInputStream();
+            byte[] allB = byteStream.readAllBytes();
+            byteStream.close();
 
-            InputMedia inputMedia = getInputMediaByType(mediaType, mediaFile);
+            InputMedia inputMedia = getInputMediaByType(mediaType, allB);
             inputMedia.caption(caption);
-
-            FileUtils.delete(file);
             return inputMedia;
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
@@ -171,18 +171,23 @@ public class CallbackDataService {
     }
 
     private InlineKeyboardMarkup getReplyKeyboard(Long postId) {
+        Map<ActionEnum, Long> actionCountMap = actionService.countByPostIdAndAction(postId);
+
         return new InlineKeyboardMarkup(
                 new InlineKeyboardButton[]{
-                        new InlineKeyboardButton(getButtonCaption(FIRE_HEART, postId)).callbackData(FIRE_HEART.getCallbackData()),
-                        new InlineKeyboardButton(getButtonCaption(DEVIL, postId)).callbackData(DEVIL.getCallbackData()),
-                        new InlineKeyboardButton(getButtonCaption(COOL, postId)).callbackData(COOL.getCallbackData()),
-                        new InlineKeyboardButton(getButtonCaption(BORING, postId)).callbackData(BORING.getCallbackData())
+                        new InlineKeyboardButton(getButtonCaption(FIRE_HEART, actionCountMap))
+                                .callbackData(FIRE_HEART.getCallbackData()),
+                        new InlineKeyboardButton(getButtonCaption(DEVIL, actionCountMap))
+                                .callbackData(DEVIL.getCallbackData()),
+                        new InlineKeyboardButton(getButtonCaption(COOL, actionCountMap))
+                                .callbackData(COOL.getCallbackData()),
+                        new InlineKeyboardButton(getButtonCaption(BORING, actionCountMap))
+                                .callbackData(BORING.getCallbackData())
                 });
     }
 
-    private String getButtonCaption(ActionEnum actionEnum, Long postId) {
-        Long count = actionService.countByPostIdAndAction(postId, actionEnum);
-
+    private String getButtonCaption(ActionEnum actionEnum, Map<ActionEnum, Long> actionCountMap) {
+        Long count = actionCountMap.get(actionEnum);
         return nonNull(count) && count > 0
                 ? actionEnum.getCode() + " " + count
                 : actionEnum.getCode();
