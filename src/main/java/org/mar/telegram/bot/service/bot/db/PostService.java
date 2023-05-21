@@ -1,6 +1,6 @@
 package org.mar.telegram.bot.service.bot.db;
 
-import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 
 public interface PostService {
 

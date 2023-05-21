@@ -10,6 +10,7 @@ services:
     depends_on:
       - redis
       - kafka
+      - tbotdb
     volumes:
       - "${LOCAL_PC_MOUNT_DIR}:${IMAGE_TEMP_DIR}"
     tty: true
@@ -46,9 +47,31 @@ services:
       - bridge
     env_file:
       - .env
+  tbotdb:
+    image: marolok/telegram_db:1.0.0
+    env_file:
+      - .env
+    depends_on:
+      - pgsql
+    tty: true
+    restart: always
+    networks:
+      - bridge
+      - pgnet
+  pgsql:
+    image: postgres:14
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - pgnet
+    volumes:
+      - "${LOCAL_PC_MOUNT_DIR}/pg:/var/lib/postgresql/data"
 volumes:
   cache:
     driver: local
 networks:
   bridge:
     driver: bridge
+  pgnet:
+    external: false

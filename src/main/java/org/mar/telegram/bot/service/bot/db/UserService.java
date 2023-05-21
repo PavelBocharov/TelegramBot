@@ -1,6 +1,6 @@
 package org.mar.telegram.bot.service.bot.db;
 
-import org.mar.telegram.bot.db.service.image.dto.UserDto;
+import org.mar.telegram.bot.service.db.dto.UserDto;
 
 public interface UserService {
     UserDto getByUserId(long userId);

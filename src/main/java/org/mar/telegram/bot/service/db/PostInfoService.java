@@ -1,9 +1,8 @@
-package org.mar.telegram.bot.db.service.image;
+package org.mar.telegram.bot.service.db;
 
-import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
 import org.mar.telegram.bot.service.bot.db.PostService;
+import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,7 +11,6 @@ import reactor.core.publisher.Mono;
 import static java.util.Objects.isNull;
 
 @Service
-@Profile("local")
 public class PostInfoService implements PostService {
 
     @Value("${application.bot.db.url}")
@@ -35,7 +33,7 @@ public class PostInfoService implements PostService {
 
     public PostInfoDto save(PostInfoDto postInfo) {
         return webClient.post()
-                .uri(dbUrl+ "/postinfo")
+                .uri(dbUrl + "/postinfo")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(postInfo), PostInfoDto.class)
                 .retrieve()

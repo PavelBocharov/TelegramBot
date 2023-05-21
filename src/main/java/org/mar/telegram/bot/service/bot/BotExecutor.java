@@ -6,8 +6,8 @@ import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
 import org.mar.telegram.bot.service.bot.db.PostService;
+import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -9,13 +9,13 @@ import com.pengrad.telegrambot.request.*;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mar.telegram.bot.db.entity.ActionEnum;
-import org.mar.telegram.bot.db.service.image.dto.ActionPostDto;
-import org.mar.telegram.bot.db.service.image.dto.PostInfoDto;
-import org.mar.telegram.bot.db.service.image.dto.UserDto;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
+import org.mar.telegram.bot.service.db.dto.ActionEnum;
+import org.mar.telegram.bot.service.db.dto.ActionPostDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.UserDto;
 import org.mar.telegram.bot.utils.ContentType;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.mar.telegram.bot.db.entity.ActionEnum.*;
+import static org.mar.telegram.bot.service.db.dto.ActionEnum.*;
 import static org.mar.telegram.bot.utils.ContentType.*;
 import static org.mar.telegram.bot.utils.Utils.getMaxPhotoSize;
 

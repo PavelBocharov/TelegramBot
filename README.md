@@ -23,12 +23,17 @@ Small project for learn etc. and actual skills.
 - Cache
   - Local - [Ehcache](https://www.ehcache.org/)
   - Docker - [Redis](https://redis.io/)
+- DataBase
+  - [TelegramDB](https://github.com/PavelBocharov/TelegramDB) (WebFlux + PostgreSQL)
 
 ## <img src="./src/main/resources/img/icon/arrow-right.png" width="24"/> Start application
 ### <img src="./src/main/resources/img/icon/spring.png" width="16"/> Spring Boot application
-1) Set environment in [application.properties](./src/main/resources/application.properties):
+1) Start [TelegramDB](https://github.com/PavelBocharov/TelegramDB)
+2) Set environment in [application.properties](./src/main/resources/application.properties):
    - `application.bot.token` - Telegram Bot token
    - `application.bot.directory.path` - local directory for download files
+   - `application.group.chat.id` - chat for post 
+   - `application.bot.db.url` - TelegramDB URL
 2) Build and start project
    - IDEA - start `Main.main()`
    - Maven 

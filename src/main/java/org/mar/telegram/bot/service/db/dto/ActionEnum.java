@@ -1,4 +1,4 @@
-package org.mar.telegram.bot.db.entity;
+package org.mar.telegram.bot.service.db.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
