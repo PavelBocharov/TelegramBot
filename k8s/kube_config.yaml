@@ -6,7 +6,24 @@ metadata:
     app: telegram-conf-app-label
     tier: telegram-conf-tier-label
 data:
-  TELEGRAM_BOT_TOKEN: '123456789:12312312313123123123123213123123'
-  IMAGE_TEMP_DIR: '/opt/app/temp/'
-  REDIS_HOST: 'redis-service'
-  REDIS_PORT: '6379'
+  #   Kafka
+  KAFKA_BROKER_ID: '1'
+  KAFKA_ZOOKEEPER_CONNECT: 'zk-service:22181'
+  KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka-service1:9092,PLAINTEXT_HOST://kafka-service:29092'
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+  KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+  KAFKA_CLEANUP_POLICY: 'compact'
+  #   ZooKeeper
+  ZOOKEEPER_CLIENT_PORT: '2181'
+  ZOOKEEPER_TICK_TIME: '2000'
+  #   Telegram DB
+  POSTGRES_USER: 'tdb'
+  POSTGRES_PASSWORD: 'tdb'
+  POSTGRES_DB: 'tdb'
+  #   Telegram Config
+  GIT_URL: 'git@github.com:user/conf_repo.git'
+  PRIVATE_KEY: |
+    -----BEGIN RSA PRIVATE KEY-----
+    *******************************
+    -----END RSA PRIVATE KEY-----

@@ -15,24 +15,6 @@
     <artifactId>TelegramBot</artifactId>
     <version>1.0.0</version>
 
-    <profiles>
-        <profile>
-            <id>local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <spring.profiles.active>local</spring.profiles.active>
-            </properties>
-        </profile>
-        <profile>
-            <id>image</id>
-            <properties>
-                <spring.profiles.active>image</spring.profiles.active>
-            </properties>
-        </profile>
-    </profiles>
-
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -52,17 +34,6 @@
 
         <jkube.version>1.12.0</jkube.version>
         <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>
-        <!--    User's    -->
-        <TELEGRAM_BOT_TOKEN>123456789:12312312313123123123123213123123</TELEGRAM_BOT_TOKEN>
-        <!--    Look from bot - @username_to_id_bot   -->
-        <GROUP_CHAT_ID>Long</GROUP_CHAT_ID>
-        <LOCAL_PC_MOUNT_DIR>D:/temp/</LOCAL_PC_MOUNT_DIR>
-        <!--    Tech    -->
-        <IMAGE_TEMP_DIR>/opt/app/temp/</IMAGE_TEMP_DIR>
-        <REDIS_HOST>redis</REDIS_HOST>
-        <REDIS_PORT>6379</REDIS_PORT>
-        <KAFKA_BOOTSTRAP>kafka:9092</KAFKA_BOOTSTRAP>
-        <TELEGRAM_DB>http://localhost:8081</TELEGRAM_DB>
         <!--    JKube    -->
         <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
     </properties>
@@ -88,6 +59,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+            <version>4.0.2</version>
         </dependency>
 
         <!--    MQ    -->

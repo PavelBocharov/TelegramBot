@@ -5,25 +5,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env
     depends_on:
+      - tbotconf
       - redis
       - kafka
       - tbotdb
     volumes:
-      - "${LOCAL_PC_MOUNT_DIR}:${IMAGE_TEMP_DIR}"
+      - "${LOCAL_PC_MOUNT_DIR}:/opt/app/temp/"
     tty: true
     restart: always
-    ports:
-      - '8080:8080'
     networks:
       - bridge
   redis:
     image: redis:latest
     restart: always
     ports:
-      - ':${REDIS_PORT}'
+      - ':6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - cache:/data
@@ -48,10 +45,9 @@ services:
     env_file:
       - .env
   tbotdb:
-    image: marolok/telegram_db:1.0.0
-    env_file:
-      - .env
+    image: marolok/telegram_db:1.1.0
     depends_on:
+      - tbotconf
       - pgsql
     tty: true
     restart: always
@@ -66,7 +62,20 @@ services:
     networks:
       - pgnet
     volumes:
-      - "${LOCAL_PC_MOUNT_DIR}/pg:/var/lib/postgresql/data"
+      - "${LOCAL_PC_MOUNT_DIR}/db:/var/lib/postgresql/data"
+  tbotconf:
+    image: marolok/telegram_conf:1.0.0
+    environment:
+      GIT_URL: 'git@github.com:user/conf_repo.git'
+      PRIVATE_KEY: |
+        -----BEGIN RSA PRIVATE KEY-----
+        *******************************
+        -----END RSA PRIVATE KEY-----
+
+    tty: true
+    restart: always
+    networks:
+      - bridge
 volumes:
   cache:
     driver: local

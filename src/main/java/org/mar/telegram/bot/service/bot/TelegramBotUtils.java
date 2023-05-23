@@ -35,8 +35,14 @@ public class TelegramBotUtils {
     @Value("${application.bot.directory.path}")
     private String downloadPath;
 
+    @Value("${application.bot.admin.id}")
+    private Long adminId;
+
     @Value("${application.group.chat.id}")
     private Long groupChatId;
+
+    @Value("${application.group.chat.textLine}")
+    private String textLine;
 
     @Autowired
     protected MQSender<LoadFileInfo> telegramBotMqSender;
@@ -66,6 +72,14 @@ public class TelegramBotUtils {
         }
         throw new RuntimeException("update is null");
     }
+
+    protected MessageStatus checkAdmin(MessageStatus messageStatus) {
+        if (nonNull(messageStatus.getMsgUserId()) && !adminId.equals(messageStatus.getMsgUserId())) {
+            messageStatus.setIsSuccess(true);
+        }
+        return messageStatus;
+    }
+
     protected MessageStatus checkCallbackQuery(MessageStatus messageStatus) {
         if (messageStatus.getIsSuccess()) return messageStatus;
 
@@ -99,7 +113,7 @@ public class TelegramBotUtils {
             String caption = text.substring(ACTION_CAPTION.length()).trim();
             if (isNotBlank(caption)) {
                 PostInfoDto postInfo = postInfoService.getNotSendPost();
-                postInfo.setCaption(caption);
+                postInfo.setCaption(caption + "\n" + textLine);
                 postInfoService.save(postInfo);
             } else {
                 botExecutor.execute(new SendMessage(chatId, "For save post caption write '" + ACTION_CAPTION + " post_text'"));

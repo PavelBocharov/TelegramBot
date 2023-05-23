@@ -2,13 +2,11 @@ package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.With;
+import lombok.*;
 
 @Data
 @With
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 class MessageStatus {

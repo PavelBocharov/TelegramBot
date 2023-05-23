@@ -5,7 +5,10 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.request.*;
-import com.pengrad.telegrambot.request.*;
+import com.pengrad.telegrambot.request.EditMessageMedia;
+import com.pengrad.telegrambot.request.GetFile;
+import com.pengrad.telegrambot.request.SendPhoto;
+import com.pengrad.telegrambot.request.SendVideo;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +63,8 @@ public class CallbackDataService {
             actionService.save(actionPost);
 
             InputMedia media = getInputMedia(callbackQuery.message());
-            EditMessageMedia msg = new EditMessageMedia(chatId, messageId, media).replyMarkup(getReplyKeyboard(postInfo.getId()));
+            EditMessageMedia msg = new EditMessageMedia(chatId, messageId, media)
+                    .replyMarkup(getReplyKeyboard(postInfo.getId()));
 
             botExecutor.execute(msg);
 
@@ -70,14 +74,11 @@ public class CallbackDataService {
     }
 
     public void sendPost(Long groupChatID, PostInfoDto postInfo) {
+        log.debug(">>> Send post to chat ID: {}, post info: {}", groupChatID, postInfo);
         ContentType postType = ContentType.getTypeByDir(postInfo.getTypeDir());
         switch (postType) {
-            case Video -> {
+            case Video, Gif -> {
                 sendVideoPost(groupChatID, postInfo);
-                break;
-            }
-            case Gif -> {
-                sendGifPost(groupChatID, postInfo);
                 break;
             }
             case Picture -> {
@@ -89,13 +90,6 @@ public class CallbackDataService {
 
     private void sendVideoPost(Long chatId, PostInfoDto postInfo) {
         SendVideo msg = new SendVideo(chatId, new File(postInfo.getMediaPath()));
-        msg.caption(postInfo.getCaption());
-        msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
-        botExecutor.execute(msg);
-    }
-
-    private void sendGifPost(Long chatId, PostInfoDto postInfo) {
-        SendAnimation msg = new SendAnimation(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
         botExecutor.execute(msg);
@@ -157,14 +151,11 @@ public class CallbackDataService {
 
     private InputMedia getInputMediaByType(ContentType mediaType, byte[] file) {
         switch (mediaType) {
-            case Gif -> {
-                return new InputMediaAnimation(file);
+            case Video, Gif -> {
+                return new InputMediaVideo(file);
             }
             case Picture -> {
                 return new InputMediaPhoto(file);
-            }
-            case Video -> {
-                return new InputMediaVideo(file);
             }
         }
         return null;

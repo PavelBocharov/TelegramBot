@@ -27,27 +27,30 @@ Small project for learn etc. and actual skills.
   - [TelegramDB](https://github.com/PavelBocharov/TelegramDB) (WebFlux + PostgreSQL)
 
 ## <img src="./src/main/resources/img/icon/arrow-right.png" width="24"/> Start application
-### <img src="./src/main/resources/img/icon/spring.png" width="16"/> Spring Boot application
-1) Start [TelegramDB](https://github.com/PavelBocharov/TelegramDB)
-2) Set environment in [application.properties](./src/main/resources/application.properties):
-   - `application.bot.token` - Telegram Bot token
-   - `application.bot.directory.path` - local directory for download files
-   - `application.group.chat.id` - chat for post 
-   - `application.bot.db.url` - TelegramDB URL
-2) Build and start project
-   - IDEA - start `Main.main()`
-   - Maven 
-     1) Compile jar - `mvn clean install`
-     2) Start app - `java -jar ./target/TelegramBot*.jar`
+### <img src="./src/main/resources/img/icon/spring.png" width="16"/> Spring Boot application - use Docker start
+1) ~~Start [TelegramDB](https://github.com/PavelBocharov/TelegramDB)~~
+2) ~~Set environment in [application.properties](./src/main/resources/application.yml):~~
+   - ~~`application.bot.token` - Telegram Bot token~~
+   - ~~`application.bot.directory.path` - local directory for download files~~
+   - ~~`application.group.chat.id` - chat for post~~
+   - ~~`application.bot.db.url` - TelegramDB URL~~
+2) ~~Build and start project~~
+   - ~~IDEA - start `Main.main()`~~
+   - ~~Maven~~
+     1) ~~Compile jar - `mvn clean install`~~
+     2) ~~Start app - `java -jar ./target/TelegramBot*.jar`~~
 
 ### <img src="./src/main/resources/img/icon/docker-icon.png" width="16"/> Docker compose
 0) [Start info](https://www.baeldung.com/ops/docker-compose)
 1) Build JAR - `mvn clean install`
 2) Set environment in [.env](./.env)
-    - `LOCAL_PC_MOUNT_DIR` - local directory for download files 
-    - `TELEGRAM_BOT_TOKEN` - Telegram Bot token
-2) Start - `docker compose up`
-3) Stop - `docker compose down`
+    - `LOCAL_PC_MOUNT_DIR` - local directory for download files
+3) Set ENV in [docker-compose](./docker-compose.yml)
+   - `tbotconf.GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
+   - `tbotconf.PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
+4) Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml))
+5) Start - `docker compose up`
+4) Stop - `docker compose down`
 
 ### <img src="./src/main/resources/img/icon/kubernetes.png" width="16"/> Kubernetes
 * Install Kubernetes(Minikube) - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**

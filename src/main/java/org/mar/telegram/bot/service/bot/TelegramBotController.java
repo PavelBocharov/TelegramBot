@@ -31,6 +31,7 @@ public class TelegramBotController extends TelegramBotUtils {
         Flux.fromIterable(updates)
                 .map(this::createMessageStatus)
                 .map(this::checkCallbackQuery)
+                .map(this::checkAdmin)
                 .map(this::parsText)
                 .map(this::savePhoto)
                 .map(this::saveVideo)

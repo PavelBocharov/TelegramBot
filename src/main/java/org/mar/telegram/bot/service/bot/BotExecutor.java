@@ -45,7 +45,7 @@ public class BotExecutor {
                         }
                     }
                 },
-                throwable -> log.error(ExceptionUtils.getRootCauseMessage(throwable))
+                throwable -> log.error(ExceptionUtils.getStackTrace(throwable))
         );
     }
 

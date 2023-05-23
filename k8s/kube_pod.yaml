@@ -12,8 +12,8 @@ spec:
         app: telegram-bot-deployment
     spec:
       containers:
-        - name: tbot
-          image: marolok/telegram-bot:1.0.0
+        - name: telegram-bot
+          image: marolok/telegram_bot:1.3.0
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -52,7 +52,124 @@ spec:
       volumes:
         - name: redis-storage
           emptyDir: {}
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper-deployment
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper-deployment
+  template:
+    metadata:
+      labels:
+        app: zookeeper-deployment
+    spec:
+      containers:
+        - name: zookeeper
+          image: confluentinc/cp-zookeeper:latest
+          ports:
+            - containerPort: 2181
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-deployment
+spec:
+  selector:
+    matchLabels:
+      app: kafka-deployment
+  template:
+    metadata:
+      labels:
+        app: kafka-deployment
+    spec:
+      containers:
+        - name: kafka
+          image: confluentinc/cp-kafka:latest
+          ports:
+            - containerPort: 29092
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbotdb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: tbotdb-deployment
+  template:
+    metadata:
+      labels:
+        app: tbotdb-deployment
+    spec:
+      containers:
+        - name: telegram-db
+          image: marolok/telegram_db:1.1.0
+          ports:
+            - containerPort: 8081
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgsql-deployment
+spec:
+  selector:
+    matchLabels:
+      app: pgsql-deployment
+  template:
+    metadata:
+      labels:
+        app: pgsql-deployment
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:14
+          ports:
+            - containerPort: 8081
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data/
+              name: local-dir-val
+              readOnly: false
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
+      volumes:
+        - name: local-dir-val
+          hostPath:
+            path: /local/db/
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbotconf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: tbotconf-deployment
+  template:
+    metadata:
+      labels:
+        app: tbotconf-deployment
+    spec:
+      containers:
+        - name: telegram-conf
+          image: marolok/telegram_conf:1.0.0
+          ports:
+            - containerPort: 8888
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
 ---
 apiVersion: v1
 kind: Service
@@ -64,3 +181,69 @@ spec:
       targetPort: 6379
   selector:
     app: redis-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zk-service
+spec:
+  ports:
+    - port: 22181
+      targetPort: 2181
+  selector:
+    app: zookeeper-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+spec:
+  ports:
+    - port: 29092
+      targetPort: 29092
+  selector:
+    app: kafka-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service1
+spec:
+  ports:
+    - port: 9092
+      targetPort: 9092
+  selector:
+    app: kafka-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbotdb-service
+spec:
+  ports:
+    - port: 8081
+      targetPort: 8081
+  selector:
+    app: tbotdb-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgsql-service
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: pgsql-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbotconf
+spec:
+  ports:
+    - port: 8888
+      targetPort: 8888
+  selector:
+    app: tbotconf-deployment
