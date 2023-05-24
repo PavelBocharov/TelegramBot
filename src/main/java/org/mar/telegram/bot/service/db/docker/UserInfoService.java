@@ -1,12 +1,14 @@
-package org.mar.telegram.bot.service.db;
+package org.mar.telegram.bot.service.db.docker;
 
 import org.mar.telegram.bot.service.bot.db.UserService;
 import org.mar.telegram.bot.service.db.dto.UserDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
+@Profile("!local")
 public class UserInfoService implements UserService {
 
     @Value("${application.bot.db.url}")

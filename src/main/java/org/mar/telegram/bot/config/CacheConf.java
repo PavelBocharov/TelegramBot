@@ -18,7 +18,7 @@ public class CacheConf {
 
     public static final String FILENAME_CACHE = "chatIdMapFileName";
 
-    @Value("${spring.redis.host:host}")
+    @Value("${spring.redis.host:not_local}")
     private String redisHost;
 
     @Value("${spring.redis.port:0000}")
@@ -45,7 +45,7 @@ public class CacheConf {
     }
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public JedisPool getJedisPool() {
         return new JedisPool(new JedisPoolConfig(), redisHost, redisPort);
     }

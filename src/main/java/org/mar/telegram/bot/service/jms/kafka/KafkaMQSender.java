@@ -14,7 +14,7 @@ import static org.mar.telegram.bot.config.MQConf.TELEGRAM_BOT_MQ;
 
 @Slf4j
 @Service
-@Profile("image")
+@Profile("!local")
 public class KafkaMQSender implements MQSender<LoadFileInfo> {
 
     @Autowired

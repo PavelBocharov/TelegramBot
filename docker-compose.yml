@@ -14,6 +14,8 @@ services:
       - "${LOCAL_PC_MOUNT_DIR}:/opt/app/temp/"
     tty: true
     restart: always
+#    environment:
+#      BOT_PROFILE: kuber
     networks:
       - bridge
   redis:
@@ -45,7 +47,7 @@ services:
     env_file:
       - .env
   tbotdb:
-    image: marolok/telegram_db:1.1.0
+    image: marolok/telegram_db:1.1.1
     depends_on:
       - tbotconf
       - pgsql

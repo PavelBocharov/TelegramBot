@@ -26,7 +26,7 @@ public class MQConf {
     private String bootstrapAddress;
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public KafkaAdmin kafkaAdmin() {
         Map<String, Object> configs = new HashMap<>();
         configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
@@ -34,13 +34,13 @@ public class MQConf {
     }
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public NewTopic telegramFilesTopic() {
         return new NewTopic(TELEGRAM_BOT_MQ, 1, (short) 1);
     }
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
@@ -50,13 +50,13 @@ public class MQConf {
     }
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
@@ -67,7 +67,7 @@ public class MQConf {
     }
 
     @Bean
-    @Profile("image")
+    @Profile("!local")
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());

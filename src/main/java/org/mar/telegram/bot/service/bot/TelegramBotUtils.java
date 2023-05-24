@@ -41,7 +41,7 @@ public class TelegramBotUtils {
     @Value("${application.group.chat.id}")
     private Long groupChatId;
 
-    @Value("${application.group.chat.textLine}")
+    @Value("${application.group.chat.textLine:}")
     private String textLine;
 
     @Autowired

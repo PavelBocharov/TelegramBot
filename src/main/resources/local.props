@@ -1,6 +1,0 @@
-artemis.mode=native
-artemis.host=localhost 
-artemis.port=61616 
-artemis.user=developer 
-artemis.password=developer 
-jms.queue.destination=telegram_queue

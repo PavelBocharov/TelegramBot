@@ -1,8 +1,9 @@
-package org.mar.telegram.bot.service.db;
+package org.mar.telegram.bot.service.db.docker;
 
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,6 +12,7 @@ import reactor.core.publisher.Mono;
 import static java.util.Objects.isNull;
 
 @Service
+@Profile("!local")
 public class PostInfoService implements PostService {
 
     @Value("${application.bot.db.url}")

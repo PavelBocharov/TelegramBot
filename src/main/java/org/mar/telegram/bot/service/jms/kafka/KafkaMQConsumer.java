@@ -16,7 +16,7 @@ import static org.mar.telegram.bot.config.MQConf.TELEGRAM_BOT_MQ_GROUP;
 
 @Slf4j
 @Service
-@Profile("image")
+@Profile("!local")
 public class KafkaMQConsumer implements MQConsumer {
 
     @Autowired

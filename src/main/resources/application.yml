@@ -4,6 +4,6 @@ spring:
   application:
     name: telegram-bot
   profiles:
-    active: image
+    active: local
   config:
-    import: 'configserver:http://tbotconf:8888'
+    import: 'optional:configserver:http://tbotconf:8888'

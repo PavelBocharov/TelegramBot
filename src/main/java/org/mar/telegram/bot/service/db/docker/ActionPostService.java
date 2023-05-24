@@ -1,9 +1,10 @@
-package org.mar.telegram.bot.service.db;
+package org.mar.telegram.bot.service.db.docker;
 
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.db.dto.ActionEnum;
 import org.mar.telegram.bot.service.db.dto.ActionPostDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -14,6 +15,7 @@ import java.util.Map;
 import static java.util.Objects.isNull;
 
 @Service
+@Profile("!local")
 public class ActionPostService implements ActionService {
 
     @Value("${application.bot.db.url}")
