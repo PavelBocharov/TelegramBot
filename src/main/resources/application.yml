@@ -1,9 +1,19 @@
 server:
   port: 8080
 spring:
+  cloud:
+    discovery:
+      enabled: false
   application:
     name: telegram-bot
   profiles:
     active: local
   config:
     import: 'optional:configserver:http://tbotconf:8888'
+management:
+  endpoint:
+    health:
+      show-details: always
+endpoints:
+  health:
+    sensitive: false

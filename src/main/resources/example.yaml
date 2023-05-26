@@ -1,0 +1,34 @@
+application:
+  group:
+    chat:
+      id: 000000000
+      textLine: 'Last line in msg'
+  bot:
+    token: '123456789:1111111AAAAAAAAA222222222BBBBBB'
+    admin:
+      id: 1111111111
+    directory:
+      path: '/opt/app/temp/'
+    db:
+#      url: 'http://tbotdb-service:8081'
+      url: 'http://tbotdb:8081'
+spring:
+  redis:
+#    host: 'redis-service'
+    host: 'redis'
+    port: '6379'
+  kafka:
+#    bootstrap-servers: 'kafka-service1:9092'
+    bootstrap-servers: 'kafka:9092'
+logging:
+  file:
+    path: '/opt/app/temp/logs'
+    max-size: 536870912
+  level:
+    root: WARN
+    org:
+      mar:
+        telegram:
+          bot: DEBUG
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} | %-5level | %logger{1.} | %msg%n'
