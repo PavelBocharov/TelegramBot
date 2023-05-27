@@ -4,8 +4,8 @@ import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 
 public interface PostService {
 
-    PostInfoDto getNotSendPost();
-    PostInfoDto save(PostInfoDto postInfo);
-    PostInfoDto getByChatIdAndMessageId(Long chatId, Integer messageId);
+    PostInfoDto getNotSendPost(String rqUuid);
+    PostInfoDto save(String rqUuid, PostInfoDto postInfo);
+    PostInfoDto getByChatIdAndMessageId(String rqUuid, Long chatId, Integer messageId);
 
 }

@@ -44,14 +44,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfoDto getNotSendPost() {
+    public PostInfoDto getNotSendPost(String rqUuid) {
         Cache.Entry<Long, PostInfoDto> cacheData = Flux.fromIterable(postInfoCache)
                 .filter(postInfo -> !TRUE.equals(postInfo.getValue().getIsSend()))
                 .blockFirst();
 
         PostInfoDto dto;
         if (isNull(cacheData) || isNull(cacheData.getValue())) {
-            dto = save(PostInfoDto.builder().isSend(false).build());
+            dto = save(rqUuid, PostInfoDto.builder().isSend(false).build());
         } else {
             dto = cacheData.getValue();
         }
@@ -60,7 +60,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfoDto save(PostInfoDto postInfo) {
+    public PostInfoDto save(String rqUuid, PostInfoDto postInfo) {
         if (nonNull(postInfo)) {
             if (isNull(postInfo.getId())) {
                 postInfo.setId(new Random().nextLong());
@@ -71,7 +71,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfoDto getByChatIdAndMessageId(Long chatId, Integer messageId) {
+    public PostInfoDto getByChatIdAndMessageId(String rqUuid, Long chatId, Integer messageId) {
         return Flux.fromIterable(postInfoCache)
                 .filter(postInfo -> postInfo.getValue().getChatId().equals(chatId)
                     && postInfo.getValue().getMessageId().equals(messageId)

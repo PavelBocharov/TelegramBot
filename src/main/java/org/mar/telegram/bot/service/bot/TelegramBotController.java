@@ -3,21 +3,16 @@ package org.mar.telegram.bot.service.bot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.mar.telegram.bot.service.bot.db.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-@Slf4j
 @Service
 public class TelegramBotController extends TelegramBotUtils {
-
-    @Autowired
-    private UserService userInfoService;
 
     @PostConstruct
     public void postInit() {
@@ -28,8 +23,13 @@ public class TelegramBotController extends TelegramBotUtils {
     }
 
     private void worker(List<Update> updates) {
+        AtomicReference<String> rqUuid = new AtomicReference<>();
         Flux.fromIterable(updates)
                 .map(this::createMessageStatus)
+                .map(messageStatus -> {
+                    rqUuid.set(messageStatus.getRqUuid());
+                    return messageStatus;
+                })
                 .map(this::checkCallbackQuery)
                 .map(this::checkAdmin)
                 .map(this::parsText)
@@ -37,8 +37,10 @@ public class TelegramBotController extends TelegramBotUtils {
                 .map(this::saveVideo)
                 .map(this::saveAnimation)
                 .map(this::saveDocs)
-                .doOnError(throwable -> log.error(ExceptionUtils.getRootCauseMessage(throwable)))
-                .subscribe(messageStatus -> userInfoService.getByUserId(messageStatus.getMsgUserId()));
+                .doOnError(throwable ->
+                        mqSender.sendLog(rqUuid.get(), LogLevel.ERROR, ExceptionUtils.getRootCauseMessage(throwable))
+                )
+                .subscribe(messageStatus -> userInfoService.getByUserId(rqUuid.get(), messageStatus.getMsgUserId()));
     }
 
 

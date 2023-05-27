@@ -7,8 +7,8 @@ import java.util.Map;
 
 public interface ActionService {
 
-    ActionPostDto getByPostIdAndUserInfoId(Long postInfoId, Long userId);
-    ActionPostDto save(ActionPostDto actionPost);
-    Map<ActionEnum, Long> countByPostIdAndAction(Long postId);
+    ActionPostDto getByPostIdAndUserInfoId(String rqUuid, Long postInfoId, Long userId);
+    ActionPostDto save(String rqUuid, ActionPostDto actionPost);
+    Map<ActionEnum, Long> countByPostIdAndAction(String rqUuid, Long postId);
 
 }

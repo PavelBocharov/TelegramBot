@@ -8,7 +8,9 @@ import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.core.Ehcache;
 import org.mar.telegram.bot.service.bot.db.UserService;
 import org.mar.telegram.bot.service.db.dto.UserDto;
+import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -27,6 +29,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private CacheManager cacheManager;
+    @Autowired
+    private MQSender mqSender;
 
     private Ehcache<Long, UserDto> userCache;
 
@@ -43,29 +47,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getByUserId(long userId) {
+    public UserDto getByUserId(String rqUuid, long userId) {
         Cache.Entry<Long, UserDto> entry = Flux.fromIterable(userCache)
                 .filter(userDto -> userDto.getValue().getUserId().equals(userId))
                 .blockFirst();
 
-
         UserDto user = entry == null ? null : entry.getValue();
+        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Load user by userID: {}, dto: {}", userId, user);
 
         if (isNull(user)) {
-            user = save(UserDto.builder().userId(userId).build());
+            user = save(rqUuid, UserDto.builder().userId(userId).build());
         }
 
         return user;
     }
 
     @Override
-    public UserDto save(UserDto user) {
+    public UserDto save(String rqUuid, UserDto user) {
         if (nonNull(user)) {
             if (isNull(user.getId())) {
                 user.setId(new Random().nextLong());
             }
             userCache.put(user.getId(), user);
         }
+        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save user: {}", user);
         return user;
     }
 }

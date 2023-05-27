@@ -4,11 +4,12 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
@@ -16,7 +17,6 @@ import java.util.function.Consumer;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-@Slf4j
 @Service
 public class BotExecutor {
 
@@ -24,28 +24,30 @@ public class BotExecutor {
     private TelegramBot bot;
     @Autowired
     private PostService postService;
+    @Autowired
+    private MQSender mqSender;
 
-    public BaseResponse execute(BaseRequest sendMessage) {
+    public BaseResponse execute(final String rqUuid, BaseRequest sendMessage) {
         return execute(
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
-                        log.error(baseResponse.description());
+                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: ", baseResponse.description());
                     } else {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
-                                PostInfoDto postInfo = postService.getNotSendPost();
+                                PostInfoDto postInfo = postService.getNotSendPost(rqUuid);
 
                                 postInfo.setMessageId(rs.message().messageId());
                                 postInfo.setChatId(rs.message().chat().id());
 
-                                postService.save(postInfo);
+                                postService.save(rqUuid, postInfo);
                             }
                         }
                     }
                 },
-                throwable -> log.error(ExceptionUtils.getStackTrace(throwable))
+                throwable -> mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: ", ExceptionUtils.getStackTrace(throwable))
         );
     }
 

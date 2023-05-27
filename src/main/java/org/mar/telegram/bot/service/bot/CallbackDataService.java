@@ -1,9 +1,6 @@
 package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.CallbackQuery;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.EditMessageMedia;
 import com.pengrad.telegrambot.request.GetFile;
@@ -11,15 +8,17 @@ import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendVideo;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
+import org.mar.telegram.bot.service.bot.dto.CallbackQueryDto;
 import org.mar.telegram.bot.service.db.dto.ActionEnum;
 import org.mar.telegram.bot.service.db.dto.ActionPostDto;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.mar.telegram.bot.service.db.dto.UserDto;
+import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.utils.ContentType;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -32,11 +31,10 @@ import java.util.Map;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mar.telegram.bot.service.db.dto.ActionEnum.*;
 import static org.mar.telegram.bot.utils.ContentType.*;
-import static org.mar.telegram.bot.utils.Utils.getMaxPhotoSize;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CallbackDataService {
@@ -47,88 +45,87 @@ public class CallbackDataService {
     private final UserService userService;
     private final PostService postService;
     private final ActionService actionService;
+    private final MQSender mqSender;
 
-    public boolean checkCallbackData(CallbackQuery callbackQuery) {
-        if (nonNull(callbackQuery)) {
-            Long chatId = callbackQuery.message().chat().id();
-            Integer messageId = callbackQuery.message().messageId();
-            Long userId = callbackQuery.from().id();
+    public boolean checkCallbackData(String rqUuid, CallbackQueryDto query) {
+        if (nonNull(query)) {
+            mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Callback query: {}", query);
+            Long chatId = query.getMsgChatId();
+            Integer messageId = query.getMessageId();
+            Long userId = query.getFromUserId();
 
             // create/update user action
-            PostInfoDto postInfo = postService.getByChatIdAndMessageId(chatId, messageId);
-            UserDto user = userService.getByUserId(userId);
+            PostInfoDto postInfo = postService.getByChatIdAndMessageId(rqUuid, chatId, messageId);
+            UserDto user = userService.getByUserId(rqUuid, userId);
 
-            ActionPostDto actionPost = actionService.getByPostIdAndUserInfoId(postInfo.getId(), user.getId());
-            actionPost.setActionCallbackData(callbackQuery.data());
-            actionService.save(actionPost);
+            ActionPostDto actionPost = actionService.getByPostIdAndUserInfoId(rqUuid, postInfo.getId(), user.getId());
+            actionPost.setActionCallbackData(query.getActionCallbackData());
+            actionService.save(rqUuid, actionPost);
 
-            InputMedia media = getInputMedia(callbackQuery.message());
+            InputMedia media = getInputMedia(rqUuid, query);
             EditMessageMedia msg = new EditMessageMedia(chatId, messageId, media)
-                    .replyMarkup(getReplyKeyboard(postInfo.getId()));
+                    .replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
 
-            botExecutor.execute(msg);
+            botExecutor.execute(rqUuid, msg);
 
             return true;
         }
         return false;
     }
 
-    public void sendPost(Long groupChatID, PostInfoDto postInfo) {
-        log.debug(">>> Send post to chat ID: {}, post info: {}", groupChatID, postInfo);
+    public void sendPost(String rqUuid, Long groupChatID, PostInfoDto postInfo) {
+        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Send post to chat ID: {}, post info: {}", groupChatID, postInfo);
         ContentType postType = ContentType.getTypeByDir(postInfo.getTypeDir());
         switch (postType) {
             case Video, Gif -> {
-                sendVideoPost(groupChatID, postInfo);
+                sendVideoPost(rqUuid, groupChatID, postInfo);
                 break;
             }
             case Picture -> {
-                sendPhotoPost(groupChatID, postInfo);
+                sendPhotoPost(rqUuid, groupChatID, postInfo);
                 break;
             }
         }
     }
 
-    private void sendVideoPost(Long chatId, PostInfoDto postInfo) {
+    private void sendVideoPost(String rqUuid, Long chatId, PostInfoDto postInfo) {
         SendVideo msg = new SendVideo(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
-        msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
-        botExecutor.execute(msg);
+        msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
+        botExecutor.execute(rqUuid, msg);
     }
 
-    private void sendPhotoPost(Long chatId, PostInfoDto postInfo) {
+    private void sendPhotoPost(String rqUuid, Long chatId, PostInfoDto postInfo) {
         SendPhoto msg = new SendPhoto(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
-        msg.replyMarkup(getReplyKeyboard(postInfo.getId()));
-        botExecutor.execute(msg);
+        msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
+        botExecutor.execute(rqUuid, msg);
     }
 
-    private InputMedia getInputMedia(Message msg) {
+    private InputMedia getInputMedia(String rqUuid, CallbackQueryDto query) {
         GetFile request = null;
         ContentType type = null;
 
-        if (nonNull(msg.video())) {
-            request = new GetFile(msg.video().fileId());
+        if (isNotBlank(query.getVideoFieldId())) {
+            request = new GetFile(query.getVideoFieldId());
             type = Video;
-        } else if (nonNull(msg.animation())) {
-            request = new GetFile(msg.animation().fileId());
+        } else if (isNotBlank(query.getAnimationFieldId())) {
+            request = new GetFile(query.getAnimationFieldId());
             type = Gif;
-        } else if (nonNull(msg.document())) {
-            request = new GetFile(msg.document().fileId());
+        } else if (isNotBlank(query.getDocumentFieldId())) {
+            request = new GetFile(query.getDocumentFieldId());
             type = Gif;
-        } else if (nonNull(msg.photo())) {
-            PhotoSize ps = getMaxPhotoSize(msg.photo());
-            if (nonNull(ps)) {
-                request = new GetFile(ps.fileId());
-                type = Picture;
-            }
+        } else if (isNotBlank(query.getPhotoFieldId())) {
+            request = new GetFile(query.getPhotoFieldId());
+            type = Picture;
         }
 
         if (isNull(type)) {
             throw new RuntimeException("Unsupport type.");
         }
 
-        GetFileResponse rs = (GetFileResponse) botExecutor.execute(request);
-        return getInputMedia(bot.getFullFilePath(rs.file()), type, msg.caption());
+        GetFileResponse rs = (GetFileResponse) botExecutor.execute(rqUuid, request);
+        return getInputMedia(bot.getFullFilePath(rs.file()), type, query.getMessageCaption());
 
     }
 
@@ -161,8 +158,8 @@ public class CallbackDataService {
         return null;
     }
 
-    private InlineKeyboardMarkup getReplyKeyboard(Long postId) {
-        Map<ActionEnum, Long> actionCountMap = actionService.countByPostIdAndAction(postId);
+    private InlineKeyboardMarkup getReplyKeyboard(String rqUuid, Long postId) {
+        Map<ActionEnum, Long> actionCountMap = actionService.countByPostIdAndAction(rqUuid, postId);
 
         return new InlineKeyboardMarkup(
                 new InlineKeyboardButton[]{

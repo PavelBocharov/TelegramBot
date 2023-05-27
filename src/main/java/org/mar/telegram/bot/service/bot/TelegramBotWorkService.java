@@ -2,15 +2,16 @@ package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -19,7 +20,6 @@ import java.net.URL;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@Slf4j
 @Service
 public class TelegramBotWorkService {
 
@@ -28,11 +28,12 @@ public class TelegramBotWorkService {
 
     @Autowired
     private TelegramBot bot;
-
     @Autowired
     private PostService postInfoService;
+    @Autowired
+    private MQSender mqSender;
 
-    public void work(LoadFileInfo fileInfo) {
+    public void work(String rqUuid, LoadFileInfo fileInfo) {
         String diskPath = fileInfo.getSaveToPath();
         try {
             File file = new File(diskPath);
@@ -55,13 +56,13 @@ public class TelegramBotWorkService {
                 }
             }
 
-            log.info("File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
+            mqSender.sendLog(rqUuid, LogLevel.INFO, "File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
             FileUtils.copyURLToFile(new URL(fileInfo.getFileUrl()), file);
 
-            PostInfoDto postInfo = postInfoService.getNotSendPost();
+            PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
             postInfo.setMediaPath(diskPath);
             postInfo.setTypeDir(fileInfo.getMediaType().getTypeDit());
-            postInfoService.save(postInfo);
+            postInfoService.save(rqUuid, postInfo);
 
             bot.execute(new SendMessage(fileInfo.getChatId(), "Save file: " + file.getName()));
         } catch (IOException e) {
