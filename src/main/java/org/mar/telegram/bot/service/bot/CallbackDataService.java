@@ -34,6 +34,7 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mar.telegram.bot.service.db.dto.ActionEnum.*;
 import static org.mar.telegram.bot.utils.ContentType.*;
+import static org.mar.telegram.bot.utils.Utils.getTypeByType;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +77,9 @@ public class CallbackDataService {
     public void sendPost(String rqUuid, Long groupChatID, PostInfoDto postInfo) {
         mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Send post to chat ID: {}, post info: {}", groupChatID, postInfo);
         ContentType postType = ContentType.getTypeByDir(postInfo.getTypeDir());
+        if (Doc.equals(postType)) {
+            postType = getTypeByType(postInfo.getMediaPath());
+        }
         switch (postType) {
             case Video, Gif -> {
                 sendVideoPost(rqUuid, groupChatID, postInfo);

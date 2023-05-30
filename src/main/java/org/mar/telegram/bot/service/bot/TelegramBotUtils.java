@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mar.telegram.bot.utils.Utils.getMaxPhotoSize;
 
@@ -81,6 +82,8 @@ public class TelegramBotUtils {
     }
 
     protected MessageStatus checkAdmin(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) return messageStatus;
+
         if (nonNull(messageStatus.getMsgUserId()) && !adminId.equals(messageStatus.getMsgUserId())) {
             messageStatus.setIsSuccess(true);
             mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check admin FAIL: {}", messageStatus);
@@ -135,11 +138,18 @@ public class TelegramBotUtils {
         if (text.equals(ACTION_SEND_POST)) {
             PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
 
-            if (isNotBlank(postInfo.getMediaPath())) {
+            if (isNotBlank(postInfo.getMediaPath()) && isNotBlank(postInfo.getCaption())) {
                 callbackDataService.sendPost(rqUuid, groupChatId, postInfo);
                 postInfo = postInfoService.getNotSendPost(rqUuid);
                 postInfo.setIsSend(true);
                 postInfoService.save(rqUuid, postInfo);
+            } else {
+                String helpMsg = "";
+                if (isBlank(postInfo.getMediaPath()))
+                    helpMsg += "Send media file (photo, gif, video) for create post.\n\n";
+                if (isBlank(postInfo.getCaption()))
+                    helpMsg += "Send caption for create post. \nExample - '/caption your text with http://url and #hashtag.'";
+                botExecutor.execute(rqUuid, new SendMessage(chatId, helpMsg));
             }
             return true;
         }

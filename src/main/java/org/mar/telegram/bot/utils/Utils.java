@@ -68,6 +68,10 @@ public class Utils {
         return URLInfo.builder().contentType(Text).url(url).build();
     }
 
+    public static ContentType getTypeByType(String dirPath) {
+        return whatIsUrl(dirPath).getContentType();
+    }
+
     private static URLInfo checkByMimeType(String url) {
         try {
             Document document = Jsoup.connect(url).get();
