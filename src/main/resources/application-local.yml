@@ -18,3 +18,16 @@ artemis:
 jms:
   queue:
     destination: telegram_queue
+logging:
+  file:
+    path: 'D:\Temp\logs'
+    max-size: 536870912
+  level:
+    root: WARN
+    org:
+      mar:
+        telegram:
+          bot: TRACE
+  pattern:
+    console: '%date | %-5level | %logger{10} | [%file:%line] | %msg%n'
+    file: '%date | %-5level | %logger{10} | [%file:%line] | %msg%n'

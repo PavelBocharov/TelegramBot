@@ -57,17 +57,24 @@ Small project for learn etc. and actual skills.
 ### ☸️ Kubernetes
 * Install Kubernetes(Minikube) - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**
 * Start Minikube
-  * `minikube start`
-  * `minikube mount <source directory>:<target directory>` - [Mounting filesystems](https://minikube.sigs.k8s.io/docs/handbook/mount/)
-    * Example: `minikube mount D:/temp:/local/` - `<target directory>` equals `Pod.spec.volumes.hostPath` in [kube_pod.yaml](./k8s/kube_pod.yaml) or `MOUNT_VM_PATH` in [pom.xml](./pom.xml)
+  * First start 
+    * `minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount` - *"D:/temp/k8s"* your PC directory for TelegramBot dat and PostgreSQL.
+  * Other command
+    * `minikube stop` - stop minikube
+    * `minikube start` - start minikube (mount is automatic)
+    * `minikube delete` - delete all data and minikube
+    * `minikube dashboard` - start and open Kubernetes WebUI
 
 #### 📗 Start with YAML
-* Build docker image - `docker build -t marolok/telegram_bot:1.0.0 .`
-* Push docker image - `docker push marolok/telegram_bot:1.0.0`
-* Set environment in [kube_pod.yaml](./k8s/kube_pod.yaml) - use mount target directory from `Start Minikube`
+* Build docker image - `docker build -t marolok/telegram_bot:*.*.* .`
+* Push docker image - `docker push marolok/telegram_bot:*.*.*`
+* Set environment in [kube_conf.yaml](./k8s/kube_config.yaml) - check _"TelegramConf"_ block
+  * `BOT_PROFILE` - application profile (need for application config filename, [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
+  * `GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
+  * `PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
 * Init config - `kubectl apply -f .\k8s\kube_config.yaml`
+* Init PersistentVolume & PersistentVolumeClaim - `kubectl apply -f .\k8s\kube_pv.yaml`
 * Start - `kubectl apply -f .\k8s\kube_pod.yaml`
-* Stop - `kubectl delete pod telegram-bot`
 
 #### 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT STABLE⚠️
 * Set environment in [pom.xml](./pom.xml) - use mount target directory from `Start Minikube`
@@ -100,9 +107,7 @@ Small project for learn etc. and actual skills.
 | ![screen_3](./src/main/resources/img/screen_3.png) | ![screen_4](./src/main/resources/img/screen_4.png) |
 
 ## 🎴 Screens
-### ⚬ Send text and image
-<img alt="" src="./src/main/resources/img/screen_1.png" width="512"/>
-
-### ⚬ Send URL with MIME type
-<img alt="" src="./src/main/resources/img/screen_2.png" width="512"/>
+|                Send text and image                 |                 Send URL with MIME type                 |
+|----------------------------------------------------|:-------------------------------------------------------:|
+| ![screen_1](./src/main/resources/img/screen_1.png) |   ![screen_2](./src/main/resources/img/screen_2.png)    |
 

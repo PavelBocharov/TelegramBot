@@ -13,20 +13,20 @@ spec:
     spec:
       containers:
         - name: telegram-bot
-          image: marolok/telegram_bot:1.3.0
+          image: marolok/telegram_bot:1.4.1
           ports:
             - containerPort: 8080
           volumeMounts:
-            - mountPath: /opt/app/temp/
-              name: local-dir-val
-              readOnly: false
+            - mountPath: '/opt/app/temp/'
+              name: tbot-data-storage
+              subPath: 'tbot'
           envFrom:
             - configMapRef:
                 name: telegram-bot-conf
       volumes:
-        - name: local-dir-val
-          hostPath:
-            path: /local/
+        - name: tbot-data-storage
+          persistentVolumeClaim:
+            claimName: tbot-data-pvc
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -112,7 +112,7 @@ spec:
     spec:
       containers:
         - name: telegram-db
-          image: marolok/telegram_db:1.1.0
+          image: marolok/telegram_db:1.1.1
           ports:
             - containerPort: 8081
           envFrom:
@@ -138,16 +138,16 @@ spec:
           ports:
             - containerPort: 8081
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data/
-              name: local-dir-val
-              readOnly: false
+            - mountPath: '/var/lib/postgresql/data'
+              name: tbot-db-storage
+              subPath: 'db'
           envFrom:
             - configMapRef:
                 name: telegram-bot-conf
       volumes:
-        - name: local-dir-val
-          hostPath:
-            path: /local/db/
+        - name: tbot-db-storage
+          persistentVolumeClaim:
+            claimName: tbot-data-pvc
 ---
 apiVersion: apps/v1
 kind: Deployment

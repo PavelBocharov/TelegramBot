@@ -21,7 +21,9 @@ data:
   POSTGRES_USER: 'tdb'
   POSTGRES_PASSWORD: 'tdb'
   POSTGRES_DB: 'tdb'
+  PGDATA: '/var/lib/postgresql/data/pgdata'
   #   Telegram Config
+  BOT_PROFILE: kuber
   GIT_URL: 'git@github.com:user/conf_repo.git'
   PRIVATE_KEY: |
     -----BEGIN RSA PRIVATE KEY-----
