@@ -32,7 +32,7 @@ public class BotExecutor {
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
-                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: ", baseResponse.description());
+                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
                     } else {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
@@ -47,7 +47,7 @@ public class BotExecutor {
                         }
                     }
                 },
-                throwable -> mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: ", ExceptionUtils.getStackTrace(throwable))
+                throwable -> mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
         );
     }
 

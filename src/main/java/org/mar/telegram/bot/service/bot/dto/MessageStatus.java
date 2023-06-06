@@ -1,8 +1,7 @@
-package org.mar.telegram.bot.service.bot;
+package org.mar.telegram.bot.service.bot.dto;
 
 import com.pengrad.telegrambot.model.Message;
 import lombok.*;
-import org.mar.telegram.bot.service.bot.dto.CallbackQueryDto;
 
 import java.io.Serializable;
 
@@ -11,7 +10,7 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-class MessageStatus implements Serializable {
+public class MessageStatus implements Serializable {
 
     private String rqUuid;
     private Message msg;

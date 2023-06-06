@@ -23,7 +23,7 @@ public class UserInfoService implements UserService {
     private WebClient webClient = WebClient.create();
 
     public UserDto getByUserId(String rqUuid, long userId) {
-        UserDto userInfo =  webClient.get()
+        UserDto userInfo = webClient.get()
                 .uri(dbUrl + "/user/uid/" + userId)
                 .retrieve()
                 .bodyToMono(UserDto.class)
@@ -38,7 +38,7 @@ public class UserInfoService implements UserService {
 
     public UserDto save(String rqUuid, UserDto user) {
         return webClient.get()
-                .uri(dbUrl+ "/user/create/uid/"+user.getUserId())
+                .uri(dbUrl + "/user/create/uid/" + user.getUserId())
                 .retrieve()
                 .bodyToMono(UserDto.class)
                 .doOnSuccess(userDto -> mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save user: {}", userDto))

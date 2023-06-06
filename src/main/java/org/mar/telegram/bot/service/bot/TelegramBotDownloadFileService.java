@@ -21,7 +21,7 @@ import java.net.URL;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
-public class TelegramBotWorkService {
+public class TelegramBotDownloadFileService {
 
     @Value("${application.bot.directory.path}")
     private String downloadPath;

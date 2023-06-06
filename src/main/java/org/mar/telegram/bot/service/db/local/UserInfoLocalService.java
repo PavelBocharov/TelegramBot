@@ -23,7 +23,7 @@ import static java.util.Objects.nonNull;
 
 @Service
 @Profile("local")
-public class UserServiceImpl implements UserService {
+public class UserInfoLocalService implements UserService {
 
     public static final String USER_ACTION_CACHE = UUID.randomUUID().toString();
 

@@ -1,6 +1,6 @@
 package org.mar.telegram.bot.service.jms.artemis;
 
-import org.mar.telegram.bot.service.bot.TelegramBotWorkService;
+import org.mar.telegram.bot.service.bot.TelegramBotDownloadFileService;
 import org.mar.telegram.bot.service.jms.MQConsumer;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.dto.LogEvent;
@@ -18,7 +18,7 @@ import static org.mar.telegram.bot.config.MQConf.TELEGRAM_BOT_MQ;
 public class ArtemisMQConsumer implements MQConsumer {
 
     @Autowired
-    private TelegramBotWorkService workService;
+    private TelegramBotDownloadFileService workService;
     @Autowired
     private LoggerService loggerService;
 

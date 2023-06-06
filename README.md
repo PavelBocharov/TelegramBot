@@ -58,7 +58,7 @@ Small project for learn etc. and actual skills.
 * Install Kubernetes(Minikube) - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**
 * Start Minikube
   * First start 
-    * `minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount` - *"D:/temp/k8s"* your PC directory for TelegramBot dat and PostgreSQL.
+    * `minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount` - *"D:/temp/k8s"* your PC directory for TelegramBot data and PostgreSQL.
   * Other command
     * `minikube stop` - stop minikube
     * `minikube start` - start minikube (mount is automatic)

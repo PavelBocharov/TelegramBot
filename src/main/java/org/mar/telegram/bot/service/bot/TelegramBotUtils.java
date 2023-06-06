@@ -12,6 +12,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.cache.BotCache;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
+import org.mar.telegram.bot.service.bot.dto.MessageStatus;
 import org.mar.telegram.bot.service.bot.dto.mapper.CallbackQueryMapper;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.mar.telegram.bot.service.jms.MQSender;
@@ -23,10 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
 
-import java.util.UUID;
-
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mar.telegram.bot.utils.Utils.getMaxPhotoSize;
@@ -63,10 +63,10 @@ public class TelegramBotUtils {
     @Autowired
     protected UserService userInfoService;
 
-    protected MessageStatus createMessageStatus(Update update) {
+    protected MessageStatus createMessageStatus(String rqUuid, Update update) {
         if (nonNull(update)) {
             MessageStatus messageStatus = new MessageStatus();
-            messageStatus.setRqUuid(UUID.randomUUID().toString());
+            messageStatus.setRqUuid(rqUuid);
             if (nonNull(update.message())) {
                 messageStatus.setMsg(update.message());
                 messageStatus.setMsgUserId(update.message().from().id());
@@ -81,52 +81,62 @@ public class TelegramBotUtils {
         throw new RuntimeException("update is null");
     }
 
-    protected MessageStatus checkAdmin(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
-
+    protected void checkAdmin(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check admin: {}", messageStatus);
         if (nonNull(messageStatus.getMsgUserId()) && !adminId.equals(messageStatus.getMsgUserId())) {
             messageStatus.setIsSuccess(true);
             mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check admin FAIL: {}", messageStatus);
         }
-        return messageStatus;
     }
 
-    protected MessageStatus checkCallbackQuery(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
+    protected void checkCallbackQuery(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
 
-        return messageStatus
-                .withIsSuccess(
-                        callbackDataService.checkCallbackData(messageStatus.getRqUuid(), messageStatus.getQuery())
-                );
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check callback query: {}", messageStatus);
+        messageStatus.setIsSuccess(
+                callbackDataService.checkCallbackData(messageStatus.getRqUuid(), messageStatus.getQuery())
+        );
     }
 
-    protected MessageStatus parsText(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
+    protected void parsText(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
 
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Pars text: {}", messageStatus);
         Message message = messageStatus.getMsg();
-        String text = message.text();
-        if (text != null) {
-            text = text.trim();
-            if (!text.isEmpty()) {
-                if (checkAction(messageStatus.getRqUuid(), message.chat().id(), text)) {
-                    return messageStatus.withIsSuccess(true);
-                }
-                if (checkContent(messageStatus.getRqUuid(), message)) {
-                    return messageStatus.withIsSuccess(true);
-                }
+        if (nonNull(message)) {
+            String text = message.text();
+            if (isNotBlank(text)) {
+                text = text.trim();
+                if (isNotBlank(text)) {
+                    if (checkAction(messageStatus.getRqUuid(), message.chat().id(), text)) {
+                        messageStatus.setIsSuccess(true);
+                        return;
+                    }
+                    if (checkContent(messageStatus.getRqUuid(), message)) {
+                        messageStatus.setIsSuccess(true);
+                        return;
+                    }
 
-                cache.setFileName(message.chat().id(), text);
-                botExecutor.execute(messageStatus.getRqUuid(), new SendMessage(message.chat().id(), "New caption - " + text));
-                messageStatus.setIsSuccess(true);
+                    cache.setFileName(message.chat().id(), text);
+                    botExecutor.execute(messageStatus.getRqUuid(), new SendMessage(message.chat().id(), "New caption - " + text));
+                    messageStatus.setIsSuccess(true);
+                }
             }
         }
-        return messageStatus;
     }
 
     private boolean checkAction(String rqUuid, Long chatId, String text) {
         if (text.startsWith(ACTION_CAPTION)) {
             String caption = text.substring(ACTION_CAPTION.length()).trim();
             if (isNotBlank(caption)) {
+                mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Action: {}, caption: {}", ACTION_CAPTION, caption.replace("\n", " <br> "));
                 PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
                 postInfo.setCaption(caption + "\n" + textLine);
                 postInfoService.save(rqUuid, postInfo);
@@ -139,6 +149,7 @@ public class TelegramBotUtils {
             PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
 
             if (isNotBlank(postInfo.getMediaPath()) && isNotBlank(postInfo.getCaption())) {
+                mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Action: {}", ACTION_SEND_POST);
                 callbackDataService.sendPost(rqUuid, groupChatId, postInfo);
                 postInfo = postInfoService.getNotSendPost(rqUuid);
                 postInfo.setIsSend(true);
@@ -171,51 +182,59 @@ public class TelegramBotUtils {
         return false;
     }
 
-    protected MessageStatus savePhoto(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
+    protected void savePhoto(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
 
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check photo: {}", messageStatus);
         Message message = messageStatus.getMsg();
-        if (message.photo() != null && message.photo().length > 0) {
+        if (nonNull(message) && nonNull(message.photo()) && isNotEmpty(message.photo())) {
             PhotoSize ps = getMaxPhotoSize(message.photo());
             if (ps != null) {
                 saveFile(messageStatus.getRqUuid(), message, ps.fileId(), ContentType.Picture);
                 messageStatus.setIsSuccess(true);
             }
         }
-        return messageStatus;
     }
 
-    protected MessageStatus saveDocs(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
+    protected void saveDocs(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
 
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check document: {}", messageStatus);
         Message message = messageStatus.getMsg();
-        if (message.document() != null) {
+        if (nonNull(message) && nonNull(message.document())) {
             saveFile(messageStatus.getRqUuid(), message, message.document().fileId(), ContentType.Doc);
             messageStatus.setIsSuccess(true);
         }
-        return messageStatus;
     }
 
-    protected MessageStatus saveVideo(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
+    protected void saveVideo(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
 
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check video: {}", messageStatus);
         Message message = messageStatus.getMsg();
-        if (message.video() != null) {
+        if (nonNull(message) && nonNull(message.video())) {
             saveFile(messageStatus.getRqUuid(), message, message.video().fileId(), ContentType.Video);
             messageStatus.setIsSuccess(true);
         }
-        return messageStatus;
     }
 
-    protected MessageStatus saveAnimation(MessageStatus messageStatus) {
-        if (messageStatus.getIsSuccess()) return messageStatus;
+    protected void saveAnimation(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess()) {
+            return;
+        }
 
+        mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check gif (animation): {}", messageStatus);
         Message message = messageStatus.getMsg();
-        if (message.animation() != null) {
+        if (nonNull(message) && nonNull(message.animation())) {
             saveFile(messageStatus.getRqUuid(), message, message.animation().fileId(), ContentType.Gif);
             messageStatus.setIsSuccess(true);
         }
-        return messageStatus;
     }
 
     private void saveFile(String rqUuid, Message message, String fileId, ContentType typeDir) {
@@ -239,12 +258,12 @@ public class TelegramBotUtils {
                         );
                         botExecutor.execute(rqUuid, new SendMessage(message.chat().id(), "Work with file: " + getFileResponse.file().filePath()));
                     } catch (Exception ex) {
-                        mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getRootCauseMessage(ex));
+                        mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getStackTrace(ex));
                         botExecutor.execute(rqUuid, new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
                     }
                 },
                 throwable -> {
-                    mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getRootCauseMessage(throwable));
+                    mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getStackTrace(throwable));
                     bot.execute(new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getMessage(throwable)));
                 });
     }
@@ -264,4 +283,9 @@ public class TelegramBotUtils {
         mqSender.sendFileInfo(rqUuid, fileInfo);
     }
 
+    protected void checkEndStatus(MessageStatus messageStatus) {
+        if (messageStatus.getIsSuccess().equals(Boolean.FALSE)) {
+            mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.WARN, "[!!!] So, interesting situation: {}", messageStatus);
+        }
+    }
 }
