@@ -27,6 +27,9 @@ Small project for learn etc. and actual skills.
   - Local - use cache
   - Docker - [TelegramDB](https://github.com/PavelBocharov/TelegramDB) (WebFlux + PostgreSQL)
 - Configuration - [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/). My image -> [DockerHub](https://hub.docker.com/repository/docker/marolok/telegram_conf/general)
+- Test
+  - Unit test - JUnit 5
+  - Integration test - [Testcontainers](https://www.testcontainers.org/)
 
 ## 🚀 Start application
 ### 🟢 Spring Boot application
