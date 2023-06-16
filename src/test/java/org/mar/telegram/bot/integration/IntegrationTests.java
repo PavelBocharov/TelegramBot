@@ -16,6 +16,8 @@ import java.net.URISyntaxException;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mar.telegram.bot.utils.TestUtils.getPropertyInt;
+import static org.mar.telegram.bot.utils.TestUtils.getPropertyStr;
 import static org.mar.telegram.bot.utils.Utils.whatIsUrl;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
@@ -48,7 +50,7 @@ public class IntegrationTests extends InitContainers {
         );
 
         String host = tbotconf.getHost();
-        Integer port = tbotconf.getMappedPort(8888);
+        Integer port = tbotconf.getMappedPort(getPropertyInt("test.integration.config.port"));
         String url = String.format("http://%s:%d/telegram-bot/test", host, port);
         System.out.println(host + " " + port + " --> " + url);
 
@@ -60,13 +62,13 @@ public class IntegrationTests extends InitContainers {
 
         assertTrue(isNotBlank(xml));
 
-        Thread.sleep(10_000L);
+        Thread.sleep(getPropertyInt("test.integration.kafka.start.sleep"));
 
         String tbotHost = tbot.getHost();
-        int tbotPort = tbot.getMappedPort(8080);
+        int tbotPort = tbot.getMappedPort(getPropertyInt("test.integration.tbot.port"));
         String tbotUrl = String.format("http://%s:%d/test", tbotHost, tbotPort);
 
-        String image = "https://www.google.com/images/branding/googlelogo/1x/googlelogo_light_color_272x92dp.png";
+        String image = getPropertyStr("test.image.url");
         String fileName = RandomStringUtils.randomAlphanumeric(5);
         URLInfo urlInfo = whatIsUrl(image);
         LoadFileInfo fileInfo = LoadFileInfo.builder()
@@ -92,7 +94,7 @@ public class IntegrationTests extends InitContainers {
         assertTrue(isNotBlank(rs));
 
         String tdbHost = telegramDb.getHost();
-        int tdbPort = telegramDb.getMappedPort(8081);
+        int tdbPort = telegramDb.getMappedPort(getPropertyInt("test.integration.tbot.db.port"));
         String tdbUrl = String.format("http://%s:%d/postinfo/isNotSend", tdbHost, tdbPort);
 
         await().untilAsserted(() -> {
