@@ -76,6 +76,7 @@ public class SendPost_IT extends InitContainers {
         String fileName = RandomStringUtils.randomAlphanumeric(5);
         URLInfo urlInfo = whatIsUrl(image);
         LoadFileInfo fileInfo = LoadFileInfo.builder()
+//                .chatId(123456789L) //Errors when safe file - send your telegram id and OK
                 .fileUrl(image)
                 .saveToPath("tmp")
                 .fileName(fileName)

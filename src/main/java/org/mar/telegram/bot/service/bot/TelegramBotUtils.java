@@ -288,4 +288,13 @@ public class TelegramBotUtils {
             mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.WARN, "[!!!] So, interesting situation: {}", messageStatus);
         }
     }
+
+    protected void checkUser(MessageStatus status) {
+        if (nonNull(status.getMsgUserId())) {
+            userInfoService.getByUserId(status.getRqUuid(), status.getMsgUserId());
+        } else {
+            mqSender.sendLog(status.getRqUuid(), LogLevel.WARN, "User ID is null.");
+            status.setIsSuccess(true);
+        }
+    }
 }

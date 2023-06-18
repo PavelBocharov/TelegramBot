@@ -34,6 +34,7 @@ public class TelegramBotService extends TelegramBotUtils {
 
     public void workWithMessage(String rqUuid, Update msg) {
         MessageStatus status = createMessageStatus(rqUuid, msg);
+        checkUser(status);
         checkCallbackQuery(status);
         checkAdmin(status);
         parsText(status);
@@ -42,7 +43,6 @@ public class TelegramBotService extends TelegramBotUtils {
         saveAnimation(status);
         saveDocs(status);
         checkEndStatus(status);
-        userInfoService.getByUserId(rqUuid, status.getMsgUserId());
     }
 
 }
