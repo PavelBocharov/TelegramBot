@@ -44,6 +44,9 @@ Small project for learn etc. and actual skills.
    - Maven
      1) Compile jar - `mvn clean install`
      2) Start app - `java -jar ./target/TelegramBot*.jar`
+3) Integration test
+   -  ⚠️Work after build project, because need jar-file for create test docker-image.
+   - Start test: `mvn test  -Dtest="SendPost_IT"`
 
 ### 🚢 Docker compose
 0) [Start info](https://www.baeldung.com/ops/docker-compose)

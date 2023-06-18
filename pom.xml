@@ -21,6 +21,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <telegram.bot.api.version>6.5.0</telegram.bot.api.version>
+        <!--    Integration test     -->
+        <skip.integration.test>true</skip.integration.test>
         <!--    Utils    -->
         <commons-io.version>2.11.0</commons-io.version>
         <jsoup.version>1.15.4</jsoup.version>
@@ -166,49 +168,77 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.integration.test}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>post-integration-test</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.integration.test}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
-                <groupId>org.eclipse.jkube</groupId>
-                <artifactId>kubernetes-maven-plugin</artifactId>
-                <version>${jkube.version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.1.2</version>
                 <configuration>
-                    <images>
-                        <image>
-                            <name>marolok/telegram-bot:v${project.version}</name>
-                            <alias>telegram-bot</alias>
-                            <build>
-                                <from>eclipse-temurin:17.0.6_10-jre-alpine</from>
-                                <entryPoint>
-                                    <exec>
-                                        <arg>java</arg>
-                                        <arg>-jar</arg>
-                                        <arg>/maven/${project.artifactId}-${project.version}.jar</arg>
-                                        <arg>--spring.profiles.active=production</arg>
-                                        <arg>--application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>
-                                        <arg>--application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>
-                                    </exec>
-                                </entryPoint>
-                            </build>
-                        </image>
-                    </images>
-
-                    <resources>
-                        <controller>
-                            <volumes>
-                                <volume>
-                                    <name>local-dir-val</name>
-                                    <type>hostPath</type>
-                                    <!-- Look path in minikube mount <target directory> -->
-                                    <path>${MOUNT_VM_PATH}</path>
-                                    <mounts>
-                                        <mount>${IMAGE_TEMP_DIR}</mount>
-                                    </mounts>
-                                </volume>
-                            </volumes>
-                        </controller>
-                    </resources>
+                    <skip>${skip.integration.test}</skip>
                 </configuration>
             </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.eclipse.jkube</groupId>-->
+<!--                <artifactId>kubernetes-maven-plugin</artifactId>-->
+<!--                <version>${jkube.version}</version>-->
+<!--                <configuration>-->
+<!--                    <images>-->
+<!--                        <image>-->
+<!--                            <name>marolok/telegram-bot:v${project.version}</name>-->
+<!--                            <alias>telegram-bot</alias>-->
+<!--                            <build>-->
+<!--                                <from>eclipse-temurin:17.0.6_10-jre-alpine</from>-->
+<!--                                <entryPoint>-->
+<!--                                    <exec>-->
+<!--                                        <arg>java</arg>-->
+<!--                                        <arg>-jar</arg>-->
+<!--                                        <arg>/maven/${project.artifactId}-${project.version}.jar</arg>-->
+<!--                                        <arg>&#45;&#45;spring.profiles.active=production</arg>-->
+<!--                                        <arg>&#45;&#45;application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>-->
+<!--                                        <arg>&#45;&#45;application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>-->
+<!--                                    </exec>-->
+<!--                                </entryPoint>-->
+<!--                            </build>-->
+<!--                        </image>-->
+<!--                    </images>-->
+
+<!--                    <resources>-->
+<!--                        <controller>-->
+<!--                            <volumes>-->
+<!--                                <volume>-->
+<!--                                    <name>local-dir-val</name>-->
+<!--                                    <type>hostPath</type>-->
+<!--                                    &lt;!&ndash; Look path in minikube mount <target directory> &ndash;&gt;-->
+<!--                                    <path>${MOUNT_VM_PATH}</path>-->
+<!--                                    <mounts>-->
+<!--                                        <mount>${IMAGE_TEMP_DIR}</mount>-->
+<!--                                    </mounts>-->
+<!--                                </volume>-->
+<!--                            </volumes>-->
+<!--                        </controller>-->
+<!--                    </resources>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

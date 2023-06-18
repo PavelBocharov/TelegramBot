@@ -6,8 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 
@@ -22,7 +24,7 @@ import static org.mar.telegram.bot.utils.Utils.whatIsUrl;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 @Testcontainers
-public class IntegrationTests extends InitContainers {
+public class SendPost_IT extends InitContainers {
 
     protected static WebClient webClient = WebClient.create();
 
@@ -48,6 +50,8 @@ public class IntegrationTests extends InitContainers {
                 () -> assertTrue(tbot.isCreated()),
                 () -> assertTrue(tbot.isRunning())
         );
+        Slf4jLogConsumer logger = new Slf4jLogConsumer(LoggerFactory.getLogger(SendPost_IT.class));
+        tbot.followOutput(logger);
 
         String host = tbotconf.getHost();
         Integer port = tbotconf.getMappedPort(getPropertyInt("test.integration.config.port"));

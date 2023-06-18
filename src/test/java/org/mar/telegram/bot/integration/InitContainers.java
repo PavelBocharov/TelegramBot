@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
@@ -86,7 +87,7 @@ abstract public class InitContainers {
             ));
 
     @Container
-    protected static GenericContainer<?> tbot = new GenericContainer<>(DockerImageName.parse(getPropertyStr("test.integration.tbot.image")))
+    protected static GenericContainer<?> tbot = new GenericContainer<>(new ImageFromDockerfile().withFileFromFile(".", new File(".")))
             .withExposedPorts(getPropertyInt("test.integration.tbot.port"))
             .withNetwork(bridge)
             .withNetworkAliases(getPropertyStr("test.integration.tbot.alias"))
