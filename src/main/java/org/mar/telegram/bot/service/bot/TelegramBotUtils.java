@@ -57,6 +57,8 @@ public class TelegramBotUtils {
     @Autowired
     protected CallbackDataService callbackDataService;
     @Autowired
+    protected TelegramBotSendUtils sendUtils;
+    @Autowired
     protected BotExecutor botExecutor;
     @Autowired
     protected PostService postInfoService;
@@ -150,7 +152,7 @@ public class TelegramBotUtils {
 
             if (isNotBlank(postInfo.getMediaPath()) && isNotBlank(postInfo.getCaption())) {
                 mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Action: {}", ACTION_SEND_POST);
-                callbackDataService.sendPost(rqUuid, groupChatId, postInfo);
+                sendUtils.sendPost(rqUuid, groupChatId, postInfo);
                 postInfo = postInfoService.getNotSendPost(rqUuid);
                 postInfo.setIsSend(true);
                 postInfoService.save(rqUuid, postInfo);

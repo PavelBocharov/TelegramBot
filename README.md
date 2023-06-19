@@ -42,7 +42,7 @@ Small project for learn etc. and actual skills.
 2) Build and start project
    - IDEA - start `Main.main()`
    - Maven
-     1) Compile jar - `mvn clean install`
+     1) Compile jar - `mvn clean install -U`
      2) Start app - `java -jar ./target/TelegramBot*.jar`
 3) Integration test
    -  ⚠️Work after build project, because need jar-file for create test docker-image.
