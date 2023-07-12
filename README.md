@@ -42,45 +42,93 @@ Small project for learn etc. and actual skills.
 2) Build and start project
    - IDEA - start `Main.main()`
    - Maven
-     1) Compile jar - `mvn clean install -U`
-     2) Start app - `java -jar ./target/TelegramBot*.jar`
+     1) Compile jar - 
+     ```bash 
+     mvn clean install -U 
+     ```
+     2) Start app -
+     ```bash
+     java -jar ./target/TelegramBot*.jar
+     ```
 3) Integration test
    -  ⚠️Work after build project, because need jar-file for create test docker-image.
-   - Start test: `mvn test  -Dtest="SendPost_IT"`
+   - Start test: 
+   ```bash 
+   mvn clean install -U 
+   mvn test -Dtest="SendPost_IT" -Dskip.integration.test=false
+   ```
 
 ### 🚢 Docker compose
 0) [Start info](https://www.baeldung.com/ops/docker-compose)
-1) Build JAR - `mvn clean install`
+1) Build JAR - 
+    ```bash
+    mvn clean install
+    ```
 2) Set environment in [.env](./.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files
 3) Set ENV in [docker-compose](./docker-compose.yml)
    - `tbotconf.GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
    - `tbotconf.PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
 4) Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml), example [YAML](./src/main/resources/example.yaml))
-5) Start - `docker compose up`
-4) Stop - `docker compose down`
+5) Start - 
+    ```bash
+    docker compose up
+    ```
+6) Stop - 
+    ```bash 
+    docker compose down
+    ```
 
 ### ☸️ Kubernetes
 * Install Kubernetes(Minikube) - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**
 * Start Minikube
-  * First start 
-    * `minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount` - *"D:/temp/k8s"* your PC directory for TelegramBot data and PostgreSQL.
+  * First start - *"D:/temp/k8s"* your PC directory for TelegramBot data and PostgreSQL.
+    ```bash
+    minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount
+    ``` 
   * Other command
-    * `minikube stop` - stop minikube
-    * `minikube start` - start minikube (mount is automatic)
-    * `minikube delete` - delete all data and minikube
-    * `minikube dashboard` - start and open Kubernetes WebUI
+    * Stop minikube
+      ```bash
+      minikube stop
+      ```
+    * Start minikube (mount is automatic)
+      ```bash
+      minikube start
+      ```
+    * Delete all data and minikube
+      ```bash
+      minikube delete
+      ```
+    * Start and open Kubernetes WebUI
+      ```bash
+      minikube dashboard
+      ```
 
 #### 📗 Start with YAML
-* Build docker image - `docker build -t marolok/telegram_bot:*.*.* .`
-* Push docker image - `docker push marolok/telegram_bot:*.*.*`
+* Build docker image
+  ```bash
+  docker build -t marolok/telegram_bot:*.*.* .
+  ```
+* Push docker image
+  ```bash
+  docker push marolok/telegram_bot:*.*.*
+  ```
 * Set environment in [kube_conf.yaml](./k8s/kube_config.yaml) - check _"TelegramConf"_ block
   * `BOT_PROFILE` - application profile (need for application config filename, [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
   * `GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
   * `PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
-* Init config - `kubectl apply -f .\k8s\kube_config.yaml`
-* Init PersistentVolume & PersistentVolumeClaim - `kubectl apply -f .\k8s\kube_pv.yaml`
-* Start - `kubectl apply -f .\k8s\kube_pod.yaml`
+* Init config
+  ```bash
+  kubectl apply -f .\k8s\kube_config.yaml
+  ```
+* Init PersistentVolume & PersistentVolumeClaim
+  ```bash
+  kubectl apply -f .\k8s\kube_pv.yaml
+  ```
+* Start
+  ```bash
+  kubectl apply -f .\k8s\kube_pod.yaml
+  ```
 
 #### 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT STABLE⚠️
 * Set environment in [pom.xml](./pom.xml) - use mount target directory from `Start Minikube`

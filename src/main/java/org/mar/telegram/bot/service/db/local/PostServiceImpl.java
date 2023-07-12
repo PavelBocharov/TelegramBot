@@ -1,6 +1,7 @@
 package org.mar.telegram.bot.service.db.local;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
@@ -20,6 +21,7 @@ import static java.lang.Boolean.TRUE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+@Slf4j
 @Service
 @Profile("local")
 public class PostServiceImpl implements PostService {
@@ -65,6 +67,7 @@ public class PostServiceImpl implements PostService {
             if (isNull(postInfo.getId())) {
                 postInfo.setId(new Random().nextLong());
             }
+            log.debug("Save post info: {}", postInfo);
             postInfoCache.put(postInfo.getId(), postInfo);
         }
         return postInfo;

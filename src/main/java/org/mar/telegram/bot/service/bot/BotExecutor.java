@@ -8,17 +8,24 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.mar.telegram.bot.service.jms.MQSender;
+import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Service
 public class BotExecutor {
+
+    @Value("${application.group.chat.id}")
+    private Long groupChatId;
 
     @Autowired
     private TelegramBot bot;
@@ -41,6 +48,15 @@ public class BotExecutor {
 
                                 postInfo.setMessageId(rs.message().messageId());
                                 postInfo.setChatId(rs.message().chat().id());
+                                if (groupChatId.equals(rs.message().chat().id())) {
+                                    final String filePath = postInfo.getMediaPath();
+                                    String exStr = Utils.removeFile(filePath);
+                                    if(isNotBlank(exStr)) {
+                                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not remove file. Path: {}\n{}", filePath, exStr);
+                                    }
+                                    
+                                    postInfo.setMediaPath(String.format("https://t.me/%s/%d", rs.message().chat().username(), rs.message().messageId()));
+                                }
 
                                 postService.save(rqUuid, postInfo);
                             }
