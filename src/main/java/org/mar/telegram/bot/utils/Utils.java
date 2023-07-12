@@ -5,11 +5,13 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -129,4 +131,15 @@ public class Utils {
         return ps;
     }
 
+    public static String removeFile(final String filePath) {
+        try {
+            File file = new File(filePath);
+            if (file.exists()) {
+                file.delete();
+            }
+            return null;
+        } catch (Exception ex) {
+            return ExceptionUtils.getStackTrace(ex);
+        }
+    }
 }
