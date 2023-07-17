@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.util.Random;
 import java.util.UUID;
@@ -48,9 +47,13 @@ public class UserInfoLocalService implements UserService {
 
     @Override
     public UserDto getByUserId(String rqUuid, long userId) {
-        Cache.Entry<Long, UserDto> entry = Flux.fromIterable(userCache)
-                .filter(userDto -> userDto.getValue().getUserId().equals(userId))
-                .blockFirst();
+        Cache.Entry<Long, UserDto> entry = null;
+        for (Cache.Entry<Long, UserDto> userDto : userCache) {
+            if (userDto.getValue().getUserId().equals(userId)) {
+                entry = userDto;
+                break;
+            }
+        }
 
         UserDto user = entry == null ? null : entry.getValue();
         mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Load user by userID: {}, dto: {}", userId, user);

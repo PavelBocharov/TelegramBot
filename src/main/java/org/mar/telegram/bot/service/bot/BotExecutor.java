@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.function.Consumer;
 
 import static java.util.Objects.isNull;
@@ -44,6 +43,7 @@ public class BotExecutor {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
+                                // TODO get by ID or rqUuid?
                                 PostInfoDto postInfo = postService.getNotSendPost(rqUuid);
 
                                 postInfo.setMessageId(rs.message().messageId());

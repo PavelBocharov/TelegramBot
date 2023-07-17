@@ -19,4 +19,5 @@ public class LoadFileInfo implements Serializable {
     private Long chatId;
     private String fileType;
     private ContentType mediaType;
+    private String textFromUi;
 }

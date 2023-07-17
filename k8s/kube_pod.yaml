@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: telegram-bot
-          image: marolok/telegram_bot:1.4.1
+          image: marolok/telegram_bot:1.6.0
           ports:
             - containerPort: 8080
           volumeMounts:

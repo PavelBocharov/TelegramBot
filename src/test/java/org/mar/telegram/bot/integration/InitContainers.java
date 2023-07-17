@@ -51,7 +51,11 @@ abstract public class InitContainers {
             .withExposedPorts(getPropertyInt("test.integration.tbot.db.port"))
             .withNetwork(bridge)
             .withNetworkAliases(getPropertyStr("test.integration.tbot.db.alias"))
-            .dependsOn(tbotconf, postgreSQL);
+            .dependsOn(tbotconf, postgreSQL)
+            .withEnv(Map.of(
+                    "BOT_PROFILE", getPropertyStr("test.integration.tbot.db.profile"),
+                    "SPRING_CLOUD_CONFIG_SERVER", getPropertyStr("test.integration.tbot.db.config.server")
+            ));
 
     @Container
     protected static GenericContainer<?> zookeeper = new GenericContainer<>(DockerImageName.parse(getPropertyStr("test.integration.zookeeper.image")))

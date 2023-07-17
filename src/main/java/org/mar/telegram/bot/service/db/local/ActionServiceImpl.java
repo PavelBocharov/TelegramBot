@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,12 +50,18 @@ public class ActionServiceImpl implements ActionService {
 
     @Override
     public ActionPostDto getByPostIdAndUserInfoId(String rqUuid, Long postInfoId, Long userId) {
-         Cache.Entry<Long, ActionPostDto> entry = Flux.fromIterable(actionCache)
-                .filter(action ->
-                        action.getValue().getPostId().equals(postInfoId)
-                                && action.getValue().getUserId().equals(userId)
-                )
-                .blockFirst();
+        Cache.Entry<Long, ActionPostDto> entry = null;
+
+        for (Cache.Entry<Long, ActionPostDto> action : actionCache) {
+            if (nonNull(action)
+                    && nonNull(action.getValue())
+                    && postInfoId.equals(action.getValue().getPostId())
+                    && userId.equals(action.getValue().getUserId())
+            ) {
+                entry = action;
+                break;
+            }
+        }
 
         ActionPostDto actionDto = entry == null ? null : entry.getValue();
         mqSender.sendLog(
@@ -98,14 +103,20 @@ public class ActionServiceImpl implements ActionService {
     }
 
     private Long getCount(ActionEnum actionEnum, Long postId) {
-        return Flux.fromIterable(actionCache)
-                .filter(action ->
-                        action.getValue().getActionCallbackData().equals(actionEnum.getCallbackData())
-                        && action.getValue().getPostId().equals(postId)
-                )
-                .count()
-                .blockOptional()
-                .orElse(0L);
+        Long rez = 0L;
+
+        for (Cache.Entry<Long, ActionPostDto> action : actionCache) {
+            if (nonNull(action)
+                    && nonNull(action.getValue())
+                    && nonNull(action.getValue().getActionCallbackData())
+                    && nonNull(action.getValue().getPostId())
+                    && action.getValue().getActionCallbackData().equals(actionEnum.getCallbackData())
+                    && action.getValue().getPostId().equals(postId)) {
+                rez++;
+            }
+        }
+
+        return rez;
     }
 
 }

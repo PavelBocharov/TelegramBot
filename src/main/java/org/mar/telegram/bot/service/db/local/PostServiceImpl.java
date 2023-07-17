@@ -12,7 +12,6 @@ import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 
 import java.util.Random;
 import java.util.UUID;
@@ -47,9 +46,16 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostInfoDto getNotSendPost(String rqUuid) {
-        Cache.Entry<Long, PostInfoDto> cacheData = Flux.fromIterable(postInfoCache)
-                .filter(postInfo -> !TRUE.equals(postInfo.getValue().getIsSend()))
-                .blockFirst();
+        Cache.Entry<Long, PostInfoDto> cacheData = null;
+
+        for (Cache.Entry<Long, PostInfoDto> postInfo : postInfoCache) {
+            if (nonNull(postInfo)
+                    && nonNull(postInfo.getValue())
+                    && !TRUE.equals(postInfo.getValue().getIsSend())) {
+                cacheData = postInfo;
+                break;
+            }
+        }
 
         PostInfoDto dto;
         if (isNull(cacheData) || isNull(cacheData.getValue())) {
@@ -75,10 +81,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostInfoDto getByChatIdAndMessageId(String rqUuid, Long chatId, Integer messageId) {
-        return Flux.fromIterable(postInfoCache)
-                .filter(postInfo -> postInfo.getValue().getChatId().equals(chatId)
-                    && postInfo.getValue().getMessageId().equals(messageId)
-                )
-                .blockFirst().getValue();
+        PostInfoDto dto = null;
+
+        for (Cache.Entry<Long, PostInfoDto> entry : postInfoCache) {
+            if (entry.getValue().getChatId().equals(chatId) && entry.getValue().getMessageId().equals(messageId)) {
+                dto = entry.getValue();
+                break;
+            }
+        }
+
+        return dto;
     }
 }
