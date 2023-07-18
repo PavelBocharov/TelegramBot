@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.mar.telegram.bot.controller.dto.SendPost;
 import org.mar.telegram.bot.service.bot.TelegramBotSendUtils;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @RestController
@@ -40,8 +42,8 @@ public class SendPostController {
     @Value("${application.group.chat.id}")
     private Long groupChatId;
 
-    @PostMapping()
-    public void sendMsg(@RequestBody SendPost rq) {
+    @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public void sendMsg(@RequestBody @Valid SendPost rq) {
         mqSender.sendLog(rq.getRqUuid(), LogLevel.DEBUG, "REST API: {}", rq);
 
         URLInfo fileInfo = Utils.whatIsUrl(rq.getFilePath());

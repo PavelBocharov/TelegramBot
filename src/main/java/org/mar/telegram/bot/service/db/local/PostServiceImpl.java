@@ -84,7 +84,7 @@ public class PostServiceImpl implements PostService {
         PostInfoDto dto = null;
 
         for (Cache.Entry<Long, PostInfoDto> entry : postInfoCache) {
-            if (entry.getValue().getChatId().equals(chatId) && entry.getValue().getMessageId().equals(messageId)) {
+            if (chatId.equals(entry.getValue().getChatId()) && messageId.equals(entry.getValue().getMessageId())) {
                 dto = entry.getValue();
                 break;
             }
