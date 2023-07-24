@@ -2,6 +2,7 @@ package org.mar.telegram.bot.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.mar.telegram.bot.controller.dto.BaseRs;
 import org.mar.telegram.bot.controller.dto.SendPost;
 import org.mar.telegram.bot.service.bot.TelegramBotSendUtils;
 import org.mar.telegram.bot.service.bot.db.ActionService;
@@ -16,11 +17,9 @@ import org.mar.telegram.bot.utils.ContentType;
 import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,7 +42,7 @@ public class SendPostController {
     private Long groupChatId;
 
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    public void sendMsg(@RequestBody @Valid SendPost rq) {
+    public BaseRs sendMsg(@RequestBody @Valid SendPost rq) {
         mqSender.sendLog(rq.getRqUuid(), LogLevel.DEBUG, "REST API: {}", rq);
 
         URLInfo fileInfo = Utils.whatIsUrl(rq.getFilePath());
@@ -71,6 +70,7 @@ public class SendPostController {
             postInfoDto.setIsSend(true);
             postService.save(rq.getRqUuid(), postInfoDto);
         }
+        return BaseRs.builder().rqUuid(rq.getRqUuid()).rqTm(new Date()).build();
     }
 
     private String getCaption(Map<String, String> captionMap, List<String> hashTags) {
