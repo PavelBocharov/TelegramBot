@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.mar.telegram.bot.controller.dto.BaseRs;
 import org.mar.telegram.bot.controller.dto.SendPost;
+import org.mar.telegram.bot.controller.dto.TelegramMessage;
 import org.mar.telegram.bot.service.bot.TelegramBotSendUtils;
+import org.mar.telegram.bot.service.bot.TelegramBotService;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
@@ -34,6 +36,7 @@ public class SendPostController {
 
     private final MQSender mqSender;
     private final TelegramBotSendUtils sendUtils;
+    private final TelegramBotService telegramBotWorker;
     private final PostService postService;
     private final ActionService actionService;
     private final UserService userService;
@@ -70,6 +73,12 @@ public class SendPostController {
             postInfoDto.setIsSend(true);
             postService.save(rq.getRqUuid(), postInfoDto);
         }
+        return BaseRs.builder().rqUuid(rq.getRqUuid()).rqTm(new Date()).build();
+    }
+
+    @PostMapping(value = "/msg", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    public BaseRs sendMsg(@RequestBody @Valid TelegramMessage rq) {
+        telegramBotWorker.workWithMessage(rq);
         return BaseRs.builder().rqUuid(rq.getRqUuid()).rqTm(new Date()).build();
     }
 

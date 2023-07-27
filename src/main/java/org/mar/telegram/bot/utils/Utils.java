@@ -1,6 +1,5 @@
 package org.mar.telegram.bot.utils;
 
-import com.pengrad.telegrambot.model.PhotoSize;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -9,6 +8,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
+import org.mar.telegram.bot.controller.dto.PhotoSizeDto;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
 
 import java.io.File;
@@ -115,15 +115,15 @@ public class Utils {
         return null;
     }
 
-    public static PhotoSize getMaxPhotoSize(PhotoSize... photoSizes) {
+    public static PhotoSizeDto getMaxPhotoSize(List<PhotoSizeDto> photoSizes) {
         if (isEmpty(photoSizes)) return null;
 
-        PhotoSize ps = null;
-        for (PhotoSize photoSize : photoSizes) {
+        PhotoSizeDto ps = null;
+        for (PhotoSizeDto photoSize : photoSizes) {
             if (ps == null) {
                 ps = photoSize;
             } else {
-                if (ps.fileSize() < photoSize.fileSize()) {
+                if (ps.getFileSize() < photoSize.getFileSize()) {
                     ps = photoSize;
                 }
             }

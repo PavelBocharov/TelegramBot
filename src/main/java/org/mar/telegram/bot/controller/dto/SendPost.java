@@ -4,23 +4,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
-@Builder
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendPost implements Serializable {
+public class SendPost extends BaseRq {
 
-    @NotBlank
-    private String rqUuid;
-    @NotNull
-    private Date rqTm;
     @NotNull
     private Long userId;
     @NotBlank

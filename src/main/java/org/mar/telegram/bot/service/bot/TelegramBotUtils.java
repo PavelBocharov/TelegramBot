@@ -1,19 +1,18 @@
 package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
-import com.pengrad.telegrambot.model.Message;
-import com.pengrad.telegrambot.model.PhotoSize;
-import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.cache.BotCache;
+import org.mar.telegram.bot.controller.dto.MessageDto;
+import org.mar.telegram.bot.controller.dto.PhotoSizeDto;
+import org.mar.telegram.bot.controller.dto.TelegramMessage;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
 import org.mar.telegram.bot.service.bot.dto.MessageStatus;
-import org.mar.telegram.bot.service.bot.dto.mapper.CallbackQueryMapper;
 import org.mar.telegram.bot.service.db.dto.PostInfoDto;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
@@ -26,7 +25,7 @@ import org.springframework.boot.logging.LogLevel;
 
 import static java.lang.String.format;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
+import static org.apache.commons.collections.CollectionUtils.isNotEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mar.telegram.bot.utils.Utils.getMaxPhotoSize;
@@ -65,16 +64,16 @@ public class TelegramBotUtils {
     @Autowired
     protected UserService userInfoService;
 
-    protected MessageStatus createMessageStatus(String rqUuid, Update update) {
-        if (nonNull(update)) {
+    protected MessageStatus createMessageStatus(TelegramMessage msg) {
+        if (nonNull(msg)) {
             MessageStatus messageStatus = new MessageStatus();
-            messageStatus.setRqUuid(rqUuid);
-            if (nonNull(update.message())) {
-                messageStatus.setMsg(update.message());
-                messageStatus.setMsgUserId(update.message().from().id());
+            messageStatus.setRqUuid(msg.getRqUuid());
+            if (nonNull(msg.getMsg())) {
+                messageStatus.setMsg(msg.getMsg());
+                messageStatus.setMsgUserId(msg.getMsg().getFromUserId());
             }
-            if (nonNull(update.callbackQuery())) {
-                messageStatus.setQuery(CallbackQueryMapper.toDto(update.callbackQuery()));
+            if (nonNull(msg.getCallbackQuery())) {
+                messageStatus.setQuery(msg.getCallbackQuery());
                 messageStatus.setMsgUserId(messageStatus.getQuery().getFromUserId());
             }
             mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Get message: {}", messageStatus);
@@ -111,13 +110,13 @@ public class TelegramBotUtils {
         }
 
         mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Pars text: {}", messageStatus);
-        Message message = messageStatus.getMsg();
+        MessageDto message = messageStatus.getMsg();
         if (nonNull(message)) {
-            String text = message.text();
+            String text = message.getText();
             if (isNotBlank(text)) {
                 text = text.trim();
                 if (isNotBlank(text)) {
-                    if (checkAction(messageStatus.getRqUuid(), message.chat().id(), text)) {
+                    if (checkAction(messageStatus.getRqUuid(), message.getChatId(), text)) {
                         messageStatus.setIsSuccess(true);
                         return;
                     }
@@ -126,8 +125,8 @@ public class TelegramBotUtils {
                         return;
                     }
 
-                    cache.setFileName(message.chat().id(), text);
-                    botExecutor.execute(messageStatus.getRqUuid(), new SendMessage(message.chat().id(), "New caption - " + text));
+                    cache.setFileName(message.getChatId(), text);
+                    botExecutor.execute(messageStatus.getRqUuid(), new SendMessage(message.getChatId(), "New caption - " + text));
                     messageStatus.setIsSuccess(true);
                 }
             }
@@ -169,16 +168,16 @@ public class TelegramBotUtils {
         return false;
     }
 
-    private boolean checkContent(String rqUuid, Message message) {
-        String text = message.text();
+    private boolean checkContent(String rqUuid, MessageDto message) {
+        String text = message.getText();
         URLInfo info = Utils.whatIsUrl(text);
         if (info != null
                 && info.getContentType() != null
                 && !info.getContentType().equals(ContentType.Text)
         ) {
-            botExecutor.execute(rqUuid, new SendMessage(message.chat().id(), format("Detect '%s' URL - %s", info.getContentType().getTypeDit(), info.getUrl())));
+            botExecutor.execute(rqUuid, new SendMessage(message.getChatId(), format("Detect '%s' URL - %s", info.getContentType().getTypeDit(), info.getUrl())));
             String savePath = downloadPath + info.getContentType().getTypeDit() + "//" + FilenameUtils.getName(info.getUrl());
-            saveToDisk(rqUuid, info, savePath, message.chat().id(), info.getContentType());
+            saveToDisk(rqUuid, info, savePath, message.getChatId(), info.getContentType());
             return true;
         }
         return false;
@@ -190,11 +189,11 @@ public class TelegramBotUtils {
         }
 
         mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check photo: {}", messageStatus);
-        Message message = messageStatus.getMsg();
-        if (nonNull(message) && nonNull(message.photo()) && isNotEmpty(message.photo())) {
-            PhotoSize ps = getMaxPhotoSize(message.photo());
+        MessageDto message = messageStatus.getMsg();
+        if (nonNull(message) && isNotEmpty(message.getPhotoSizeList())) {
+            PhotoSizeDto ps = getMaxPhotoSize(message.getPhotoSizeList());
             if (ps != null) {
-                saveFile(messageStatus.getRqUuid(), message, ps.fileId(), ContentType.Picture);
+                saveFile(messageStatus.getRqUuid(), message, ps.getFileId(), ContentType.Picture);
                 messageStatus.setIsSuccess(true);
             }
         }
@@ -206,9 +205,9 @@ public class TelegramBotUtils {
         }
 
         mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check document: {}", messageStatus);
-        Message message = messageStatus.getMsg();
-        if (nonNull(message) && nonNull(message.document())) {
-            saveFile(messageStatus.getRqUuid(), message, message.document().fileId(), ContentType.Doc);
+        MessageDto message = messageStatus.getMsg();
+        if (nonNull(message) && isNotBlank(message.getDocumentFileId())) {
+            saveFile(messageStatus.getRqUuid(), message, message.getDocumentFileId(), ContentType.Doc);
             messageStatus.setIsSuccess(true);
         }
     }
@@ -219,9 +218,9 @@ public class TelegramBotUtils {
         }
 
         mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check video: {}", messageStatus);
-        Message message = messageStatus.getMsg();
-        if (nonNull(message) && nonNull(message.video())) {
-            saveFile(messageStatus.getRqUuid(), message, message.video().fileId(), ContentType.Video);
+        MessageDto message = messageStatus.getMsg();
+        if (nonNull(message) && isNotBlank(message.getVideoFileId())) {
+            saveFile(messageStatus.getRqUuid(), message, message.getVideoFileId(), ContentType.Video);
             messageStatus.setIsSuccess(true);
         }
     }
@@ -232,14 +231,14 @@ public class TelegramBotUtils {
         }
 
         mqSender.sendLog(messageStatus.getRqUuid(), LogLevel.DEBUG, "Check gif (animation): {}", messageStatus);
-        Message message = messageStatus.getMsg();
-        if (nonNull(message) && nonNull(message.animation())) {
-            saveFile(messageStatus.getRqUuid(), message, message.animation().fileId(), ContentType.Gif);
+        MessageDto message = messageStatus.getMsg();
+        if (nonNull(message) && isNotBlank(message.getAnimationFileId())) {
+            saveFile(messageStatus.getRqUuid(), message, message.getAnimationFileId(), ContentType.Gif);
             messageStatus.setIsSuccess(true);
         }
     }
 
-    private void saveFile(String rqUuid, Message message, String fileId, ContentType typeDir) {
+    private void saveFile(String rqUuid, MessageDto message, String fileId, ContentType typeDir) {
         GetFile request = new GetFile(fileId);
 
         botExecutor.execute(
@@ -255,18 +254,18 @@ public class TelegramBotUtils {
                                 rqUuid,
                                 URLInfo.builder().contentType(typeDir).url(bot.getFullFilePath(getFileResponse.file())).build(),
                                 savePath,
-                                message.chat().id(),
+                                message.getChatId(),
                                 typeDir
                         );
-                        botExecutor.execute(rqUuid, new SendMessage(message.chat().id(), "Work with file: " + getFileResponse.file().filePath()));
+                        botExecutor.execute(rqUuid, new SendMessage(message.getChatId(), "Work with file: " + getFileResponse.file().filePath()));
                     } catch (Exception ex) {
                         mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getStackTrace(ex));
-                        botExecutor.execute(rqUuid, new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
+                        botExecutor.execute(rqUuid, new SendMessage(message.getChatId(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
                     }
                 },
                 throwable -> {
                     mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getStackTrace(throwable));
-                    bot.execute(new SendMessage(message.chat().id(), "Not save file: " + ExceptionUtils.getMessage(throwable)));
+                    bot.execute(new SendMessage(message.getChatId(), "Not save file: " + ExceptionUtils.getMessage(throwable)));
                 });
     }
 
