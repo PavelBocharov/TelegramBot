@@ -13,7 +13,7 @@ import org.mar.telegram.bot.controller.dto.TelegramMessage;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
 import org.mar.telegram.bot.service.bot.dto.MessageStatus;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
@@ -138,7 +138,7 @@ public class TelegramBotUtils {
             String caption = text.substring(ACTION_CAPTION.length()).trim();
             if (isNotBlank(caption)) {
                 mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Action: {}, caption: {}", ACTION_CAPTION, caption.replace("\n", " <br> "));
-                PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
+                PostInfoDtoRs postInfo = postInfoService.getNotSendPost(rqUuid);
                 postInfo.setCaption(caption + "\n" + textLine);
                 postInfoService.save(rqUuid, postInfo);
             } else {
@@ -147,7 +147,7 @@ public class TelegramBotUtils {
             return true;
         }
         if (text.equals(ACTION_SEND_POST)) {
-            PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
+            PostInfoDtoRs postInfo = postInfoService.getNotSendPost(rqUuid);
 
             if (isNotBlank(postInfo.getMediaPath()) && isNotBlank(postInfo.getCaption())) {
                 mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Action: {}", ACTION_SEND_POST);

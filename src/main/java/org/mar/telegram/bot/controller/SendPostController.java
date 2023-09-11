@@ -10,8 +10,8 @@ import org.mar.telegram.bot.service.bot.TelegramBotService;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
-import org.mar.telegram.bot.service.db.dto.ActionPostDto;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
 import org.mar.telegram.bot.service.db.dto.UserDto;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
@@ -54,18 +54,17 @@ public class SendPostController {
 
             UserDto user = userService.getByUserId(rq.getRqUuid(), rq.getUserId());
 
-            PostInfoDto postInfoDto = postService.save(rq.getRqUuid(), PostInfoDto.builder()
-                    .isSend(false)
-                    .chatId(groupChatId)
-                    .mediaPath(rq.getFilePath())
-                    .caption(getCaption(rq.getCaption(), rq.getHashTags()))
-                    .typeDir(fileInfo.getContentType().getTypeDit())
-                    .build()
+            PostInfoDtoRs postInfoDto = postService.save(rq.getRqUuid(), new PostInfoDtoRs()
+                    .withIsSend(false)
+                    .withChatId(groupChatId)
+                    .withMediaPath(rq.getFilePath())
+                    .withCaption(getCaption(rq.getCaption(), rq.getHashTags()))
+                    .withTypeDir(fileInfo.getContentType().getTypeDit())
             );
 
             actionService.save(
                     rq.getRqUuid(),
-                    ActionPostDto.builder().postId(postInfoDto.getId()).userId(user.getId()).build()
+                    new ActionPostDtoRs().withPostId(postInfoDto.getId()).withUserId(user.getId())
             );
 
             sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto);
@@ -73,13 +72,13 @@ public class SendPostController {
             postInfoDto.setIsSend(true);
             postService.save(rq.getRqUuid(), postInfoDto);
         }
-        return BaseRs.builder().rqUuid(rq.getRqUuid()).rqTm(new Date()).build();
+        return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }
 
     @PostMapping(value = "/msg", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     public BaseRs sendMsg(@RequestBody @Valid TelegramMessage rq) {
         telegramBotWorker.workWithMessage(rq);
-        return BaseRs.builder().rqUuid(rq.getRqUuid()).rqTm(new Date()).build();
+        return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }
 
     private String getCaption(Map<String, String> captionMap, List<String> hashTags) {

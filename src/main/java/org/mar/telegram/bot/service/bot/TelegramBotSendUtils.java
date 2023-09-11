@@ -7,7 +7,7 @@ import com.pengrad.telegrambot.request.SendVideo;
 import lombok.RequiredArgsConstructor;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.db.dto.ActionEnum;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.utils.ContentType;
 import org.springframework.boot.logging.LogLevel;
@@ -29,7 +29,7 @@ public class TelegramBotSendUtils {
     private final ActionService actionService;
     private final MQSender mqSender;
 
-    public void sendPost(String rqUuid, Long groupChatID, PostInfoDto postInfo) {
+    public void sendPost(String rqUuid, Long groupChatID, PostInfoDtoRs postInfo) {
         mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Send post to chat ID: {}, post info: {}", groupChatID, postInfo);
         ContentType postType = ContentType.getTypeByDir(postInfo.getTypeDir());
         if (Doc.equals(postType)) {
@@ -47,14 +47,14 @@ public class TelegramBotSendUtils {
         }
     }
 
-    private void sendVideoPost(String rqUuid, Long chatId, PostInfoDto postInfo) {
+    private void sendVideoPost(String rqUuid, Long chatId, PostInfoDtoRs postInfo) {
         SendVideo msg = new SendVideo(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
         botExecutor.execute(rqUuid, msg);
     }
 
-    private void sendPhotoPost(String rqUuid, Long chatId, PostInfoDto postInfo) {
+    private void sendPhotoPost(String rqUuid, Long chatId, PostInfoDtoRs postInfo) {
         SendPhoto msg = new SendPhoto(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));

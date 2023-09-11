@@ -26,6 +26,7 @@
         <!--    Utils    -->
         <commons-io.version>2.11.0</commons-io.version>
         <jsoup.version>1.15.4</jsoup.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <!--    Cache    -->
         <ehcache.version>3.10.8</ehcache.version>
         <jredis.version>5.0.0-alpha1</jredis.version>
@@ -108,6 +109,11 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
         <!--    Config    -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -166,6 +172,25 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
@@ -197,48 +222,48 @@
                     <skip>${skip.integration.test}</skip>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.eclipse.jkube</groupId>-->
-<!--                <artifactId>kubernetes-maven-plugin</artifactId>-->
-<!--                <version>${jkube.version}</version>-->
-<!--                <configuration>-->
-<!--                    <images>-->
-<!--                        <image>-->
-<!--                            <name>marolok/telegram-bot:v${project.version}</name>-->
-<!--                            <alias>telegram-bot</alias>-->
-<!--                            <build>-->
-<!--                                <from>eclipse-temurin:17.0.6_10-jre-alpine</from>-->
-<!--                                <entryPoint>-->
-<!--                                    <exec>-->
-<!--                                        <arg>java</arg>-->
-<!--                                        <arg>-jar</arg>-->
-<!--                                        <arg>/maven/${project.artifactId}-${project.version}.jar</arg>-->
-<!--                                        <arg>&#45;&#45;spring.profiles.active=production</arg>-->
-<!--                                        <arg>&#45;&#45;application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>-->
-<!--                                        <arg>&#45;&#45;application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>-->
-<!--                                    </exec>-->
-<!--                                </entryPoint>-->
-<!--                            </build>-->
-<!--                        </image>-->
-<!--                    </images>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.eclipse.jkube</groupId>-->
+            <!--                <artifactId>kubernetes-maven-plugin</artifactId>-->
+            <!--                <version>${jkube.version}</version>-->
+            <!--                <configuration>-->
+            <!--                    <images>-->
+            <!--                        <image>-->
+            <!--                            <name>marolok/telegram-bot:v${project.version}</name>-->
+            <!--                            <alias>telegram-bot</alias>-->
+            <!--                            <build>-->
+            <!--                                <from>eclipse-temurin:17.0.6_10-jre-alpine</from>-->
+            <!--                                <entryPoint>-->
+            <!--                                    <exec>-->
+            <!--                                        <arg>java</arg>-->
+            <!--                                        <arg>-jar</arg>-->
+            <!--                                        <arg>/maven/${project.artifactId}-${project.version}.jar</arg>-->
+            <!--                                        <arg>&#45;&#45;spring.profiles.active=production</arg>-->
+            <!--                                        <arg>&#45;&#45;application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>-->
+            <!--                                        <arg>&#45;&#45;application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>-->
+            <!--                                    </exec>-->
+            <!--                                </entryPoint>-->
+            <!--                            </build>-->
+            <!--                        </image>-->
+            <!--                    </images>-->
 
-<!--                    <resources>-->
-<!--                        <controller>-->
-<!--                            <volumes>-->
-<!--                                <volume>-->
-<!--                                    <name>local-dir-val</name>-->
-<!--                                    <type>hostPath</type>-->
-<!--                                    &lt;!&ndash; Look path in minikube mount <target directory> &ndash;&gt;-->
-<!--                                    <path>${MOUNT_VM_PATH}</path>-->
-<!--                                    <mounts>-->
-<!--                                        <mount>${IMAGE_TEMP_DIR}</mount>-->
-<!--                                    </mounts>-->
-<!--                                </volume>-->
-<!--                            </volumes>-->
-<!--                        </controller>-->
-<!--                    </resources>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
+            <!--                    <resources>-->
+            <!--                        <controller>-->
+            <!--                            <volumes>-->
+            <!--                                <volume>-->
+            <!--                                    <name>local-dir-val</name>-->
+            <!--                                    <type>hostPath</type>-->
+            <!--                                    &lt;!&ndash; Look path in minikube mount <target directory> &ndash;&gt;-->
+            <!--                                    <path>${MOUNT_VM_PATH}</path>-->
+            <!--                                    <mounts>-->
+            <!--                                        <mount>${IMAGE_TEMP_DIR}</mount>-->
+            <!--                                    </mounts>-->
+            <!--                                </volume>-->
+            <!--                            </volumes>-->
+            <!--                        </controller>-->
+            <!--                    </resources>-->
+            <!--                </configuration>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 

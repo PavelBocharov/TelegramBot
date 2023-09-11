@@ -62,7 +62,7 @@ Small project for learn etc. and actual skills.
 0) [Start info](https://www.baeldung.com/ops/docker-compose)
 1) Build JAR - 
     ```bash
-    mvn clean install
+    mvn clean install -U
     ```
 2) Set environment in [.env](./.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files
@@ -82,10 +82,15 @@ Small project for learn etc. and actual skills.
 ### ☸️ Kubernetes
 * Install Kubernetes(Minikube) - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**
 * Start Minikube
-  * First start - *"D:/temp/k8s"* your PC directory for TelegramBot data and PostgreSQL.
+  * First start
+    * Mount dir - *"D:/temp/k8s"* your PC directory for TelegramBot data and PostgreSQL.
     ```bash
     minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount
-    ``` 
+    ```
+    * Add Ingress
+    ```bash
+    minikube addons enable ingress
+    ```
   * Other command
     * Stop minikube
       ```bash
@@ -105,6 +110,13 @@ Small project for learn etc. and actual skills.
       ```
 
 #### 📗 Start with YAML
+
+```bash 
+mvn clean install -U 
+docker build -t marolok/telegram_bot:1.7.1 .
+docker push marolok/telegram_bot:1.7.1
+```
+
 * Build docker image
   ```bash
   docker build -t marolok/telegram_bot:*.*.* .
@@ -119,16 +131,25 @@ Small project for learn etc. and actual skills.
   * `PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
 * Init config
   ```bash
-  kubectl apply -f .\k8s\kube_config.yaml
+  kubectl apply -f ./k8s/kube_config.yaml
   ```
 * Init PersistentVolume & PersistentVolumeClaim
   ```bash
-  kubectl apply -f .\k8s\kube_pv.yaml
+  kubectl apply -f ./k8s/kube_pv.yaml
   ```
-* Start
+* Deploy pods
   ```bash
-  kubectl apply -f .\k8s\kube_pod.yaml
+  kubectl apply -f ./k8s/kube_pod.yaml
   ```
+* Ingress config
+  ```bash
+  kubectl apply -f ./k8s/kube_ingress.yaml
+  ```
+  * Get application URL
+  ```bash
+  minikube service tbot-ui-service --url
+  ```
+  ![](./src/main/resources/img/screen_5.png)
 
 #### 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT STABLE⚠️
 * Set environment in [pom.xml](./pom.xml) - use mount target directory from `Start Minikube`

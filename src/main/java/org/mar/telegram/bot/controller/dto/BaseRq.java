@@ -7,17 +7,17 @@ import lombok.*;
 import java.io.Serializable;
 import java.util.Date;
 
+@With
 @Getter
 @Setter
-@Builder
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class BaseRq implements Serializable {
 
     @NotBlank
-    private String rqUuid;
+    protected String rqUuid;
     @NotNull
-    private Date rqTm;
+    protected Date rqTm;
 
 }

@@ -3,7 +3,7 @@ package org.mar.telegram.bot.integration;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.mar.telegram.bot.service.jms.dto.URLInfo;
 import org.slf4j.LoggerFactory;
@@ -103,10 +103,10 @@ public class SendPost_IT extends InitContainers {
         String tdbUrl = String.format("http://%s:%d/postinfo/isNotSend", tdbHost, tdbPort);
 
         await().untilAsserted(() -> {
-            PostInfoDto postInfoDto = webClient.get()
+            PostInfoDtoRs postInfoDto = webClient.get()
                     .uri(tdbUrl)
                     .retrieve()
-                    .bodyToMono(PostInfoDto.class)
+                    .bodyToMono(PostInfoDtoRs.class)
                     .block();
 
             assertNotNull(postInfoDto);

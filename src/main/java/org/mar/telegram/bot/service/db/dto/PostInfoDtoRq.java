@@ -1,17 +1,16 @@
 package org.mar.telegram.bot.service.db.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.mar.telegram.bot.controller.dto.BaseRq;
+import org.mar.telegram.bot.controller.dto.BaseRs;
 
-import java.io.Serializable;
-
-@Data
-@Builder
+@With
+@Getter
+@Setter
+@ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostInfoDto implements Serializable {
+public class PostInfoDtoRq extends BaseRq {
 
     private Long id;
     private String mediaPath;

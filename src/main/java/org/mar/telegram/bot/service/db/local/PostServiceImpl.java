@@ -7,8 +7,11 @@ import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.core.Ehcache;
+import org.mapstruct.factory.Mappers;
+import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -30,25 +33,26 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private CacheManager cacheManager;
 
-    private Ehcache<Long, PostInfoDto> postInfoCache;
+    private Ehcache<Long, PostInfoDtoRs> postInfoCache;
+    private DBIntegrationMapper postInfoMapper = Mappers.getMapper(DBIntegrationMapper.class);
 
     @PostConstruct
     public void initCache() {
-        postInfoCache = (Ehcache<Long, PostInfoDto>) cacheManager
+        postInfoCache = (Ehcache<Long, PostInfoDtoRs>) cacheManager
                 .createCache(
                         POST_ACTION_CACHE,
                         CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                                Long.class, PostInfoDto.class,
+                                Long.class, PostInfoDtoRs.class,
                                 ResourcePoolsBuilder.heap(100)
                         )
                 );
     }
 
     @Override
-    public PostInfoDto getNotSendPost(String rqUuid) {
-        Cache.Entry<Long, PostInfoDto> cacheData = null;
+    public PostInfoDtoRs getNotSendPost(String rqUuid) {
+        Cache.Entry<Long, PostInfoDtoRs> cacheData = null;
 
-        for (Cache.Entry<Long, PostInfoDto> postInfo : postInfoCache) {
+        for (Cache.Entry<Long, PostInfoDtoRs> postInfo : postInfoCache) {
             if (nonNull(postInfo)
                     && nonNull(postInfo.getValue())
                     && !TRUE.equals(postInfo.getValue().getIsSend())) {
@@ -57,9 +61,9 @@ public class PostServiceImpl implements PostService {
             }
         }
 
-        PostInfoDto dto;
+        PostInfoDtoRs dto;
         if (isNull(cacheData) || isNull(cacheData.getValue())) {
-            dto = save(rqUuid, PostInfoDto.builder().isSend(false).build());
+            dto = save(rqUuid, new PostInfoDtoRs().withIsSend(false));
         } else {
             dto = cacheData.getValue();
         }
@@ -68,7 +72,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfoDto save(String rqUuid, PostInfoDto postInfo) {
+    public PostInfoDtoRs save(String rqUuid, PostInfoDtoRs postInfo) {
         if (nonNull(postInfo)) {
             if (isNull(postInfo.getId())) {
                 postInfo.setId(new Random().nextLong());
@@ -80,10 +84,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfoDto getByChatIdAndMessageId(String rqUuid, Long chatId, Integer messageId) {
-        PostInfoDto dto = null;
+    public PostInfoDtoRs getByChatIdAndMessageId(String rqUuid, Long chatId, Integer messageId) {
+        PostInfoDtoRs dto = null;
 
-        for (Cache.Entry<Long, PostInfoDto> entry : postInfoCache) {
+        for (Cache.Entry<Long, PostInfoDtoRs> entry : postInfoCache) {
             if (chatId.equals(entry.getValue().getChatId()) && messageId.equals(entry.getValue().getMessageId())) {
                 dto = entry.getValue();
                 break;

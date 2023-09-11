@@ -6,8 +6,8 @@ import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
 import org.mar.telegram.bot.service.bot.dto.CallbackQueryDto;
-import org.mar.telegram.bot.service.db.dto.ActionPostDto;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
 import org.mar.telegram.bot.service.db.dto.UserDto;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.boot.logging.LogLevel;
@@ -35,10 +35,10 @@ public class CallbackDataService {
             Long userId = query.getFromUserId();
 
             // create/update user action
-            PostInfoDto postInfo = postService.getByChatIdAndMessageId(rqUuid, chatId, messageId);
+            PostInfoDtoRs postInfo = postService.getByChatIdAndMessageId(rqUuid, chatId, messageId);
             UserDto user = userService.getByUserId(rqUuid, userId);
 
-            ActionPostDto actionPost = actionService.getByPostIdAndUserInfoId(rqUuid, postInfo.getId(), user.getId());
+            ActionPostDtoRs actionPost = actionService.getByPostIdAndUserInfoId(rqUuid, postInfo.getId(), user.getId());
             actionPost.setActionCallbackData(query.getActionCallbackData());
             actionService.save(rqUuid, actionPost);
 

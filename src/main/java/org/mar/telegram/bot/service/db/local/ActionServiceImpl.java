@@ -6,9 +6,12 @@ import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.core.Ehcache;
+import org.mapstruct.factory.Mappers;
+import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.db.dto.ActionEnum;
-import org.mar.telegram.bot.service.db.dto.ActionPostDto;
+import org.mar.telegram.bot.service.db.dto.ActionPostDtoRq;
+import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.logging.LogLevel;
@@ -34,25 +37,26 @@ public class ActionServiceImpl implements ActionService {
     @Autowired
     private MQSender mqSender;
 
-    private Ehcache<Long, ActionPostDto> actionCache;
+    private Ehcache<Long, ActionPostDtoRs> actionCache;
+    private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
 
     @PostConstruct
     public void initCache() {
-        actionCache = (Ehcache<Long, ActionPostDto>) cacheManager
+        actionCache = (Ehcache<Long, ActionPostDtoRs>) cacheManager
                 .createCache(
                         LOCAL_ACTION_CACHE,
                         CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                                Long.class, ActionPostDto.class,
+                                Long.class, ActionPostDtoRs.class,
                                 ResourcePoolsBuilder.heap(100)
                         )
                 );
     }
 
     @Override
-    public ActionPostDto getByPostIdAndUserInfoId(String rqUuid, Long postInfoId, Long userId) {
-        Cache.Entry<Long, ActionPostDto> entry = null;
+    public ActionPostDtoRs getByPostIdAndUserInfoId(String rqUuid, Long postInfoId, Long userId) {
+        Cache.Entry<Long, ActionPostDtoRs> entry = null;
 
-        for (Cache.Entry<Long, ActionPostDto> action : actionCache) {
+        for (Cache.Entry<Long, ActionPostDtoRs> action : actionCache) {
             if (nonNull(action)
                     && nonNull(action.getValue())
                     && postInfoId.equals(action.getValue().getPostId())
@@ -63,15 +67,14 @@ public class ActionServiceImpl implements ActionService {
             }
         }
 
-        ActionPostDto actionDto = entry == null ? null : entry.getValue();
+        ActionPostDtoRs actionDto = entry == null ? null : entry.getValue();
         mqSender.sendLog(
                 rqUuid, LogLevel.DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionDto
         );
         if (isNull(actionDto)) {
-            actionDto = ActionPostDto.builder()
-                    .postId(postInfoId)
-                    .userId(userId)
-                    .build();
+            actionDto = new ActionPostDtoRs()
+                    .withPostId(postInfoId)
+                    .withUserId(userId);
             save(rqUuid, actionDto);
         }
 
@@ -79,7 +82,7 @@ public class ActionServiceImpl implements ActionService {
     }
 
     @Override
-    public ActionPostDto save(String rqUuid, ActionPostDto actionPost) {
+    public ActionPostDtoRs save(String rqUuid, ActionPostDtoRs actionPost) {
         if (nonNull(actionPost)) {
             if (isNull(actionPost.getId())) {
                 actionPost.setId(new Random().nextLong());
@@ -105,7 +108,7 @@ public class ActionServiceImpl implements ActionService {
     private Long getCount(ActionEnum actionEnum, Long postId) {
         Long rez = 0L;
 
-        for (Cache.Entry<Long, ActionPostDto> action : actionCache) {
+        for (Cache.Entry<Long, ActionPostDtoRs> action : actionCache) {
             if (nonNull(action)
                     && nonNull(action.getValue())
                     && nonNull(action.getValue().getActionCallbackData())

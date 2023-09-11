@@ -59,14 +59,14 @@ public class UserInfoLocalService implements UserService {
         mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Load user by userID: {}, dto: {}", userId, user);
 
         if (isNull(user)) {
-            user = save(rqUuid, UserDto.builder().userId(userId).build());
+            user = create(rqUuid, new UserDto().withUserId(userId));
         }
 
         return user;
     }
 
     @Override
-    public UserDto save(String rqUuid, UserDto user) {
+    public UserDto create(String rqUuid, UserDto user) {
         if (nonNull(user)) {
             if (isNull(user.getId())) {
                 user.setId(new Random().nextLong());

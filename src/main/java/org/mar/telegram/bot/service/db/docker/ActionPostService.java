@@ -1,16 +1,17 @@
 package org.mar.telegram.bot.service.db.docker;
 
+import org.mapstruct.factory.Mappers;
+import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.ActionService;
+import org.mar.telegram.bot.service.db.RestApiService;
 import org.mar.telegram.bot.service.db.dto.ActionEnum;
-import org.mar.telegram.bot.service.db.dto.ActionPostDto;
+import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,48 +27,35 @@ public class ActionPostService implements ActionService {
 
     @Autowired
     private MQSender mqSender;
+    @Autowired
+    private RestApiService restApiService;
 
-    private WebClient webClient = WebClient.create();
+    private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
 
-    public ActionPostDto getByPostIdAndUserInfoId(String rqUuid, Long postInfoId, Long userId) {
-        ActionPostDto actionPost = webClient.get()
-                .uri(String.format("%s/action/%d/%d", dbUrl, postInfoId, userId))
-                .retrieve()
-                .bodyToMono(ActionPostDto.class)
-                .doOnSuccess(actionPostDto ->
-                        mqSender.sendLog(
-                                rqUuid, LogLevel.DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionPostDto
-                        )
-                )
-                .block();
+    public ActionPostDtoRs getByPostIdAndUserInfoId(String rqUuid, Long postInfoId, Long userId) {
+        final String url = String.format("%s/action/%d/%d", dbUrl, postInfoId, userId);
+        ActionPostDtoRs actionPost = restApiService.get(rqUuid, url, ActionPostDtoRs.class, "getByPostIdAndUserInfoId");
+
         if (isNull(actionPost)) {
-            actionPost = ActionPostDto.builder()
-                    .userId(userId)
-                    .postId(postInfoId)
-                    .build();
+            actionPost = new ActionPostDtoRs().withUserId(userId).withPostId(postInfoId);
         }
+        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionPost);
         return actionPost;
     }
 
     @Override
-    public ActionPostDto save(String rqUuid, ActionPostDto actionPost) {
-        return webClient.post()
-                .uri(dbUrl + "/action")
-                .body(Mono.just(actionPost), ActionPostDto.class)
-                .retrieve()
-                .bodyToMono(ActionPostDto.class)
-                .doOnSuccess(actionPostDto -> mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save action: {}", actionPostDto))
-                .block();
+    public ActionPostDtoRs save(String rqUuid, ActionPostDtoRs actionPost) {
+        final String url = dbUrl + "/action";
+        ActionPostDtoRs rs = restApiService.post(rqUuid, url, mapper.mapRsToRq(actionPost), ActionPostDtoRs.class, "save action post");
+        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save action: {}", rs);
+        return rs;
     }
 
 
     public Map<ActionEnum, Long> countByPostIdAndAction(String rqUuid, Long postId) {
-        Map rs = webClient.get()
-                .uri(String.format("%s/action/count/%d", dbUrl, postId))
-                .retrieve()
-                .bodyToMono(Map.class)
-                .doOnSuccess(map -> mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Get count action: {}", map))
-                .block();
+        final String url = String.format("%s/action/count/%d", dbUrl, postId);
+        Map rs = restApiService.get(rqUuid, url, Map.class, "get countByPostIdAndAction");
+        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Get count action: {}", rs);
 
         Map<ActionEnum, Long> rez = new HashMap<>();
 

@@ -6,7 +6,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mar.telegram.bot.service.bot.db.PostService;
-import org.mar.telegram.bot.service.db.dto.PostInfoDto;
+import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.service.jms.dto.LoadFileInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class TelegramBotDownloadFileService {
             mqSender.sendLog(rqUuid, LogLevel.INFO, "File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
             FileUtils.copyURLToFile(new URL(fileInfo.getFileUrl()), file);
 
-            PostInfoDto postInfo = postInfoService.getNotSendPost(rqUuid);
+            PostInfoDtoRs postInfo = postInfoService.getNotSendPost(rqUuid);
             postInfo.setMediaPath(diskPath);
             postInfo.setTypeDir(fileInfo.getMediaType().getTypeDit());
             postInfoService.save(rqUuid, postInfo);
