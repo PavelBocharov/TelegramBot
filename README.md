@@ -113,8 +113,8 @@ Small project for learn etc. and actual skills.
 
 ```bash 
 mvn clean install -U 
-docker build -t marolok/telegram_bot:1.7.1 .
-docker push marolok/telegram_bot:1.7.1
+docker build -t marolok/telegram_bot:1.7.5 .
+docker push marolok/telegram_bot:1.7.5
 ```
 
 * Build docker image

@@ -69,6 +69,7 @@ public class SendPostController {
 
             sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto);
 
+            postInfoDto = postService.getNotSendPost(rq.getRqUuid());
             postInfoDto.setIsSend(true);
             postService.save(rq.getRqUuid(), postInfoDto);
         }

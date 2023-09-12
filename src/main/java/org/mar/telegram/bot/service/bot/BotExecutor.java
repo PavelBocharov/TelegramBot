@@ -42,9 +42,11 @@ public class BotExecutor {
                     } else {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
+                            mqSender.sendLog(rqUuid, LogLevel.DEBUG, "<< Send msg execute");
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
                                 // TODO get by ID or rqUuid?
                                 PostInfoDtoRs postInfo = postService.getNotSendPost(rqUuid);
+                                mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">> Get post: {}", postInfo);
 
                                 postInfo.setMessageId(rs.message().messageId());
                                 postInfo.setChatId(rs.message().chat().id());
@@ -57,7 +59,7 @@ public class BotExecutor {
                                     
                                     postInfo.setMediaPath(String.format("https://t.me/%s/%d", rs.message().chat().username(), rs.message().messageId()));
                                 }
-
+                                mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">> Upd post: {}", postInfo);
                                 postService.save(rqUuid, postInfo);
                             }
                         }
