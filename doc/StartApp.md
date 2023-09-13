@@ -16,20 +16,20 @@
     - IDEA - start `Main.main()`
     - Maven
         1) Compile jar -
-      ```bash 
-      mvn clean install -U 
-      ```
+          ```bash 
+          mvn clean install -U 
+          ```
         2) Start app -
-      ```bash
-      java -jar ./target/TelegramBot*.jar
-      ```
+          ```bash
+          java -jar ./target/TelegramBot*.jar
+          ```
 3) Integration test
     -  ⚠️Work after build project, because need jar-file for create test docker-image.
     - Start test:
-   ```bash 
-   mvn clean install -U 
-   mvn test -Dtest="SendPost_IT" -Dskip.integration.test=false
-   ```
+      ```bash 
+      mvn clean install -U 
+      mvn test -Dtest="SendPost_IT" -Dskip.integration.test=false
+      ```
 
 ## 🚢 Docker compose
 0) [Start info](https://www.baeldung.com/ops/docker-compose)
@@ -43,11 +43,11 @@
     - `tbotconf.GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
     - `tbotconf.PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
 4) Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml), example [YAML](../src/main/resources/example.yaml))
-5) Start -
+5) Start
     ```bash
     docker compose up
     ```
-6) Stop -
+6) Stop
     ```bash 
     docker compose down
     ```
@@ -57,13 +57,13 @@
 * Start Minikube
     * First start
         * Mount dir - *"D:/temp/k8s"* your PC directory for TelegramBot data and PostgreSQL.
-      ```bash
-      minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount
-      ```
+          ```bash
+          minikube start --mount-string="D:/temp/k8s:/mnt/tbot" --mount
+          ```
         * Add Ingress
-      ```bash
-      minikube addons enable ingress
-      ```
+          ```bash
+          minikube addons enable ingress
+          ```
     * Other command
         * Stop minikube
           ```bash
@@ -119,9 +119,9 @@ docker push marolok/telegram_bot:1.7.5
   kubectl apply -f ./k8s/kube_ingress.yaml
   ```
     * Get application URL
-  ```bash
-  minikube service tbot-ui-service --url
-  ```
+      ```bash
+      minikube service tbot-ui-service --url
+      ```
   ![](../src/main/resources/img/screen_5.png)
 
 ## 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT WORK⚠️

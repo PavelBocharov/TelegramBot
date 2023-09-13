@@ -25,7 +25,9 @@ Small project for learn etc. and actual skills.
   - Local - [Ehcache](https://www.ehcache.org/)
   - Docker - [Redis](https://redis.io/)
 - DataBase
-  - Local - use cache
+  - Local
+    - TelegramBot - use cache
+    - [TelegramDB](https://github.com/PavelBocharov/TelegramDB) - [H2](https://www.h2database.com/html/main.html)
   - Docker - [TelegramDB](https://github.com/PavelBocharov/TelegramDB) (WebFlux + PostgreSQL)
 - Configuration - [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/). My image -> [DockerHub](https://hub.docker.com/repository/docker/marolok/telegram_conf/general)
 - Test
