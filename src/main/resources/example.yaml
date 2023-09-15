@@ -12,6 +12,8 @@ application:
     db:
 #      url: 'http://tbotdb-service:8081'
       url: 'http://tbotdb:8081'
+  scheduler:
+    cron: '* * */1 * * *'
 spring:
   redis:
 #    host: 'redis-service'

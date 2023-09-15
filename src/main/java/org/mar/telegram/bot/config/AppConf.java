@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
-@EnableWebFlux
 @Configuration
+@EnableWebFlux
+@EnableScheduling
 public class AppConf {
 
     @Value("${application.bot.token}")
