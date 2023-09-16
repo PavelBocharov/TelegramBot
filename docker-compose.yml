@@ -2,7 +2,10 @@ version: '3'
 
 services:
   tbotui:
-    image: marolok/telegram-bot-ui:1.0.0
+#    image: marolok/telegram-bot-ui:1.0.0
+    build:
+      context: TBotUI
+      dockerfile: Dockerfile
     depends_on:
       - tbotconf
       - tbotdb
@@ -22,7 +25,10 @@ services:
       replicas: 1
 
   tbot:
-    image: marolok/telegram_bot:1.7.2
+#    image: marolok/telegram_bot:1.7.2
+    build:
+      context: TBotWorker
+      dockerfile: Dockerfile
     depends_on:
       - tbotconf
       - redis
@@ -68,7 +74,10 @@ services:
     env_file:
       - .env
   tbotdb:
-    image: marolok/telegram_db:1.3.0
+#    image: marolok/telegram_db:1.3.0
+    build:
+      context: TBotDB
+      dockerfile: Dockerfile
     depends_on:
       - tbotconf
       - pgsql

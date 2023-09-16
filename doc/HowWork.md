@@ -9,15 +9,15 @@
 | Step by step                                                                                    |
 |:------------------------------------------------------------------------------------------------|
 | 1️⃣ Go to WEB-app                                                                               |
-| ![](../src/main/resources/img/how_work/1.png)                                                   |
+| ![](../TBotWorker/src/main/resources/img/how_work/1.png)                                                   |
 | 2️⃣ Create post type in `Post type list` page                                                   |
-| ![](../src/main/resources/img/how_work/2.png)                                                   |
-| ![](../src/main/resources/img/how_work/3.png)                                                   |
+| ![](../TBotWorker/src/main/resources/img/how_work/2.png)                                                   |
+| ![](../TBotWorker/src/main/resources/img/how_work/3.png)                                                   |
 | 3️⃣ Create #Hashtags in 'Send post' page                                                        |
-| ![](../src/main/resources/img/how_work/4.png)                                                   |
+| ![](../TBotWorker/src/main/resources/img/how_work/4.png)                                                   |
 | 4️⃣ Select post type, upload file (MAX 10MB), write form and click 'Send post' button -> PROFIT |
-| ![](../src/main/resources/img/how_work/5.png)                                                   |
-| ![](../src/main/resources/img/how_work/6.png)                                                   |
+| ![](../TBotWorker/src/main/resources/img/how_work/5.png)                                                   |
+| ![](../TBotWorker/src/main/resources/img/how_work/6.png)                                                   |
 
 
 ## 🗺️ How to use Telegram bot
@@ -43,10 +43,10 @@
 
 |                    Work with bot                    |                       Result                        |
 |:---------------------------------------------------:|:---------------------------------------------------:|
-| ![screen_3](../src/main/resources/img/screen_3.png) | ![screen_4](../src/main/resources/img/screen_4.png) |
+| ![screen_3](../TBotWorker/src/main/resources/img/screen_3.png) | ![screen_4](../TBotWorker/src/main/resources/img/screen_4.png) |
 
 ## 🎴 Screens
 
 | Send text and image                                 |               Send URL with MIME type               |
 |-----------------------------------------------------|:---------------------------------------------------:|
-| ![screen_1](../src/main/resources/img/screen_1.png) | ![screen_2](../src/main/resources/img/screen_2.png) |
+| ![screen_1](../TBotWorker/src/main/resources/img/screen_1.png) | ![screen_2](../TBotWorker/src/main/resources/img/screen_2.png) |

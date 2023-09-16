@@ -6,13 +6,25 @@
 * [🚧 WIP 🏗️ Start with JKube Maven Plugin - **⚠️NOT WORK⚠️**](#-wip--start-with-jkube-maven-plugin-not-work)
 
 ## 🟢 Spring Boot application
-1) Set environment in [application-local.yml](../src/main/resources/application-local.yml):
+1) Install min JDK 17 - https://adoptopenjdk.net/
+2) Install nvm - [Windows](https://github.com/coreybutler/nvm-windows), [Linux](https://github.com/nvm-sh/nvm)
+3) Install Node
+   ```bash
+   nvm install 16.13.1 64
+   nvm use 16.13.1
+   ```
+4) Init `npm`
+   ```bash 
+   cd ./TBotUI
+   npm install
+   ```
+5) Set environment in [application-local.yml](../TBotWorker/src/main/resources/application-local.yml):
     - `application.bot.token` - Telegram Bot token
     - `application.bot.directory.path` - local directory for download files
     - `application.bot.admin.id` - admin ID for post (Use [IDBot](https://t.me/username_to_id_bot) for receive id.)
     - `application.group.chat.id` - chat ID for post (Use [IDBot](https://t.me/username_to_id_bot) for receive id.)
     - `application.group.chat.textLine` - last line for caption
-2) Build and start project
+6) Build and start project
     - IDEA - start `Main.main()`
     - Maven
         1) Compile jar -
@@ -23,7 +35,7 @@
           ```bash
           java -jar ./target/TelegramBot*.jar
           ```
-3) Integration test
+7) Integration test
     -  ⚠️Work after build project, because need jar-file for create test docker-image.
     - Start test:
       ```bash 
@@ -33,21 +45,26 @@
 
 ## 🚢 Docker compose
 0) [Start info](https://www.baeldung.com/ops/docker-compose)
-1) Build JAR -
+1) Create dir `docker_files` and download JDK 17 (or JRE)
+2) Update `ADD` in [Dockerfile](./Dockerfile)
+    * Example: `ADD docker_files/jdk_17_x64_alpine.tar.gz /opt/app/java`
+3) Set JDK in `CMD` for start application
+    * Example: `/opt/app/java/jdk-17.0.8+7-jre/bin/java`
+4) Build JAR -
     ```bash
     mvn clean install -U
     ```
-2) Set environment in [.env](../.env)
+5) Set environment in [.env](../.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files
-3) Set ENV in [docker-compose](../docker-compose.yml)
+6) Set ENV in [docker-compose](../docker-compose.yml)
     - `tbotconf.GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
     - `tbotconf.PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
-4) Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml), example [YAML](../src/main/resources/example.yaml))
-5) Start
+7) Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml), example [YAML](../TBotWorker/src/main/resources/example.yaml))
+8) Start
     ```bash
     docker compose up
     ```
-6) Stop
+9) Stop
     ```bash 
     docker compose down
     ```
@@ -122,7 +139,7 @@ docker push marolok/telegram_bot:1.7.5
       ```bash
       minikube service tbot-ui-service --url
       ```
-  ![](../src/main/resources/img/screen_5.png)
+  ![](../TBotWorker/src/main/resources/img/screen_5.png)
 
 ## 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT WORK⚠️
 * Set environment in [pom.xml](../pom.xml) - use mount target directory from `Start Minikube`

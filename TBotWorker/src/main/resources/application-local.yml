@@ -8,7 +8,10 @@ application:
     admin:
       id: 1111111111
     directory:
-      path: 'D:\Temp'
+      path: 'E:\temp\test'
+#      path: '/opt/app/temp'
+  scheduler:
+    cron: '0 0 */1 * * *'
 artemis:
   mode: native
   host: localhost
@@ -20,7 +23,8 @@ jms:
     destination: telegram_queue
 logging:
   file:
-    path: 'D:\Temp\logs'
+    path: 'E:\temp\test\logs'
+#    path: '/opt/app/temp/logs'
     max-size: 536870912
   level:
     root: WARN
