@@ -1,0 +1,258 @@
+package com.mar.tbot.views.post;
+
+import com.google.common.collect.ImmutableMap;
+import com.mar.tbot.dto.BaseRs;
+import com.mar.tbot.dto.HashTagDto;
+import com.mar.tbot.dto.PostInfoDto;
+import com.mar.tbot.dto.PostTypeDtoRs;
+import com.mar.tbot.utils.ButtonBuilder;
+import com.mar.tbot.utils.ViewUtils;
+import com.mar.tbot.views.ContentView;
+import com.mar.tbot.views.RootView;
+import com.mar.tbot.views.hashtag.HashtagsViewDialog;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.data.provider.ListDataProvider;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.vaadin.gatanaso.MultiselectComboBox;
+
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.mar.tbot.utils.ViewUtils.getTextFieldValue;
+import static com.mar.tbot.utils.ViewUtils.showSuccessMsg;
+import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
+import static org.springframework.http.MediaType.*;
+
+@Slf4j
+@RequiredArgsConstructor
+public class SendPostView implements ContentView {
+
+    private final RootView rootView;
+
+    private VerticalLayout listLines;
+    private MultiselectComboBox<String> hashTagSelect;
+    private byte[] uploadFileData;
+    private String uploadFileName;
+    private int contentLength;
+    private String mimeType;
+
+    @Override
+    public Component getContent() {
+        listLines = new VerticalLayout();
+        listLines.setWidth(80, Unit.PERCENTAGE);
+
+        Button sendBtn = ButtonBuilder.createButton()
+                .text("Send post")
+                .icon(PAPERPLANE)
+                .color(ButtonBuilder.Color.GREEN)
+                .clickListener(clkEvent -> {
+                    try {
+                        BaseRs msg = rootView.getApiService().sendPost(getPostInfoDto());
+                        showSuccessMsg("Send post success." , msg.toString());
+                    } catch (Exception ex) {
+                        ViewUtils.showErrorMsg("Send post error", ex);
+                    }
+                })
+                .build();
+
+        VerticalLayout verticalLayout = new VerticalLayout(
+                new H3("Send post"),
+                getSelectPostType(listLines),
+                getUploadView(),
+                listLines,
+                getHashtagView(),
+                sendBtn
+        );
+        verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
+        return verticalLayout;
+    }
+
+    private Select<PostTypeDtoRs> getSelectPostType(VerticalLayout listLines) {
+        // status
+//        List<PostType> itemStatusList = rootView.getRepositoryService().getItemStatusRepository().findAll();
+        List<PostTypeDtoRs> typeList = rootView.getApiService().getAllPostType().getPostTypeList();
+        Select<PostTypeDtoRs> postTypeSelect = new Select<PostTypeDtoRs>();
+        postTypeSelect.setLabel("Post type");
+        postTypeSelect.setPlaceholder("Select post type...");
+        postTypeSelect.setTextRenderer(PostTypeDtoRs::getTitle);
+        postTypeSelect.setDataProvider(new ListDataProvider<>(typeList));
+        postTypeSelect.setWidth(80, Unit.PERCENTAGE);
+        postTypeSelect.addValueChangeListener(event -> {
+            PostTypeDtoRs selectType = event.getValue();
+            listLines.removeAll();
+            int lineNumb = 1;
+            for (String line : selectType.getLines()) {
+                TextField lineField = new TextField(line);
+                lineField.setId("post_line_number_" + lineNumb++);
+                lineField.setWidthFull();
+                listLines.add(lineField);
+            }
+        });
+        return postTypeSelect;
+    }
+
+    private Upload getUploadView() {
+        MemoryBuffer memoryBuffer = new MemoryBuffer();
+        Upload singleFileUpload = new Upload(memoryBuffer);
+
+        singleFileUpload.addSucceededListener(event -> {
+            InputStream fileData = memoryBuffer.getInputStream();
+            uploadFileName = event.getFileName();
+            contentLength = (int) event.getContentLength();
+            mimeType = event.getMIMEType();
+
+            // Do something with the file data
+            // processFile(fileData, fileName, contentLength, mimeType);
+
+            try {
+                BufferedInputStream bis = new BufferedInputStream(fileData);
+                ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                for (int result = bis.read(); result != -1; result = bis.read()) {
+                    buf.write((byte) result);
+                }
+                uploadFileData = buf.toByteArray();
+
+                log.debug("SucceededListener --> filename: {}, size: {} byte, MIME: {}, byteLength: {}", uploadFileName, contentLength, mimeType, uploadFileData.length);
+
+                FileUtils.writeByteArrayToFile(new File(
+                        rootView.getDownloadPath() + uploadFileName
+                ), uploadFileData);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // TODO: SEND ERROR MSG
+        singleFileUpload.addFileRejectedListener(fileRejectedEvent -> {
+                    log.debug("FileRejectedListener -->  {}", fileRejectedEvent.getErrorMessage());
+                    ViewUtils.showErrorMsg("Send post exception: ", new Exception(fileRejectedEvent.getErrorMessage()));
+                }
+        );
+        singleFileUpload.addFailedListener(failedEvent -> log.warn("FailedListener --> {}", failedEvent.getReason().getMessage()));
+        singleFileUpload.addStartedListener(event -> log.debug("StartedListener --> filename: {}, MIME: {}", event.getFileName(), event.getMIMEType()));
+        singleFileUpload.addProgressListener(progressUpdateEvent -> log.debug("ProgressListener: --> length: {}", progressUpdateEvent.getContentLength()));
+
+        singleFileUpload.setMaxFileSize(10 * 1024 * 1024);
+        singleFileUpload.setAcceptedFileTypes(
+                IMAGE_GIF_VALUE,
+                IMAGE_JPEG_VALUE,
+                IMAGE_PNG_VALUE,
+                "video/mp4"
+        );
+
+        singleFileUpload.setWidth(80, Unit.PERCENTAGE);
+        Button uploadBtn = new Button("Upload file...", new Icon(VaadinIcon.UPLOAD));
+        uploadBtn.setWidth(100, Unit.PERCENTAGE);
+        singleFileUpload.setUploadButton(uploadBtn);
+        return singleFileUpload;
+    }
+
+    private Component getHashtagView() {
+        HorizontalLayout hashtagView = new HorizontalLayout();
+        hashtagView.setWidth(80, Unit.PERCENTAGE);
+
+        reloadHashtagView();
+
+        hashtagView.add(
+                hashTagSelect,
+                ButtonBuilder.createButton()
+                        .icon(PLUS)
+                        .color(ButtonBuilder.Color.GREEN)
+                        .clickListener(buttonClickEvent -> new HashtagsViewDialog(rootView, this))
+                        .build()
+        );
+
+        return hashtagView;
+    }
+
+    private PostInfoDto getPostInfoDto() {
+        PostInfoDto info = new PostInfoDto();
+
+        info.setUserId(rootView.getAdminId());
+
+        if (isNull(uploadFileName)) {
+            throw new RuntimeException("Upload file");
+        }
+        info.setFilePath(rootView.getDownloadPath() + uploadFileName);
+
+        Map<String, Pair<String, String>> caption = new HashMap<>();
+        listLines.getChildren().forEach(
+                component -> {
+                    if (component instanceof TextField) {
+                        TextField line = (TextField) component;
+                        String id = line.getId().orElse(null);
+                        if (nonNull(id)) {
+                            String text = getTextFieldValue(line);
+                            log.info("READ line: id - {}, label - {}, text - {}", id, line.getLabel(), text);
+                            caption.put(id, Pair.of(line.getLabel(), text));
+                        }
+                    }
+                }
+        );
+        log.info("ALL caption: {}", caption);
+        log.info("ALL id: {}", caption.keySet());
+
+        Set<String> idSet = new TreeSet<>(caption.keySet());
+        log.info("ALL sorted id: {}", idSet);
+        ImmutableMap.Builder<String, String> sortedCaption = new ImmutableMap.Builder<String, String>();
+        for (String s : idSet) {
+            Pair<String, String> pair = caption.get(s);
+            sortedCaption.put(pair.getKey(), pair.getValue());
+        }
+        info.setCaption(sortedCaption.build());
+        log.info("ALL sort caption: {}", info.getCaption());
+
+        info.setHashTags(new ArrayList<>(hashTagSelect.getSelectedItems()));
+
+        return info;
+    }
+
+    public void reloadHashtagView() {
+        Set<String> selectedData = null;
+        if (hashTagSelect == null) {
+            hashTagSelect = new MultiselectComboBox<>();
+            hashTagSelect.setPlaceholder("Select hashtags...");
+            hashTagSelect.setItemLabelGenerator(s -> s);
+            hashTagSelect.setWidthFull();
+            hashTagSelect.setAllowCustomValues(false);
+        } else {
+            selectedData = hashTagSelect.getSelectedItems();
+            hashTagSelect.deselectAll();
+        }
+
+        List<String> hashtagList = rootView.getApiService().getHashtagList().getTags().stream().map(HashTagDto::getTag).toList();
+        hashTagSelect.setItems(hashtagList);
+
+        if (isNotEmpty(selectedData)) {
+            Set<String> newSelected = new HashSet<>();
+
+            for (String tag : selectedData) {
+                if (hashtagList.contains(tag)) {
+                    newSelected.add(tag);
+                }
+            }
+
+            hashTagSelect.select(newSelected);
+        }
+    }
+}

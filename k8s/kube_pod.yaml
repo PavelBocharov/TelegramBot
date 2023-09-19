@@ -1,6 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: telegram-bot-ui-deployment
+spec:
+  selector:
+    matchLabels:
+      app: telegram-bot-ui-deployment
+  template:
+    metadata:
+      labels:
+        app: telegram-bot-ui-deployment
+    spec:
+      containers:
+        - name: telegram-bot
+          image: marolok/telegram-bot-ui:1.0.1
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - mountPath: '/opt/app/temp/'
+              name: tbot-data-storage
+              subPath: 'tbot'
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
+      volumes:
+        - name: tbot-data-storage
+          persistentVolumeClaim:
+            claimName: tbot-data-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: telegram-bot-deployment
 spec:
   selector:
@@ -13,7 +44,7 @@ spec:
     spec:
       containers:
         - name: telegram-bot
-          image: marolok/telegram_bot:1.4.1
+          image: marolok/telegram_bot:1.7.5
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -112,9 +143,9 @@ spec:
     spec:
       containers:
         - name: telegram-db
-          image: marolok/telegram_db:1.1.1
+          image: marolok/telegram_db:1.3.2
           ports:
-            - containerPort: 8081
+            - containerPort: 8083
           envFrom:
             - configMapRef:
                 name: telegram-bot-conf
@@ -174,8 +205,33 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: tbot-ui-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      nodePort: 30005
+  selector:
+    app: telegram-bot-ui-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tbot-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: telegram-bot-deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: redis-service
 spec:
+  type: ClusterIP
   ports:
     - port: 6379
       targetPort: 6379
@@ -187,6 +243,7 @@ kind: Service
 metadata:
   name: zk-service
 spec:
+  type: ClusterIP
   ports:
     - port: 22181
       targetPort: 2181
@@ -209,6 +266,7 @@ kind: Service
 metadata:
   name: kafka-service1
 spec:
+  type: ClusterIP
   ports:
     - port: 9092
       targetPort: 9092
@@ -220,9 +278,10 @@ kind: Service
 metadata:
   name: tbotdb-service
 spec:
+  type: ClusterIP
   ports:
     - port: 8081
-      targetPort: 8081
+      targetPort: 8083
   selector:
     app: tbotdb-deployment
 ---
@@ -231,6 +290,7 @@ kind: Service
 metadata:
   name: pgsql-service
 spec:
+  type: ClusterIP
   ports:
     - port: 5432
       targetPort: 5432
@@ -242,6 +302,7 @@ kind: Service
 metadata:
   name: tbotconf
 spec:
+  type: ClusterIP
   ports:
     - port: 8888
       targetPort: 8888

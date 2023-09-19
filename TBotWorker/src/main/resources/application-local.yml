@@ -1,0 +1,39 @@
+server:
+  port: 8080
+application:
+  group:
+    chat:
+      id: 0000000000
+      textLine: 'Welcome to chat'
+  bot:
+    token: '1111111111:222222222222222222222222222222222'
+    admin:
+      id: 1111111111
+    directory:
+      path: 'E:\temp\test'
+#      path: '/opt/app/temp'
+  scheduler:
+    cron: '0 0 */1 * * *'
+artemis:
+  mode: native
+  host: localhost
+  port: 61616
+  user: developer
+  password: developer
+jms:
+  queue:
+    destination: telegram_queue
+logging:
+  file:
+    path: 'E:\temp\test\logs'
+#    path: '/opt/app/temp/logs'
+    max-size: 536870912
+  level:
+    root: WARN
+    org:
+      mar:
+        telegram:
+          bot: TRACE
+  pattern:
+    console: '%date | %-5level | %logger{10} | [%file:%line] | %msg%n'
+    file: '%date | %-5level | %logger{10} | [%file:%line] | %msg%n'

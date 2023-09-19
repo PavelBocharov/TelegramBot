@@ -1,0 +1,6 @@
+{
+  "rqUuid": "c6215259-bb89-4995-9c8d-6afc6f01ce54",
+  "rqTm": 1689773673961,
+  "errorCode": 500,
+  "errorMsg": "could not execute statement; SQL [n/a]; constraint [\"PUBLIC.UK_N1O48T5WRT21Y4N120F6M92UU_INDEX_1 ON PUBLIC.POST_TYPE(TITLE NULLS FIRST) VALUES ( /* 2 */ 'New type 2' )\"; SQL statement:\ninsert into post_type (title, id) values (?, ?) [23505-214]]"
+}

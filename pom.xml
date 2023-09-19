@@ -11,21 +11,24 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.mar.telegram.bot</groupId>
+    <groupId>org.mar</groupId>
     <artifactId>TelegramBot</artifactId>
-    <version>1.7.0</version>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
 
     <properties>
+        <revision>1.0.0</revision>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <telegram.bot.api.version>6.5.0</telegram.bot.api.version>
-        <!--    Integration test     -->
-        <skip.integration.test>true</skip.integration.test>
+        <!--    Main    -->
+        <telegram.bot.api.version>6.7.0</telegram.bot.api.version>
+        <!--    Spring    -->
+        <spring.cloud.version>4.0.2</spring.cloud.version>
         <!--    Utils    -->
         <commons-io.version>2.11.0</commons-io.version>
         <jsoup.version>1.15.4</jsoup.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <!--    Cache    -->
         <ehcache.version>3.10.8</ehcache.version>
         <jredis.version>5.0.0-alpha1</jredis.version>
@@ -34,17 +37,13 @@
         <spring.kafka.version>3.0.6</spring.kafka.version>
         <kafka.client.version>3.4.0</kafka.client.version>
         <!--    JKube    -->
-        <jkube.version>1.12.0</jkube.version>
-        <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>
-        <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>
+<!--        <jkube.version>1.12.0</jkube.version>-->
+<!--        <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>-->
+<!--        <MOUNT_VM_PATH>/local/</MOUNT_VM_PATH>-->
     </properties>
 
     <dependencies>
         <!--    SPRING    -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -61,7 +60,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
         <!--    MQ    -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -81,6 +83,24 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.client.version}</version>
+        </dependency>
+
+        <!--    JPA    -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
         </dependency>
 
         <!--    UTILS    -->
@@ -108,11 +128,21 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+
         <!--    Config    -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
-            <version>4.0.2</version>
+            <version>${spring.cloud.version}</version>
         </dependency>
         <!--    Cache    -->
         <dependency>
@@ -138,108 +168,33 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>1.18.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>1.18.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>1.18.3</version>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>pre-integration-test</id>
-                        <goals>
-                            <goal>start</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skip.integration.test}</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>post-integration-test</id>
-                        <goals>
-                            <goal>stop</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skip.integration.test}</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.1.2</version>
-                <configuration>
-                    <skip>${skip.integration.test}</skip>
-                </configuration>
-            </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.eclipse.jkube</groupId>-->
-<!--                <artifactId>kubernetes-maven-plugin</artifactId>-->
-<!--                <version>${jkube.version}</version>-->
-<!--                <configuration>-->
-<!--                    <images>-->
-<!--                        <image>-->
-<!--                            <name>marolok/telegram-bot:v${project.version}</name>-->
-<!--                            <alias>telegram-bot</alias>-->
-<!--                            <build>-->
-<!--                                <from>eclipse-temurin:17.0.6_10-jre-alpine</from>-->
-<!--                                <entryPoint>-->
-<!--                                    <exec>-->
-<!--                                        <arg>java</arg>-->
-<!--                                        <arg>-jar</arg>-->
-<!--                                        <arg>/maven/${project.artifactId}-${project.version}.jar</arg>-->
-<!--                                        <arg>&#45;&#45;spring.profiles.active=production</arg>-->
-<!--                                        <arg>&#45;&#45;application.bot.token=${TELEGRAM_BOT_TOKEN}</arg>-->
-<!--                                        <arg>&#45;&#45;application.bot.directory.path=${IMAGE_TEMP_DIR}</arg>-->
-<!--                                    </exec>-->
-<!--                                </entryPoint>-->
-<!--                            </build>-->
-<!--                        </image>-->
-<!--                    </images>-->
-
-<!--                    <resources>-->
-<!--                        <controller>-->
-<!--                            <volumes>-->
-<!--                                <volume>-->
-<!--                                    <name>local-dir-val</name>-->
-<!--                                    <type>hostPath</type>-->
-<!--                                    &lt;!&ndash; Look path in minikube mount <target directory> &ndash;&gt;-->
-<!--                                    <path>${MOUNT_VM_PATH}</path>-->
-<!--                                    <mounts>-->
-<!--                                        <mount>${IMAGE_TEMP_DIR}</mount>-->
-<!--                                    </mounts>-->
-<!--                                </volume>-->
-<!--                            </volumes>-->
-<!--                        </controller>-->
-<!--                    </resources>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>build</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>TBotWorker</module>
+                <module>TBotDB</module>
+                <module>TBotUI</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build_with_it_test</id>
+            <modules>
+                <module>TBotWorker</module>
+                <module>TBotDB</module>
+                <module>TBotUI</module>
+                <module>TBotITest</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
