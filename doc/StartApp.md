@@ -13,9 +13,8 @@
    nvm install 16.13.1 64
    nvm use 16.13.1
    ```
-4) Init `npm`
+4) Init `npm` in **TBotUI** module
    ```bash 
-   cd ./TBotUI
    npm install
    ```
 5) Set environment in [application-local.yml](../TBotWorker/src/main/resources/application-local.yml):
@@ -36,11 +35,8 @@
           java -jar ./target/TelegramBot*.jar
           ```
 7) Integration test
-    -  ⚠️Work after build project, because need jar-file for create test docker-image.
-    - Start test:
       ```bash 
-      mvn clean install -U 
-      mvn test -Dtest="SendPost_IT" -Dskip.integration.test=false
+      mvn clean install -U -P build_with_it_test
       ```
 
 ## 🚢 Docker compose
@@ -100,13 +96,6 @@
           ```
 
 ### 📗 Start with YAML
-
-```bash 
-mvn clean install -U 
-docker build -t marolok/telegram_bot:1.7.5 .
-docker push marolok/telegram_bot:1.7.5
-```
-
 * Build docker image
   ```bash
   docker build -t marolok/telegram_bot:*.*.* .

@@ -37,8 +37,8 @@ public class SendPostTest extends InitContainers {
                 () -> assertTrue(tbotconf.isRunning()),
                 () -> assertTrue(postgreSQL.isCreated()),
                 () -> assertTrue(postgreSQL.isRunning()),
-                () -> assertTrue(telegramDb.isCreated()),
-                () -> assertTrue(telegramDb.isRunning()),
+                () -> assertTrue(tbotDb.isCreated()),
+                () -> assertTrue(tbotDb.isRunning()),
                 () -> assertTrue(zookeeper.isCreated()),
                 () -> assertTrue(zookeeper.isRunning()),
                 () -> assertTrue(kafka.isCreated()),
@@ -93,8 +93,8 @@ public class SendPostTest extends InitContainers {
 
         assertTrue(isNotBlank(rs));
 
-        String tdbHost = telegramDb.getHost();
-        int tdbPort = telegramDb.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.db.port"));
+        String tdbHost = tbotDb.getHost();
+        int tdbPort = tbotDb.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.db.port"));
         String tdbUrl = String.format("http://%s:%d/post/info/isNotSend", tdbHost, tdbPort);
 
         System.out.println("TBotDB get not send post API: " + tdbHost + ":" + tdbPort + " --> " + tdbUrl);
