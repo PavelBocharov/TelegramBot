@@ -1,4 +1,4 @@
-package org.mar.telegram.bot.utils;
+package org.mar.bot.utils;
 
 import lombok.experimental.UtilityClass;
 
@@ -30,7 +30,7 @@ public class TestUtils {
         if (isNotBlank(rez)) {
             return rez.trim();
         } else {
-            throw new RuntimeException("Property by '%s' is blanck.");
+            throw new RuntimeException(String.format("Property by '%s' is blank.", propName));
         }
     }
 
@@ -39,7 +39,16 @@ public class TestUtils {
         if (isNumeric(prop)) {
             return Integer.parseInt(prop);
         } else {
-            throw new RuntimeException("Property by '%s' is not numeric.");
+            throw new RuntimeException(String.format("Property by '%s' is blank.", propName));
+        }
+    }
+
+    public static long getPropertyLong(String propName) {
+        String prop = getPropertyStr(propName);
+        if (isNumeric(prop)) {
+            return Long.parseLong(prop);
+        } else {
+            throw new RuntimeException(String.format("Property by '%s' is blank.", propName));
         }
     }
 

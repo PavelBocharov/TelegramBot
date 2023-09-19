@@ -16,12 +16,6 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>TBotWorker</module>
-        <module>TBotDB</module>
-        <module>TBotUI</module>
-    </modules>
-
     <properties>
         <revision>1.0.0</revision>
         <maven.compiler.source>17</maven.compiler.source>
@@ -42,9 +36,6 @@
         <artemis.jms.serve.version>2.28.0</artemis.jms.serve.version>
         <spring.kafka.version>3.0.6</spring.kafka.version>
         <kafka.client.version>3.4.0</kafka.client.version>
-        <!--    Test    -->
-        <testcontainers.version>1.18.3</testcontainers.version>
-        <skip.integration.test>true</skip.integration.test>
         <!--    JKube    -->
 <!--        <jkube.version>1.12.0</jkube.version>-->
 <!--        <jkube.generator.name>marolok/telegram-bot:v${project.version}</jkube.generator.name>-->
@@ -177,28 +168,33 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>build</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>TBotWorker</module>
+                <module>TBotDB</module>
+                <module>TBotUI</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>build_with_it_test</id>
+            <modules>
+                <module>TBotWorker</module>
+                <module>TBotDB</module>
+                <module>TBotUI</module>
+                <module>TBotITest</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
