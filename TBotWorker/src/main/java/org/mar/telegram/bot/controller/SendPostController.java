@@ -44,6 +44,9 @@ public class SendPostController {
     @Value("${application.group.chat.id}")
     private Long groupChatId;
 
+    @Value("${application.group.chat.textLine:}")
+    private String textLine;
+
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     public BaseRs sendMsg(@RequestBody @Valid SendPost rq) {
         mqSender.sendLog(rq.getRqUuid(), LogLevel.DEBUG, "REST API: {}", rq);
@@ -93,7 +96,7 @@ public class SendPostController {
             }
         }
 
-        sb.append(String.join(" ", hashTags));
+        sb.append("\n").append(String.join(" ", hashTags)).append("\n").append(textLine);
 
         return sb.toString();
     }

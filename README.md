@@ -1,7 +1,7 @@
 # 🤖 TelegramBot
 Small project for learn etc. and actual skills.
 
-<img alt="Art by Olena Yemelianova" height="512" src=".\TBotWorker\src\main\resources\img\telegram.jpg"/></br><sup><sub>Art by Olena Yemelianova</sub></sup>
+<img alt="Art by Olena Yemelianova" height="512" src="./TBotWorker/src/main/resources/img/telegram.jpg"/></br><sup><sub>Art by Olena Yemelianova</sub></sup>
 
 ## 🔗 Links
 * [🚀 Start application ](./doc/StartApp.md)

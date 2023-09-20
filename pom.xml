@@ -20,7 +20,7 @@
         <!--    Versions    -->
         <revision>1.0.0</revision>
         <tbot.db.version>2.0.0</tbot.db.version>
-        <tbot.worker.version>2.0.0</tbot.worker.version>
+        <tbot.worker.version>2.0.1</tbot.worker.version>
         <tbot.ui.version>1.0.2</tbot.ui.version>
 
 
