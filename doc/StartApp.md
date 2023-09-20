@@ -78,13 +78,13 @@
           minikube addons enable ingress
           ```
     * Other command
-        * Stop minikube
-          ```bash
-          minikube stop
-          ```
         * Start minikube (mount is automatic)
           ```bash
           minikube start
+          ```
+        * Stop minikube
+          ```bash
+          minikube stop
           ```
         * Delete all data and minikube
           ```bash
@@ -96,14 +96,18 @@
           ```
 
 ### 📗 Start with YAML
-* Build docker image
-  ```bash
-  docker build -t marolok/telegram_bot:*.*.* .
-  ```
-* Push docker image
-  ```bash
-  docker push marolok/telegram_bot:*.*.*
-  ```
+* Build and push docker images
+  * Plugin
+    ```bash
+    cd ../
+    mvn clean install -U -P build_with_it_test
+    mvn docker:build docker:push -P build_docker_images
+    ```
+  * CMD (in root module)
+    ```bash
+    docker build -t marolok/telegram_bot:*.*.* .
+    docker push marolok/telegram_bot:*.*.*
+    ```
 * Set environment in [kube_conf.yaml](../k8s/kube_config.yaml) - check _"TelegramConf"_ block
     * `BOT_PROFILE` - application profile (need for application config filename, [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
     * `GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
@@ -129,11 +133,3 @@
       minikube service tbot-ui-service --url
       ```
   ![](../TBotWorker/src/main/resources/img/screen_5.png)
-
-## 🚧 WIP 🏗️ Start with [JKube Maven Plugin](https://www.eclipse.org/jkube/) ⚠️NOT WORK⚠️
-* Set environment in [pom.xml](../pom.xml) - use mount target directory from `Start Minikube`
-* Package application - `mvn clean package`
-* Build Docker image - `mvn k8s:build`
-* Create Kubernetes config file - `mvn k8s:resource`
-* Start - `mvn k8s:apply`
-    * You can use one command - `mvn clean package k8s:build k8s:resource k8s:apply`

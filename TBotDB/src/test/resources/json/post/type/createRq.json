@@ -1,8 +1,0 @@
-{
-  "rqUuid": "{% uuid 'v4' %}",
-  "rqTm": "{% now 'iso-8601', '' %}",
-  "title": "New type",
-  "lines": [
-    "123", "qwe"
-  ]
-}

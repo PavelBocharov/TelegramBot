@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: telegram-bot
-          image: marolok/telegram-bot-ui:1.0.1
+          image: marolok/telegram-bot-ui:1.0.2
           ports:
             - name: http
               containerPort: 8080
@@ -44,7 +44,7 @@ spec:
     spec:
       containers:
         - name: telegram-bot
-          image: marolok/telegram_bot:1.7.5
+          image: marolok/telegram_bot:2.0.0
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -58,6 +58,28 @@ spec:
         - name: tbot-data-storage
           persistentVolumeClaim:
             claimName: tbot-data-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tbotdb-deployment
+spec:
+  selector:
+    matchLabels:
+      app: tbotdb-deployment
+  template:
+    metadata:
+      labels:
+        app: tbotdb-deployment
+    spec:
+      containers:
+        - name: telegram-db
+          image: marolok/telegram_db:2.0.0
+          ports:
+            - containerPort: 8083
+          envFrom:
+            - configMapRef:
+                name: telegram-bot-conf
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -124,28 +146,6 @@ spec:
           image: confluentinc/cp-kafka:latest
           ports:
             - containerPort: 29092
-          envFrom:
-            - configMapRef:
-                name: telegram-bot-conf
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tbotdb-deployment
-spec:
-  selector:
-    matchLabels:
-      app: tbotdb-deployment
-  template:
-    metadata:
-      labels:
-        app: tbotdb-deployment
-    spec:
-      containers:
-        - name: telegram-db
-          image: marolok/telegram_db:1.3.2
-          ports:
-            - containerPort: 8083
           envFrom:
             - configMapRef:
                 name: telegram-bot-conf

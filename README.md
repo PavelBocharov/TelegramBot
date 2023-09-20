@@ -17,10 +17,9 @@ Small project for learn etc. and actual skills.
   - Local - [Apache Artemis MQ (Active MQ)](https://activemq.apache.org/components/artemis/)
   - Docker - [Apache Kafka](https://kafka.apache.org/)
 - Image
+  - Build - [Fabric8](https://dmp.fabric8.io/)
   - Docker/Docker compose
   - Kubernetes
-    - Classic [.yaml](https://kubernetes.io/docs/home/)
-    - Maven - [Eclipse JKube](https://www.eclipse.org/jkube/)
 - Cache
   - Local - [Ehcache](https://www.ehcache.org/)
   - Docker - [Redis](https://redis.io/)
