@@ -3,6 +3,7 @@
 ## 🔗 Links
 1. [How to use UI](#-how-to-use-ui)
 2. [How to use Telegram bot](#-how-to-use-telegram-bot)
+3. [HOW to use local (Rest API)]()
 
 ## ️💻 How to use UI
 
@@ -44,6 +45,9 @@
 |                    Work with bot                    |                       Result                        |
 |:---------------------------------------------------:|:---------------------------------------------------:|
 | ![screen_3](../TBotWorker/src/main/resources/img/screen_3.png) | ![screen_4](../TBotWorker/src/main/resources/img/screen_4.png) |
+
+## 👨🏼‍💻 REST API (local mod)
+
 
 ## 🎴 Screens
 

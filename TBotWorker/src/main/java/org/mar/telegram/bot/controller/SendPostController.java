@@ -1,5 +1,7 @@
 package org.mar.telegram.bot.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.mar.telegram.bot.controller.dto.BaseRs;
@@ -25,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -32,6 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @RestController
 @RequestMapping(value = "/post")
 @RequiredArgsConstructor
+@Tag(name="Контроллер отправки сообщений", description="API для отправки сообщений через бота в группу.")
 public class SendPostController {
 
     private final MQSender mqSender;
@@ -48,6 +52,7 @@ public class SendPostController {
     private String textLine;
 
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    @Operation(summary = "Отправка сообщения", description = "Передача данных боту, чтоб он запостил это в группу.")
     public BaseRs sendMsg(@RequestBody @Valid SendPost rq) {
         mqSender.sendLog(rq.getRqUuid(), LogLevel.DEBUG, "REST API: {}", rq);
 
@@ -80,7 +85,8 @@ public class SendPostController {
     }
 
     @PostMapping(value = "/msg", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    public BaseRs sendMsg(@RequestBody @Valid TelegramMessage rq) {
+    @Operation(summary = "Обработка событий из группы")
+    public BaseRs workWithMsg(@RequestBody @Valid TelegramMessage rq) {
         telegramBotWorker.workWithMessage(rq);
         return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }

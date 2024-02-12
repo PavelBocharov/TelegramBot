@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Информация об изменяемом сообщение.")
 public class MessageDto implements Serializable {
 
     @NotNull
