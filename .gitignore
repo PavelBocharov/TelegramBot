@@ -1,5 +1,13 @@
 # Project exclude paths
-/target/
 /log/
 /.idea/
 *.log
+/TBotWorker/target/
+/TBotDB/target
+/TBotITest/target
+/TBotUI/target
+/TBotUI/node_modules
+/TBotUI/package.json
+/TBotUI/package-lock.json
+/TBotUI/webpack.config.js
+/TBotUI/webpack.generated.js
