@@ -31,9 +31,11 @@
       - Actuator
         - http://localhost:8080/actuator
 * Integration test (need [Docker](https://www.baeldung.com/ops/docker-compose))
-  ```bash 
-  mvn clean install -U -P build_with_it_test
-  ```
+  * End steps [🚢 Docker compose](#-docker-compose)
+  * Set `test.integration.config.ssh.path` in [application-test.properties](../TBotITest/src/test/resources/application-test.properties)
+    ```bash 
+    mvn clean install -U -P build_with_it_test
+    ```
 
 ## 🚢 Docker compose
 * [Start info](https://www.baeldung.com/ops/docker-compose)

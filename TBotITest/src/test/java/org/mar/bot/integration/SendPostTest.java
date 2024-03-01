@@ -1,10 +1,11 @@
 package org.mar.bot.integration;
 
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mar.bot.integration.dto.PostInfoDtoRsDto;
 import org.mar.bot.integration.dto.SendPostDto;
 import org.mar.bot.utils.TestUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -12,13 +13,21 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 @Testcontainers
@@ -137,6 +146,35 @@ public class SendPostTest extends InitContainers {
             assertTrue(isNotBlank(tbotUiHealth));
             assertEquals("{\"status\":\"UP\"}", tbotUiHealth);
         });
+
+        assertCountRow();
+    }
+
+    @SneakyThrows
+    private void assertCountRow() {
+        Connection connection = getDBConnection();
+        Statement statement = connection.createStatement();
+        ResultSet rez = statement.executeQuery("SELECT count(*) as cnt FROM public.post_info");
+        while (rez.next()) {
+            long cnt = rez.getLong("cnt");
+            System.out.printf("Select count row in DB: %d\n", cnt);
+            assertEquals(cnt, 1);
+        }
+        connection.close();
+    }
+
+    @SneakyThrows
+    private Connection getDBConnection() {
+        String dbHost = postgreSQL.getHost();
+        int dbPort = postgreSQL.getMappedPort(TestUtils.getPropertyInt("test.integration.port"));
+        String db = TestUtils.getPropertyStr("test.integration.db");
+        String dbUsr = TestUtils.getPropertyStr("test.integration.db.user");
+        String dbPwd = TestUtils.getPropertyStr("test.integration.db.pwd");
+
+        String connDB = String.format("jdbc:postgresql://%s:%d/%s", dbHost, dbPort, db);
+        System.out.printf("!!! getDBData: '%s', %s, %s\n", connDB, dbUsr, dbPwd);
+
+        return DriverManager.getConnection(connDB, dbUsr, dbPwd);
     }
 
 }

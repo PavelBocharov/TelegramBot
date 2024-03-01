@@ -1,7 +1,7 @@
 package org.mar.bot.integration;
 
-import org.mar.bot.utils.TestUtils;
 import org.apache.commons.io.FileUtils;
+import org.mar.bot.utils.TestUtils;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -37,6 +37,7 @@ abstract public class InitContainers {
 
     @Container
     protected static GenericContainer<?> postgreSQL = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.image")))
+            .withExposedPorts(TestUtils.getPropertyInt("test.integration.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.alias"))
             .withEnv(Map.of(
