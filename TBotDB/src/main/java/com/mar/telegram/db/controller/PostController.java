@@ -52,13 +52,21 @@ public class PostController {
     }
 
     @PostMapping("/info")
-    public Mono<PostInfoDto> create(@RequestBody @Valid PostInfoDto postInfoDto) {
-        log.debug(">> create/update post: {}", postInfoDto);
+    public Mono<PostInfoDto> save(@RequestBody @Valid PostInfoDto postInfoDto) {
+        log.debug(">> save post: {}", postInfoDto);
         return Mono.justOrEmpty(postMapper.mapToEntity(postInfoDto))
                 .map(postInfo -> postInfo.withUpdateDate(new Date()))
                 .map(postInfoRepository::save)
                 .map(postMapper::mapToDto)
-                .doOnSuccess(postInfoDto1 -> log.debug("<< create/update post: {}", postInfoDto1));
+                .doOnSuccess(postInfoDto1 -> log.debug("<< save post: {}", postInfoDto1));
+    }
+
+    @GetMapping("/info")
+    public Mono<PostInfoDto> getById(@RequestHeader("RqUuid") @NotBlank String rqUuid, @RequestHeader("id") @NotBlank Long id) {
+        log.debug(">> getById post: {}", id);
+        return Mono.just(postInfoRepository.findById(id).orElseThrow())
+                .map(postMapper::mapToDto)
+                .doOnSuccess(postInfoDto1 -> log.debug("<< getById post: {}", postInfoDto1));
     }
 
     @PostMapping("/type")

@@ -1,11 +1,11 @@
 package org.mar.telegram.bot.service.db.docker;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.RestApiService;
 import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
-import org.mar.telegram.bot.service.db.dto.PostInfoDtoRq;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,4 +63,22 @@ public class PostInfoService implements PostService {
         return postInfoDto;
     }
 
+    @Override
+    public PostInfoDtoRs getPostById(String rqUuid, Long id) {
+        final String url = dbUrl + "/post/info";
+        PostInfoDtoRs rs = restApiService.get(
+                rqUuid,
+                url,
+                PostInfoDtoRs.class,
+                "getPostById",
+                Pair.of("id", String.valueOf(id))
+        );
+
+        if (isNull(rs)) {
+            rs = save(rqUuid, new PostInfoDtoRs());
+        }
+
+        log(rqUuid, rs, LogLevel.DEBUG, "Get not send postInfo: {}", rs);
+        return rs;
+    }
 }

@@ -1,9 +1,9 @@
 package org.mar.bot.integration;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mar.bot.integration.dto.PostInfoDtoRsDto;
 import org.mar.bot.integration.dto.SendPostDto;
 import org.mar.bot.utils.TestUtils;
 import org.springframework.http.MediaType;
@@ -26,10 +26,10 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
+@Slf4j
 @Testcontainers
 public class SendPostTest extends InitContainers {
 
@@ -59,6 +59,8 @@ public class SendPostTest extends InitContainers {
                 () -> assertTrue(tbotui.isCreated()),
                 () -> assertTrue(tbotui.isRunning())
         );
+
+//        tbotDb.followOutput(new Slf4jLogConsumer(log));
 
         String host = tbotconf.getHost();
         Integer port = tbotconf.getMappedPort(TestUtils.getPropertyInt("test.integration.config.port"));
@@ -108,23 +110,6 @@ public class SendPostTest extends InitContainers {
 
         System.out.println("TBotDB get not send post API: " + tdbHost + ":" + tdbPort + " --> " + tdbUrl);
 
-        await().untilAsserted(() -> {
-            PostInfoDtoRsDto postInfoDto = webClient.get()
-                    .uri(tdbUrl)
-                    .headers(httpHeaders -> {
-                        httpHeaders.add("RqUuid", UUID.randomUUID().toString());
-                        httpHeaders.add("RqTm", new Date().toString());
-                    })
-                    .retrieve()
-                    .bodyToMono(PostInfoDtoRsDto.class)
-                    .doOnSuccess(postInfoDtoRs -> System.out.println("HTTP 200. Null is good :) -> RS: " + postInfoDtoRs))
-                    .block();
-
-            System.out.println("TBotDB RS: " + postInfoDto);
-
-            assertNull(postInfoDto);
-        });
-
         String tbotUiHost = tbotui.getHost();
         int tbotUiPort = tbotui.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.ui.port"));
         String tbotuiUrl = String.format("http://%s:%d/actuator/health", tbotUiHost, tbotUiPort);
@@ -154,12 +139,16 @@ public class SendPostTest extends InitContainers {
     private void assertCountRow() {
         Connection connection = getDBConnection();
         Statement statement = connection.createStatement();
-        ResultSet rez = statement.executeQuery("SELECT count(*) as cnt FROM public.post_info");
+        ResultSet rez = statement.executeQuery("SELECT id, is_send FROM public.post_info");
+        int cnt = 0;
         while (rez.next()) {
-            long cnt = rez.getLong("cnt");
-            System.out.printf("Select count row in DB: %d\n", cnt);
-            assertEquals(cnt, 1);
+            long id = rez.getLong("id");
+            boolean isSend = rez.getBoolean("is_send");
+            System.out.printf("Select row in DB - id: %d, is_send: %s\n", id, String.valueOf(isSend));
+            assertTrue(isSend);
+            cnt++;
         }
+        assertEquals(cnt, 1);
         connection.close();
     }
 

@@ -1,14 +1,13 @@
 package org.mar.telegram.bot.service.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.mar.telegram.bot.controller.dto.BaseRq;
 import org.mar.telegram.bot.controller.dto.BaseRs;
 import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
@@ -56,17 +55,22 @@ public class RestApiService {
     }
 
     @SneakyThrows
-    public <RS> RS get(String rqUuid, String url, Class<RS> rsClass, String logText) {
+    public <RS> RS get(String rqUuid, String url, Class<RS> rsClass, String logText, Pair<String, String>... headers) {
         mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">>> GET {}: url: {}", logText, url);
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
                 .setHeader("Content-Type", APPLICATION_JSON_VALUE)
                 .setHeader("RqUuid", rqUuid)
-                .setHeader("RqTm", String.valueOf(new Date()))
-                .build();
+                .setHeader("RqTm", String.valueOf(new Date()));
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        if (headers != null) {
+            for (Pair<String, String> header : headers) {
+                request.setHeader(header.getKey(), header.getValue());
+            }
+        }
+
+        HttpResponse<String> response = httpClient.send(request.build(), HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
             throw new RuntimeException(response.body());

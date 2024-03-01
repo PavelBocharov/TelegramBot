@@ -126,7 +126,7 @@ public class TelegramBotUtils {
                     }
 
                     cache.setFileName(message.getChatId(), text);
-                    botExecutor.execute(messageStatus.getRqUuid(), new SendMessage(message.getChatId(), "New caption - " + text));
+                    botExecutor.sendMessage(messageStatus.getRqUuid(), new SendMessage(message.getChatId(), "New caption - " + text));
                     messageStatus.setIsSuccess(true);
                 }
             }
@@ -142,7 +142,7 @@ public class TelegramBotUtils {
                 postInfo.setCaption(caption + "\n" + textLine);
                 postInfoService.save(rqUuid, postInfo);
             } else {
-                botExecutor.execute(rqUuid, new SendMessage(chatId, "For save post caption write '" + ACTION_CAPTION + " post_text'"));
+                botExecutor.sendMessage(rqUuid, new SendMessage(chatId, "For save post caption write '" + ACTION_CAPTION + " post_text'"));
             }
             return true;
         }
@@ -161,7 +161,7 @@ public class TelegramBotUtils {
                     helpMsg += "Send media file (photo, gif, video) for create post.\n\n";
                 if (isBlank(postInfo.getCaption()))
                     helpMsg += "Send caption for create post. \nExample - '/caption your text with http://url and #hashtag.'";
-                botExecutor.execute(rqUuid, new SendMessage(chatId, helpMsg));
+                botExecutor.sendMessage(rqUuid, new SendMessage(chatId, helpMsg));
             }
             return true;
         }
@@ -175,7 +175,7 @@ public class TelegramBotUtils {
                 && info.getContentType() != null
                 && !info.getContentType().equals(ContentType.Text)
         ) {
-            botExecutor.execute(rqUuid, new SendMessage(message.getChatId(), format("Detect '%s' URL - %s", info.getContentType().getTypeDit(), info.getUrl())));
+            botExecutor.sendMessage(rqUuid, new SendMessage(message.getChatId(), format("Detect '%s' URL - %s", info.getContentType().getTypeDit(), info.getUrl())));
             String savePath = downloadPath + info.getContentType().getTypeDit() + "//" + FilenameUtils.getName(info.getUrl());
             saveToDisk(rqUuid, info, savePath, message.getChatId(), info.getContentType());
             return true;
@@ -241,7 +241,7 @@ public class TelegramBotUtils {
     private void saveFile(String rqUuid, MessageDto message, String fileId, ContentType typeDir) {
         GetFile request = new GetFile(fileId);
 
-        botExecutor.execute(
+        botExecutor.sendPost(
                 request,
                 baseResponse -> {
                     try {
@@ -257,10 +257,10 @@ public class TelegramBotUtils {
                                 message.getChatId(),
                                 typeDir
                         );
-                        botExecutor.execute(rqUuid, new SendMessage(message.getChatId(), "Work with file: " + getFileResponse.file().filePath()));
+                        botExecutor.sendMessage(rqUuid, new SendMessage(message.getChatId(), "Work with file: " + getFileResponse.file().filePath()));
                     } catch (Exception ex) {
                         mqSender.sendLog(rqUuid, LogLevel.ERROR, ExceptionUtils.getStackTrace(ex));
-                        botExecutor.execute(rqUuid, new SendMessage(message.getChatId(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
+                        botExecutor.sendMessage(rqUuid, new SendMessage(message.getChatId(), "Not save file: " + ExceptionUtils.getRootCauseMessage(ex)));
                     }
                 },
                 throwable -> {

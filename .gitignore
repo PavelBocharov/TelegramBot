@@ -2,6 +2,7 @@
 /log/
 /.idea/
 *.log
+*.iml
 /TBotWorker/target/
 /TBotDB/target
 /TBotITest/target
@@ -11,3 +12,4 @@
 /TBotUI/package-lock.json
 /TBotUI/webpack.config.js
 /TBotUI/webpack.generated.js
+/target/

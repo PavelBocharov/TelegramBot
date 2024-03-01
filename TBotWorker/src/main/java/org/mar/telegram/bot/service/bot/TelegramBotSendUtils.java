@@ -51,14 +51,14 @@ public class TelegramBotSendUtils {
         SendVideo msg = new SendVideo(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
-        botExecutor.execute(rqUuid, msg);
+        botExecutor.sendPost(rqUuid, postInfo.getId(), msg);
     }
 
     private void sendPhotoPost(String rqUuid, Long chatId, PostInfoDtoRs postInfo) {
         SendPhoto msg = new SendPhoto(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
-        botExecutor.execute(rqUuid, msg);
+        botExecutor.sendPost(rqUuid, postInfo.getId(), msg);
     }
 
     public InlineKeyboardMarkup getReplyKeyboard(String rqUuid, Long postId) {

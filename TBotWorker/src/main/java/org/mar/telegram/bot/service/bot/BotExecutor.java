@@ -33,8 +33,8 @@ public class BotExecutor {
     @Autowired
     private MQSender mqSender;
 
-    public BaseResponse execute(final String rqUuid, BaseRequest sendMessage) {
-        return execute(
+    public BaseResponse sendPost(final String rqUuid, final long id, BaseRequest sendMessage) {
+        return sendPost(
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
@@ -44,19 +44,19 @@ public class BotExecutor {
                             SendResponse rs = ((SendResponse) baseResponse);
                             mqSender.sendLog(rqUuid, LogLevel.DEBUG, "<< Send msg execute");
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
-                                // TODO get by ID or rqUuid?
-                                PostInfoDtoRs postInfo = postService.getNotSendPost(rqUuid);
+                                PostInfoDtoRs postInfo = postService.getPostById(rqUuid, id);
                                 mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">> Get post: {}", postInfo);
 
+                                postInfo.setIsSend(true);
                                 postInfo.setMessageId(rs.message().messageId());
                                 postInfo.setChatId(rs.message().chat().id());
                                 if (groupChatId.equals(rs.message().chat().id())) {
                                     final String filePath = postInfo.getMediaPath();
                                     String exStr = Utils.removeFile(filePath);
-                                    if(isNotBlank(exStr)) {
+                                    if (isNotBlank(exStr)) {
                                         mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not remove file. Path: {}\n{}", filePath, exStr);
                                     }
-                                    
+
                                     postInfo.setMediaPath(String.format("https://t.me/%s/%d", rs.message().chat().username(), rs.message().messageId()));
                                 }
                                 mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">> Upd post: {}", postInfo);
@@ -69,7 +69,19 @@ public class BotExecutor {
         );
     }
 
-    public BaseResponse execute(BaseRequest sendMessage, Consumer<BaseResponse> doItWithRs, Consumer<Throwable> doItIfError) {
+    public BaseResponse sendMessage(final String rqUuid, BaseRequest sendMessage) {
+        return sendPost(
+                sendMessage,
+                baseResponse -> {
+                    if (!baseResponse.isOk()) {
+                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
+                    }
+                },
+                throwable -> mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
+        );
+    }
+
+    public BaseResponse sendPost(BaseRequest sendMessage, Consumer<BaseResponse> doItWithRs, Consumer<Throwable> doItIfError) {
         try {
             BaseResponse rs = bot.execute(sendMessage);
             doItWithRs.accept(rs);

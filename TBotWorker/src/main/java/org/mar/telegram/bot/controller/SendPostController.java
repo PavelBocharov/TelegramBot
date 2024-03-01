@@ -21,13 +21,15 @@ import org.mar.telegram.bot.utils.ContentType;
 import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.logging.LogLevel;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -35,7 +37,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @RestController
 @RequestMapping(value = "/post")
 @RequiredArgsConstructor
-@Tag(name="Контроллер отправки сообщений", description="API для отправки сообщений через бота в группу.")
+@Tag(name = "Контроллер отправки сообщений", description = "API для отправки сообщений через бота в группу.")
 public class SendPostController {
 
     private final MQSender mqSender;
@@ -63,7 +65,6 @@ public class SendPostController {
             UserDto user = userService.getByUserId(rq.getRqUuid(), rq.getUserId());
 
             PostInfoDtoRs postInfoDto = postService.save(rq.getRqUuid(), new PostInfoDtoRs()
-                    .withIsSend(false)
                     .withChatId(groupChatId)
                     .withMediaPath(rq.getFilePath())
                     .withCaption(getCaption(rq.getCaption(), rq.getHashTags()))
@@ -76,10 +77,6 @@ public class SendPostController {
             );
 
             sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto);
-
-            postInfoDto = postService.getNotSendPost(rq.getRqUuid());
-            postInfoDto.setIsSend(true);
-            postService.save(rq.getRqUuid(), postInfoDto);
         }
         return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }

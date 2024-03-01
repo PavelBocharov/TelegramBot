@@ -45,7 +45,7 @@ public class CallbackDataService {
             EditMessageReplyMarkup msg = new EditMessageReplyMarkup(chatId, messageId);
             msg.replyMarkup(sendUtils.getReplyKeyboard(rqUuid, postInfo.getId()));
 
-            botExecutor.execute(rqUuid, msg);
+            botExecutor.sendMessage(rqUuid, msg);
 
             return true;
         }

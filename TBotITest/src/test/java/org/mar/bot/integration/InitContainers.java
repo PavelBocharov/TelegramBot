@@ -7,6 +7,7 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.Base58;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.File;
@@ -47,7 +48,11 @@ abstract public class InitContainers {
             ));
 
     @Container
-    protected static GenericContainer<?> tbotDb = new GenericContainer<>(new ImageFromDockerfile().withDockerfile(Path.of("../TBotDB/Dockerfile")))
+    protected static GenericContainer<?> tbotDb = new GenericContainer<>(
+            new ImageFromDockerfile("tbotDb/test/" + Base58.randomString(16).toLowerCase() , true)
+                    .withDockerfile(Path.of("../TBotDB/Dockerfile"))
+//            DockerImageName.parse("marolok/telegram_db:2.0.0")
+    )
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.tbot.db.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.db.alias"))
@@ -91,14 +96,22 @@ abstract public class InitContainers {
             ));
 
     @Container
-    protected static GenericContainer<?> tbot = new GenericContainer<>(new ImageFromDockerfile().withDockerfile(Path.of("../TBotWorker/Dockerfile")))
+    protected static GenericContainer<?> tbot =  new GenericContainer<>(
+            new ImageFromDockerfile("tbot/test/" + Base58.randomString(16).toLowerCase(), true)
+                    .withDockerfile(Path.of("../TBotWorker/Dockerfile"))
+//            DockerImageName.parse("marolok/telegram_bot:2.0.1")
+    )
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.tbot.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.alias"))
             .dependsOn(tbotconf, redis, kafka, tbotDb)
             .withEnv("BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.profile"));
     @Container
-    protected static GenericContainer<?> tbotui = new GenericContainer<>(new ImageFromDockerfile().withDockerfile(Path.of("../TBotUI/Dockerfile")))
+    protected static GenericContainer<?> tbotui = new GenericContainer<>(
+            new ImageFromDockerfile("tbotui/test/" + Base58.randomString(16).toLowerCase(), true)
+                    .withDockerfile(Path.of("../TBotUI/Dockerfile"))
+//            DockerImageName.parse("marolok/telegram-bot-ui:1.0.2")
+    )
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.tbot.ui.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.ui.alias"))

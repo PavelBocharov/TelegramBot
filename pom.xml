@@ -19,8 +19,8 @@
     <properties>
         <!--    Versions    -->
         <revision>1.0.0</revision>
-        <tbot.db.version>2.0.0</tbot.db.version>
-        <tbot.worker.version>2.0.1</tbot.worker.version>
+        <tbot.db.version>2.0.1</tbot.db.version>
+        <tbot.worker.version>2.0.3</tbot.worker.version>
         <tbot.ui.version>1.0.2</tbot.ui.version>
 
 
@@ -108,8 +108,16 @@
                             </images>
                         </configuration>
                         <goals>
-
                         </goals>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

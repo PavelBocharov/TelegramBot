@@ -72,6 +72,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostInfoDtoRs getPostById(String rqUuid, Long id) {
+        Cache.Entry<Long, PostInfoDtoRs> cacheData = null;
+
+        for (Cache.Entry<Long, PostInfoDtoRs> postInfo : postInfoCache) {
+            if (nonNull(postInfo)
+                    && nonNull(postInfo.getValue())
+                    && id.equals(postInfo.getValue().getId())) {
+                cacheData = postInfo;
+                break;
+            }
+        }
+
+        return cacheData.getValue();
+    }
+
+    @Override
     public PostInfoDtoRs save(String rqUuid, PostInfoDtoRs postInfo) {
         if (nonNull(postInfo)) {
             if (isNull(postInfo.getId())) {
