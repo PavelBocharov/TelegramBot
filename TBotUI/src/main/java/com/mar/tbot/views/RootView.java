@@ -2,6 +2,7 @@ package com.mar.tbot.views;
 
 import com.mar.tbot.service.ApiService;
 import com.mar.tbot.service.MapperService;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.views.post.SendPostView;
 import com.mar.tbot.views.type.PostTypeListView;
 import com.vaadin.flow.component.ClickEvent;
@@ -11,20 +12,31 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletRequest;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import java.io.IOException;
+import java.util.Properties;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static com.vaadin.flow.component.icon.VaadinIcon.EXIT_O;
+import static com.vaadin.flow.component.icon.VaadinIcon.HOME;
+import static com.vaadin.flow.component.icon.VaadinIcon.PIN_POST;
+import static com.vaadin.flow.component.icon.VaadinIcon.TASKS;
 
 @Route("")
+@PageTitle("TelegramBot UI")
 public class RootView extends AppLayout {
 
     @Getter
@@ -41,6 +53,7 @@ public class RootView extends AppLayout {
     @Value("${application.bot.directory.path}")
     private String downloadPath;
 
+
     @Getter
     private final PostTypeListView postTypeListView;
     @Getter
@@ -48,6 +61,7 @@ public class RootView extends AppLayout {
 
     private final StartPageView startPageView;
 
+    @SneakyThrows
     public RootView() throws IOException {
         startPageView = new StartPageView();
         postTypeListView = new PostTypeListView(this);
@@ -59,14 +73,24 @@ public class RootView extends AppLayout {
                 .set("font-size", "var(--lumo-font-size-l)")
                 .set("margin", "0");
 
+        Properties properties = Utils.loadProperties("application.properties");
+        String versions = properties.getProperty("version");
+        Label version = new Label(versions);
+        version.getStyle().set("font-size", "xx-small");
+
+        HorizontalLayout headTitle = new HorizontalLayout(title, version);
+        headTitle.getStyle().set("margin-left", "auto");
+        headTitle.getStyle().set("padding", "15px");
+
         Tabs tabs = new Tabs();
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         tabs.add(getTab("Main page", HOME, startPageView));
         tabs.add(getTab("Send post", PIN_POST, sendPostView));
         tabs.add(getTab("Post type list", TASKS, postTypeListView));
+        tabs.add(getLogoutButton());
 
         addToDrawer(tabs);
-        addToNavbar(toggle, title);
+        addToNavbar(toggle, headTitle);
         setContent(startPageView.getContent());
     }
 
@@ -80,6 +104,21 @@ public class RootView extends AppLayout {
         button.addClickListener(listener);
         button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         return button;
+    }
+
+    private Tab getLogoutButton() {
+        Icon logo = new Icon(EXIT_O);
+        logo.setColor("red");
+
+        Button button = new Button("Logout", logo);
+        button.setHeightFull();
+        button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        button.addClickListener(buttonClickEvent -> {
+            SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+            logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
+        });
+
+        return new Tab(button);
     }
 
 }

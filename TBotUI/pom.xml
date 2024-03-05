@@ -13,7 +13,7 @@
 
     <groupId>org.mar</groupId>
     <artifactId>TBotUI</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.1</version>
 
     <repositories>
         <repository>
@@ -69,6 +69,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
         <!--    Config    -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -104,6 +108,14 @@
             <version>${org.mapstruct.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.10</version>
+        </dependency>
+
+
         <!--    Test    -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -138,6 +150,16 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
+                <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>
