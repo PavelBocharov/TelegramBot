@@ -3,6 +3,7 @@ package com.mar.tbot.views;
 import com.mar.tbot.utils.ViewUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Image;
@@ -20,6 +21,7 @@ public class StartPageView implements ContentView {
     @SneakyThrows
     public Component getContent() {
         Image gitHubImage = ViewUtils.getImageByResource("static/img/github_qr.png");
+        gitHubImage.setWidth(100, Unit.PERCENTAGE);
         Anchor anchor = new Anchor("https://github.com/PavelBocharov/TelegramBot", gitHubImage);
 
         VerticalLayout verticalLayout = new VerticalLayout(

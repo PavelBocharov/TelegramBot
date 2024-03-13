@@ -120,7 +120,7 @@ abstract public class InitContainers {
             .waitingFor(
                     Wait.forHttp("/actuator/health")
                             .forStatusCode(200)
-                            .forPort(8080)
+                            .forPort(TestUtils.getPropertyInt("test.integration.tbot.ui.port"))
                             .withReadTimeout(Duration.ofSeconds(10))
             );
 

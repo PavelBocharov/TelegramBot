@@ -13,7 +13,7 @@
 
     <groupId>org.mar</groupId>
     <artifactId>TBotUI</artifactId>
-    <version>1.1.1</version>
+    <version>1.2.0</version>
 
     <repositories>
         <repository>

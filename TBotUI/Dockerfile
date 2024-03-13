@@ -12,4 +12,5 @@ ENV SPRING_CLOUD_CONFIG_SERVER="configserver:http://tbotconf:8888"
 
 CMD ["/opt/app/java/jdk-21.0.2+13-jre/bin/java", "-jar", "/opt/app/japp.jar", "--spring.profiles.active=${BOT_PROFILE}", "--spring.config.import=${SPRING_CLOUD_CONFIG_SERVER}"]
 
+EXPOSE 443
 EXPOSE 8080

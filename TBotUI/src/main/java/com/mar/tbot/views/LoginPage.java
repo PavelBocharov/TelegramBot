@@ -1,5 +1,6 @@
 package com.mar.tbot.views;
 
+import com.mar.tbot.utils.ViewUtils;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
@@ -23,8 +24,19 @@ public class LoginPage extends AppLayout {
         verticalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         login.setAction("login");
+        login.addForgotPasswordListener(forgotPasswordEvent -> {
+            ViewUtils.showSuccessMsg(
+                    "Forgot password?",
+                    """
+                            <ol>
+                            <li>Add in config file '<strong>application.bot.admin.login</strong>' and '<strong>application.bot.admin.pwd.md5</strong>'.</li>
+                            <li>Restart UI application.</li>
+                            </ol>
+                            """
+            );
+        });
 
-        verticalLayout.add(new H1("'TelegramBot UI' CRM"), login);
+        verticalLayout.add(new H1("TelegramBot UI"), login);
 
         setContent(verticalLayout);
     }

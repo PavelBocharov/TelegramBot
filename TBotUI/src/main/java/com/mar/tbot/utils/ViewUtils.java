@@ -1,6 +1,7 @@
 package com.mar.tbot.utils;
 
 import com.google.common.io.Resources;
+import com.mar.tbot.service.TbotException;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
@@ -37,15 +38,36 @@ public class ViewUtils {
         showErrorMsg(title, ex, DEFAULT_DURATION_ERROR_MSG);
     }
 
-    public static void showErrorMsg(String title, Throwable ex, int duration) {
-        showMsg(title, ExceptionUtils.getRootCauseMessage(ex), NotificationVariant.LUMO_ERROR, duration);
+    private static void showErrorMsg(String title, Throwable ex, int duration) {
+        showMsg(title, getErrorHTML(ex), NotificationVariant.LUMO_ERROR, duration);
+    }
+
+    private static String getErrorHTML(Throwable ex) {
+        String[] stackTrace = ExceptionUtils.getStackFrames(ex);
+        StringBuilder sb = new StringBuilder();
+
+        if (ex instanceof TbotException tbotException) {
+            sb.append("RqUUID: ").append(tbotException.getRqUuid()).append("</br>");
+            sb.append("RqTm: ").append(Utils.getISOFormat(tbotException.getRqTm())).append("</br>");
+        }
+
+        sb.append("Stack trace:<pre>");
+        int countLine = 0;
+        for (String s : stackTrace) {
+            sb.append(s).append("</br>");
+            if (++countLine > 15) {
+                break;
+            }
+        }
+
+        return sb.append("</pre>").toString();
     }
 
     public static void showSuccessMsg(String title, String msg) {
-        showMsg(title, msg,NotificationVariant.LUMO_SUCCESS, DEFAULT_DURATION_ERROR_MSG);
+        showMsg(title, msg, NotificationVariant.LUMO_SUCCESS, DEFAULT_DURATION_ERROR_MSG);
     }
 
-    public static void showMsg(String title, String msg, NotificationVariant theme, int duration) {
+    private static void showMsg(String title, String msg, NotificationVariant theme, int duration) {
         Notification notification = new Notification();
         notification.addThemeVariants(theme);
         notification.setDuration(duration);
@@ -53,7 +75,9 @@ public class ViewUtils {
 
         VerticalLayout layout = new VerticalLayout();
         Accordion accordion = new Accordion();
-        accordion.add(title, new Label(msg));
+        Label msgLabel = new Label();
+        msgLabel.getElement().setProperty("innerHTML", msg);
+        accordion.add(title, msgLabel);
         accordion.close();
 
         Button clsBtn = new Button("Close");

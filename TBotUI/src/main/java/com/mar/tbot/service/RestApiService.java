@@ -1,13 +1,22 @@
 package com.mar.tbot.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mar.tbot.dto.*;
+import com.mar.tbot.dto.BaseRq;
+import com.mar.tbot.dto.BaseRs;
+import com.mar.tbot.dto.HashTagDto;
+import com.mar.tbot.dto.HashTagListDtoRq;
+import com.mar.tbot.dto.HashTagListDtoRs;
+import com.mar.tbot.dto.PostInfoDto;
+import com.mar.tbot.dto.PostTypeDtoRq;
+import com.mar.tbot.dto.PostTypeDtoRs;
+import com.mar.tbot.dto.PostTypeListDtoRs;
 import com.mar.tbot.dto.sendMsg.TelegramMessage;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -82,6 +91,7 @@ public class RestApiService implements ApiService {
         final String uri = getUri(hostDb, portDb) + "/post/type";
         return get(uri, PostTypeListDtoRs.class, "getAllPostType");
     }
+
     public PostTypeDtoRs removePostType(long postTypeId) {
         final String uri = getUri(hostDb, portDb) + "/post/type";
         return delete(uri, postTypeId, PostTypeDtoRs.class, "removePostType");
@@ -91,7 +101,6 @@ public class RestApiService implements ApiService {
         return String.format("http://%s:%d", host, port);
     }
 
-    @SneakyThrows
     protected <RS extends BaseRs, RQ extends BaseRq> RS post(String uri, RQ rq, Class<RS> rsClass, String logText) {
         rq.setRqUuid(UUID.randomUUID().toString());
         rq.setRqTm(new Date());
@@ -99,48 +108,73 @@ public class RestApiService implements ApiService {
         ObjectMapper mapper = new ObjectMapper();
 
         log.debug(">>> POST {}: uri: {}, rqUuid - {}", logText, uri, rq);
+        String rqBody = null;
+        try {
+            rqBody = mapper.writeValueAsString(rq);
+        } catch (JsonProcessingException e) {
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot mapping rqBody for POST '%s'", uri), e);
+        }
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
-                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(rq), UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(rqBody, UTF_8))
                 .setHeader("Content-Type", APPLICATION_JSON_VALUE)
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = null;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot send POST '%s'", uri), e);
+        }
 
         if (response.statusCode() != 200) {
-            throw new RuntimeException(response.body());
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot send POST '%s'", uri), new Exception(response.body()));
         }
-        RS rs = mapper.readValue(response.body(), rsClass);
+        RS rs = null;
+        try {
+            rs = mapper.readValue(response.body(), rsClass);
+        } catch (JsonProcessingException e) {
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot read value from POST '%s'", uri), e);
+        }
         log.debug("<<< POST {}: {}", logText, rs);
         return rs;
     }
 
-    @SneakyThrows
+
     protected <RS extends BaseRs> RS get(String uri, Class<RS> rsClass, String logText) {
         ObjectMapper mapper = new ObjectMapper();
-
         String rqUuid = UUID.randomUUID().toString();
-
+        Date rqTm = new Date();
         log.debug(">>> GET {}: uri: {}, rqUuid - {}", logText, uri, rqUuid);
+
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .GET()
                 .setHeader("Content-Type", APPLICATION_JSON_VALUE)
                 .setHeader("RqUuid", rqUuid)
-                .setHeader("RqTm", String.valueOf(new Date()))
+                .setHeader("RqTm", String.valueOf(rqTm))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = null;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new TbotException(rqUuid, rqTm, String.format("Cannot send GET '%s'", uri), e);
+        }
 
         if (response.statusCode() != 200) {
-            throw new RuntimeException(response.body());
+            throw new TbotException(rqUuid, rqTm, String.format("Cannot send GET '%s'", uri), new Exception(response.body()));
         }
-        RS rs = mapper.readValue(response.body(), rsClass);
+        RS rs = null;
+        try {
+            rs = mapper.readValue(response.body(), rsClass);
+        } catch (JsonProcessingException e) {
+            throw new TbotException(rqUuid, rqTm, String.format("Cannot read value from GET '%s'", uri), e);
+        }
         log.debug("<<< GET {}: {}", logText, rs);
         return rs;
     }
 
-    @SneakyThrows
     protected <RS extends BaseRs, RQ extends BaseRq> RS put(String uri, RQ rq, Class<RS> rsClass, String logText) {
         rq.setRqUuid(UUID.randomUUID().toString());
         rq.setRqTm(new Date());
@@ -148,31 +182,45 @@ public class RestApiService implements ApiService {
         ObjectMapper mapper = new ObjectMapper();
 
         String rqUuid = UUID.randomUUID().toString();
-
+        String rqBody = null;
+        try {
+            rqBody = mapper.writeValueAsString(rq);
+        } catch (JsonProcessingException e) {
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot mapping rqBody for PUT '%s'", uri), e);
+        }
         log.debug(">>> PUT {}: uri: {}, rqUuid - {}", logText, uri, rqUuid);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
-                .PUT(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(rq), UTF_8))
+                .PUT(HttpRequest.BodyPublishers.ofString(rqBody, UTF_8))
                 .setHeader("Content-Type", APPLICATION_JSON_VALUE)
                 .setHeader("RqUuid", rqUuid)
                 .setHeader("RqTm", String.valueOf(new Date()))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = null;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot send PUT '%s'", uri), e);
+        }
 
         if (response.statusCode() != 200) {
-            throw new RuntimeException(response.body());
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot send PUT '%s'", uri), new Exception(response.body()));
         }
-        RS rs = mapper.readValue(response.body(), rsClass);
+        RS rs = null;
+        try {
+            rs = mapper.readValue(response.body(), rsClass);
+        } catch (JsonProcessingException e) {
+            throw new TbotException(rq.getRqUuid(), rq.getRqTm(), String.format("Cannot read value from PUT '%s'", uri), e);
+        }
         log.debug("<<< PUT {}: {}", logText, rs);
         return rs;
     }
 
-    @SneakyThrows
     protected <RS extends BaseRs> RS delete(String uri, long id, Class<RS> rsClass, String logText) {
         ObjectMapper mapper = new ObjectMapper();
-
         String rqUuid = UUID.randomUUID().toString();
+        Date rqTm = new Date();
 
         log.debug(">>> DELETE {}: uri: {}, rqUuid - {}", logText, uri, rqUuid);
         HttpRequest request = HttpRequest.newBuilder()
@@ -180,16 +228,26 @@ public class RestApiService implements ApiService {
                 .DELETE()
                 .setHeader("Content-Type", APPLICATION_JSON_VALUE)
                 .setHeader("RqUuid", rqUuid)
-                .setHeader("RqTm", String.valueOf(new Date()))
+                .setHeader("RqTm", String.valueOf(rqTm))
                 .setHeader("Id", String.valueOf(id))
                 .build();
 
-        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> response = null;
+        try {
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new TbotException(rqUuid, rqTm, String.format("Cannot send DELETE '%s'", uri), e);
+        }
 
         if (response.statusCode() != 200) {
-            throw new RuntimeException(response.body());
+            throw new TbotException(rqUuid, rqTm, String.format("Cannot send DELETE '%s'", uri), new Exception(response.body()));
         }
-        RS rs = mapper.readValue(response.body(), rsClass);
+        RS rs = null;
+        try {
+            rs = mapper.readValue(response.body(), rsClass);
+        } catch (JsonProcessingException e) {
+            throw new TbotException(rqUuid, rqTm, String.format("Cannot read value from DELETE '%s'", uri), e);
+        }
         log.debug("<<< DELETE {}: rqUuid - {}", logText, rs);
         return rs;
     }

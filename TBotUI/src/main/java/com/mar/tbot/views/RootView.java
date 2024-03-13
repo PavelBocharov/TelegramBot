@@ -3,6 +3,7 @@ package com.mar.tbot.views;
 import com.mar.tbot.service.ApiService;
 import com.mar.tbot.service.MapperService;
 import com.mar.tbot.utils.Utils;
+import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.post.SendPostView;
 import com.mar.tbot.views.type.PostTypeListView;
 import com.vaadin.flow.component.ClickEvent;
@@ -95,7 +96,13 @@ public class RootView extends AppLayout {
     }
 
     private Tab getTab(String title, VaadinIcon icon, ContentView contentView) {
-        return new Tab(getButton(title, icon, btnClickEvent -> setContent(contentView.getContent())));
+        return new Tab(getButton(title, icon, btnClickEvent -> {
+            try {
+                setContent(contentView.getContent());
+            } catch (Exception ex) {
+                ViewUtils.showErrorMsg(String.format("Not load '%s'", title), ex);
+            }
+        }));
     }
 
     private Button getButton(String title, VaadinIcon icon, ComponentEventListener<ClickEvent<Button>> listener) {

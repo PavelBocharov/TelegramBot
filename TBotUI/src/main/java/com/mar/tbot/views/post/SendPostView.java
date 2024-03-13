@@ -30,18 +30,27 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.vaadin.gatanaso.MultiselectComboBox;
 
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import static com.mar.tbot.utils.ViewUtils.getTextFieldValue;
-import static com.mar.tbot.utils.ViewUtils.showSuccessMsg;
 import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.IMAGE_GIF_VALUE;
+import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -68,7 +77,7 @@ public class SendPostView implements ContentView {
                 .clickListener(clkEvent -> {
                     try {
                         BaseRs msg = rootView.getApiService().sendPost(getPostInfoDto());
-                        showSuccessMsg("Send post success." , msg.toString());
+                        ViewUtils.showSuccessMsg("Send post success.", msg.getHTML());
                     } catch (Exception ex) {
                         ViewUtils.showErrorMsg("Send post error", ex);
                     }
@@ -202,7 +211,7 @@ public class SendPostView implements ContentView {
                         TextField line = (TextField) component;
                         String id = line.getId().orElse(null);
                         if (nonNull(id)) {
-                            String text = getTextFieldValue(line);
+                            String text = ViewUtils.getTextFieldValue(line);
                             log.info("READ line: id - {}, label - {}, text - {}", id, line.getLabel(), text);
                             caption.put(id, Pair.of(line.getLabel(), text));
                         }
