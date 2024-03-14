@@ -2,6 +2,7 @@ package com.mar.tbot.views.type;
 
 import com.mar.tbot.dto.PostTypeDtoRq;
 import com.mar.tbot.utils.ButtonBuilder;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.RootView;
 import com.vaadin.flow.component.Key;
@@ -10,11 +11,13 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,7 +61,10 @@ public class CreatePostTypeView extends Dialog {
                 );
 
                 log.debug("Create post type data - title: '{}', line: {} ", title, lines);
-                rootView.getApiService().createPostType(new PostTypeDtoRq(title, lines));
+                PostTypeDtoRq rq = new PostTypeDtoRq(title, lines);
+                rq.setRqUuid(Utils.rqUuid());
+                rq.setRqTm(new Date());
+                rootView.getApiService().createPostType(rq);
             } catch (Exception ex) {
                 ViewUtils.showErrorMsg("Create post type exception: ", ex);
                 createBtn.setEnabled(true);
@@ -86,19 +92,31 @@ public class CreatePostTypeView extends Dialog {
         typeLines.setSpacing(false);
 
         Label label = new Label("Post lines");
-        label.setWidth(80, Unit.PERCENTAGE);
+        label.setWidth(90, Unit.PERCENTAGE);
 
         Button addLineBtn = ButtonBuilder.createButton()
-                .text("Add line")
                 .icon(PLUS)
                 .color(ButtonBuilder.Color.GREEN)
                 .clickListener(event -> typeLines.add(getLineLayout()))
                 .build();
-        addLineBtn.setWidth(20, Unit.PERCENTAGE);
+        addLineBtn.setWidth(5, Unit.PERCENTAGE);
+
+        Button helpBtn = ButtonBuilder.createButton()
+                .icon(VaadinIcon.QUESTION_CIRCLE_O)
+                .clickListener(clkEvent -> {
+                    ViewUtils.showSuccessMsg(
+                            "Formatting post line",
+                            """
+                                    You can use HTML tags. More in <a href="https://core.telegram.org/bots/api#html-style" target="_blank">'Telegram bot API Documentation'.</a>
+                                    """
+                    );
+                })
+                .build();
+        helpBtn.setWidth(5, Unit.PERCENTAGE);
 
         HorizontalLayout hl = new HorizontalLayout();
         hl.setWidthFull();
-        hl.add(label, addLineBtn);
+        hl.add(label, addLineBtn, helpBtn);
 
         typeLines.add(hl, getLineLayout());
         return typeLines;

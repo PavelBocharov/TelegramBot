@@ -2,6 +2,7 @@ package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendVideo;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,10 @@ import java.io.File;
 import java.util.Map;
 
 import static java.util.Objects.nonNull;
-import static org.mar.telegram.bot.service.db.dto.ActionEnum.*;
+import static org.mar.telegram.bot.service.db.dto.ActionEnum.BORING;
+import static org.mar.telegram.bot.service.db.dto.ActionEnum.COOL;
+import static org.mar.telegram.bot.service.db.dto.ActionEnum.DEVIL;
+import static org.mar.telegram.bot.service.db.dto.ActionEnum.FIRE_HEART;
 import static org.mar.telegram.bot.utils.ContentType.Doc;
 import static org.mar.telegram.bot.utils.Utils.getTypeByType;
 
@@ -51,6 +55,7 @@ public class TelegramBotSendUtils {
         SendVideo msg = new SendVideo(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
+        msg.parseMode(ParseMode.HTML);
         botExecutor.sendPost(rqUuid, postInfo.getId(), msg);
     }
 
@@ -58,6 +63,7 @@ public class TelegramBotSendUtils {
         SendPhoto msg = new SendPhoto(chatId, new File(postInfo.getMediaPath()));
         msg.caption(postInfo.getCaption());
         msg.replyMarkup(getReplyKeyboard(rqUuid, postInfo.getId()));
+        msg.parseMode(ParseMode.HTML);
         botExecutor.sendPost(rqUuid, postInfo.getId(), msg);
     }
 

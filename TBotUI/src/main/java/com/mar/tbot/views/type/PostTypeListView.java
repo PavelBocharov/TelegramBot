@@ -3,6 +3,7 @@ package com.mar.tbot.views.type;
 import com.mar.tbot.dto.PostTypeDtoRs;
 import com.mar.tbot.utils.ButtonBuilder;
 import com.mar.tbot.utils.DeleteDialogWidget;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.views.ContentView;
 import com.mar.tbot.views.RootView;
 import com.vaadin.flow.component.Component;
@@ -18,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
+import static com.vaadin.flow.component.icon.VaadinIcon.BAN;
+import static com.vaadin.flow.component.icon.VaadinIcon.PENCIL;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @RequiredArgsConstructor
@@ -52,7 +55,7 @@ public class PostTypeListView implements ContentView {
                     .color(ButtonBuilder.Color.RED)
                     .clickListener(clk -> {
                         new DeleteDialogWidget(() -> {
-                            rootView.getApiService().removePostType(postType.getId());
+                            rootView.getApiService().removePostType(Utils.rqUuid(), postType.getId());
                             rootView.setContent(rootView.getPostTypeListView().getContent());
                         });
                     })
@@ -61,7 +64,7 @@ public class PostTypeListView implements ContentView {
         });
 
         // value
-        List<PostTypeDtoRs> typeList = rootView.getApiService().getAllPostType().getPostTypeList();
+        List<PostTypeDtoRs> typeList = rootView.getApiService().getAllPostType(Utils.rqUuid()).getPostTypeList();
         grid.setItems(typeList);
 
         // down buttons

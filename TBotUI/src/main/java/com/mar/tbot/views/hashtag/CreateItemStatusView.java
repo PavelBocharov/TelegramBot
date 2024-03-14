@@ -1,6 +1,7 @@
 package com.mar.tbot.views.hashtag;
 
 import com.mar.tbot.dto.HashTagDto;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -27,7 +28,7 @@ public class CreateItemStatusView {
         createBtn.addClickListener(btnEvent -> {
             try {
                 String tag = textField.getValue();
-                hashtagListView.getRootView().getApiService().createHashtag(new HashTagDto().withTag(tag));
+                hashtagListView.getRootView().getApiService().createHashtag(Utils.rqUuid(), new HashTagDto().withTag(tag));
             } catch (Exception ex) {
                 ViewUtils.showErrorMsg("Create hashtag exception: ", ex);
                 createBtn.setEnabled(true);

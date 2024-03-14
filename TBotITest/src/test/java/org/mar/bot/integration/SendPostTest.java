@@ -60,7 +60,7 @@ public class SendPostTest extends InitContainers {
                 () -> assertTrue(tbotui.isRunning())
         );
 
-//        tbotDb.followOutput(new Slf4jLogConsumer(log));
+//        tbot.followOutput(new Slf4jLogConsumer(log));
 
         String host = tbotconf.getHost();
         Integer port = tbotconf.getMappedPort(TestUtils.getPropertyInt("test.integration.config.port"));
@@ -86,9 +86,13 @@ public class SendPostTest extends InitContainers {
         sendPost.setRqTm(new Date());
         sendPost.setRqUuid(rqUuid);
         sendPost.setUserId(TestUtils.getPropertyLong("test.integration.tbot.admin.userId"));
-        sendPost.setFilePath("/opt/app/fortest.jpg"); //look in TBotWorker/Dockerfile
-        sendPost.setCaption(Map.of("test_title", "test_caption"));
-        sendPost.setHashTags(List.of("#test", "#it_test"));
+        sendPost.setFilePath("/opt/app/fortest.png"); //look in TBotWorker/Dockerfile
+        // https://core.telegram.org/bots/api#html-style
+        sendPost.setCaption(Map.of(
+                "<u>Test '@'</u>", "@CrzCat",
+                "<b>Test HTML link</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>"
+        ));
+        sendPost.setHashTags(List.of("#Test", "#IT_Test"));
 
 
         String rs = webClient.post()

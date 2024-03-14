@@ -3,6 +3,7 @@ package com.mar.tbot.views.hashtag;
 import com.mar.tbot.dto.HashTagDto;
 import com.mar.tbot.utils.ButtonBuilder;
 import com.mar.tbot.utils.DeleteDialogWidget;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.RootView;
 import com.mar.tbot.views.post.SendPostView;
@@ -45,7 +46,7 @@ public class HashtagsViewDialog {
 
         itemStatusList = new VerticalLayout();
 
-        List<HashTagDto> hashTagDtoList = rootView.getApiService().getHashtagList().getTags();
+        List<HashTagDto> hashTagDtoList = rootView.getApiService().getHashtagList(Utils.rqUuid()).getTags();
 
         for (HashTagDto hashtag : hashTagDtoList) {
             TextField name = new TextField();
@@ -57,7 +58,7 @@ public class HashtagsViewDialog {
             Button dltBtn = new Button(new Icon(VaadinIcon.BAN), buttonClickEvent -> {
                 try {
                     new DeleteDialogWidget(() -> {
-                        rootView.getApiService().removeHashtag(hashtag.getId());
+                        rootView.getApiService().removeHashtag(Utils.rqUuid(), hashtag.getId());
                         reloadData();
                     });
                 } catch (Exception ex) {

@@ -3,6 +3,7 @@ package com.mar.tbot.service.bot;
 import com.mar.tbot.dto.sendMsg.TelegramMessage;
 import com.mar.tbot.mapper.TelegramDataMapper;
 import com.mar.tbot.service.ApiService;
+import com.mar.tbot.utils.Utils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
@@ -12,9 +13,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.Date;
-import java.util.UUID;
+import javax.annotation.PostConstruct;
 
 import static java.util.Objects.nonNull;
 
@@ -42,7 +42,7 @@ public class TelegramBotListener {
             if (nonNull(update)) {
                 log.warn(">> msg - {}", update.message());
                 TelegramMessage msg = new TelegramMessage();
-                msg.setRqUuid(UUID.randomUUID().toString());
+                msg.setRqUuid(Utils.rqUuid());
                 msg.setRqTm(new Date());
                 msg.setMsg(TelegramDataMapper.toDto(update.message()));
                 msg.setCallbackQuery(TelegramDataMapper.toDto(update.callbackQuery()));

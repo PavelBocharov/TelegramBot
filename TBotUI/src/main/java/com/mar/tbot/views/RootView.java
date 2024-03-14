@@ -21,6 +21,7 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.server.VaadinServletRequest;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -38,6 +39,11 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TASKS;
 
 @Route("")
 @PageTitle("TelegramBot UI")
+@PWA(name = "TelegramBot UI",
+        shortName = "TBot UI",
+        description = "Small project for learn etc. and actual skills.",
+        iconPath = "icons/icon.png"
+)
 public class RootView extends AppLayout {
 
     @Getter

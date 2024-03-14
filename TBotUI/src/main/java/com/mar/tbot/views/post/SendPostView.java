@@ -5,7 +5,9 @@ import com.mar.tbot.dto.BaseRs;
 import com.mar.tbot.dto.HashTagDto;
 import com.mar.tbot.dto.PostInfoDto;
 import com.mar.tbot.dto.PostTypeDtoRs;
+import com.mar.tbot.service.TbotException;
 import com.mar.tbot.utils.ButtonBuilder;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.ContentView;
 import com.mar.tbot.views.RootView;
@@ -36,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +46,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.vaadin.flow.component.icon.VaadinIcon.PAPERPLANE;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -72,15 +74,38 @@ public class SendPostView implements ContentView {
 
         Button sendBtn = ButtonBuilder.createButton()
                 .text("Send post")
-                .icon(PAPERPLANE)
+                .icon(VaadinIcon.PAPERPLANE)
                 .color(ButtonBuilder.Color.GREEN)
                 .clickListener(clkEvent -> {
                     try {
-                        BaseRs msg = rootView.getApiService().sendPost(getPostInfoDto());
+                        PostInfoDto rq = getPostInfoDto();
+                        BaseRs msg = rootView.getApiService().sendPost(rq);
                         ViewUtils.showSuccessMsg("Send post success.", msg.getHTML());
                     } catch (Exception ex) {
+                        log.warn("Send post error", ex);
                         ViewUtils.showErrorMsg("Send post error", ex);
                     }
+                })
+                .build();
+
+        Button helpBtn = ButtonBuilder.createButton()
+                .text("Help")
+                .icon(VaadinIcon.QUESTION_CIRCLE_O)
+                .clickListener(clkEvent -> {
+                    ViewUtils.showSuccessMsg(
+                            "Send post documentation",
+                            """
+                                    <h3>Formatting post lines</h3>
+                                    You can use HTML tags. More in <a href="https://core.telegram.org/bots/api#html-style" target="_blank">'Telegram bot API Documentation'.</a>
+                                    <h3>Max file size</h3>
+                                    Max file size: 10MB</br>
+                                    Admin can update this parameter in configuration:
+                                    <pre>
+                                    spring.servlet.multipart.max-file-size=10MB
+                                    spring.servlet.multipart.max-request-size=10MB
+                                    </pre>
+                                    """
+                    );
                 })
                 .build();
 
@@ -90,7 +115,7 @@ public class SendPostView implements ContentView {
                 getUploadView(),
                 listLines,
                 getHashtagView(),
-                sendBtn
+                new HorizontalLayout(sendBtn, helpBtn)
         );
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         return verticalLayout;
@@ -99,7 +124,7 @@ public class SendPostView implements ContentView {
     private Select<PostTypeDtoRs> getSelectPostType(VerticalLayout listLines) {
         // status
 //        List<PostType> itemStatusList = rootView.getRepositoryService().getItemStatusRepository().findAll();
-        List<PostTypeDtoRs> typeList = rootView.getApiService().getAllPostType().getPostTypeList();
+        List<PostTypeDtoRs> typeList = rootView.getApiService().getAllPostType(Utils.rqUuid()).getPostTypeList();
         Select<PostTypeDtoRs> postTypeSelect = new Select<PostTypeDtoRs>();
         postTypeSelect.setLabel("Post type");
         postTypeSelect.setPlaceholder("Select post type...");
@@ -196,11 +221,13 @@ public class SendPostView implements ContentView {
 
     private PostInfoDto getPostInfoDto() {
         PostInfoDto info = new PostInfoDto();
+        info.setRqUuid(Utils.rqUuid());
+        info.setRqTm(new Date());
 
         info.setUserId(rootView.getAdminId());
 
         if (isNull(uploadFileName)) {
-            throw new RuntimeException("Upload file");
+            throw new TbotException(info.getRqUuid(), info.getRqTm(), String.format("[%s] Upload file", info.getRqUuid()));
         }
         info.setFilePath(rootView.getDownloadPath() + uploadFileName);
 
@@ -249,7 +276,7 @@ public class SendPostView implements ContentView {
             hashTagSelect.deselectAll();
         }
 
-        List<String> hashtagList = rootView.getApiService().getHashtagList().getTags().stream().map(HashTagDto::getTag).toList();
+        List<String> hashtagList = rootView.getApiService().getHashtagList(Utils.rqUuid()).getTags().stream().map(HashTagDto::getTag).toList();
         hashTagSelect.setItems(hashtagList);
 
         if (isNotEmpty(selectedData)) {

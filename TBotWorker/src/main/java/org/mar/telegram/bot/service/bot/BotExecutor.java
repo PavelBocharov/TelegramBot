@@ -1,7 +1,9 @@
 package org.mar.telegram.bot.service.bot;
 
 import com.pengrad.telegrambot.TelegramBot;
+import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -70,6 +72,10 @@ public class BotExecutor {
     }
 
     public BaseResponse sendMessage(final String rqUuid, BaseRequest sendMessage) {
+        if (sendMessage instanceof SendMessage) {
+            ((SendMessage) sendMessage).parseMode(ParseMode.HTML);
+        }
+
         return sendPost(
                 sendMessage,
                 baseResponse -> {

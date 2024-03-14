@@ -20,14 +20,14 @@
         <!--    Versions    -->
         <revision>1.0.0</revision>
         <tbot.db.version>2.0.1</tbot.db.version>
-        <tbot.worker.version>2.0.3</tbot.worker.version>
-        <tbot.ui.version>1.2.0</tbot.ui.version>
+        <tbot.worker.version>2.1.0</tbot.worker.version>
+        <tbot.ui.version>1.3.1</tbot.ui.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--    Main    -->
-        <telegram.bot.api.version>6.8.0</telegram.bot.api.version>
+        <telegram.bot.api.version>7.1.0</telegram.bot.api.version>
         <!--    Spring    -->
         <spring.cloud.config.version>4.0.4</spring.cloud.config.version>
         <!--    Utils    -->
@@ -94,14 +94,14 @@
                                     <name>marolok/telegram_bot:${tbot.worker.version}</name>
                                     <alias>dockerfile</alias>
                                     <build>
-                                        <contextDir>${basedir}/TBotWorker</contextDir>
+                                        <contextDir>${project.basedir}/TBotWorker</contextDir>
                                     </build>
                                 </image>
                                 <image>
                                     <name>marolok/telegram-bot-ui:${tbot.ui.version}</name>
                                     <alias>dockerfile</alias>
                                     <build>
-                                        <contextDir>${basedir}/TBotUI</contextDir>
+                                        <contextDir>${project.basedir}/TBotUI</contextDir>
                                     </build>
                                 </image>
                             </images>

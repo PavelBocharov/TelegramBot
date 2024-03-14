@@ -9,9 +9,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.UUID;
 
 @UtilityClass
 public class Utils {
+
+    public static String rqUuid() {
+        return UUID.randomUUID().toString();
+    }
 
     public static Properties loadProperties(String resourceFileName) throws IOException {
         Properties configuration = new Properties();

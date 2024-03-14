@@ -71,6 +71,10 @@ public class SendPostController {
                     .withTypeDir(fileInfo.getContentType().getTypeDit())
             );
 
+            if (postInfoDto.getErrorCode() != null && postInfoDto.getErrorCode() > 0) {
+                throw new RuntimeException("Cannot create post info. TBotDB msg: " + postInfoDto.getErrorMsg());
+            }
+
             actionService.save(
                     rq.getRqUuid(),
                     new ActionPostDtoRs().withPostId(postInfoDto.getId()).withUserId(user.getId())

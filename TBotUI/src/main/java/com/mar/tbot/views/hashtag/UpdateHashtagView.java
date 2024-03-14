@@ -1,6 +1,7 @@
 package com.mar.tbot.views.hashtag;
 
 import com.mar.tbot.dto.HashTagDto;
+import com.mar.tbot.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -35,7 +36,7 @@ public class UpdateHashtagView {
         uptBtn.addClickListener(btnEvent -> {
             try {
                 String tag = textField.getValue();
-                itemStatusView.getRootView().getApiService().updateHashtag(new HashTagDto(hashTag.getId(), tag));
+                itemStatusView.getRootView().getApiService().updateHashtag(Utils.rqUuid(), new HashTagDto(hashTag.getId(), tag));
             } catch (Exception ex) {
                 ViewUtils.showErrorMsg("Update hashtag exception:", ex);
                 uptBtn.setEnabled(true);

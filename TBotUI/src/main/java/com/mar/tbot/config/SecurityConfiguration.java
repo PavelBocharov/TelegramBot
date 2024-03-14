@@ -77,7 +77,17 @@ public class SecurityConfiguration {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web
                 .ignoring()
-                .antMatchers("/VAADIN/**", "/actuator/**");
+                .antMatchers(
+                        "/VAADIN/**",
+                        "/actuator/**",
+                        "/favicon.ico",
+                        "/icons/**",
+                        "/images/**",
+                        "/styles/**",
+                        "/manifest.webmanifest",
+                        "/sw.js",
+                        "/offline.html"
+                );
     }
 
     @Bean
