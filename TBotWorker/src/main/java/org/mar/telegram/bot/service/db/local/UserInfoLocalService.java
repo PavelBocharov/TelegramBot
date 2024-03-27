@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.service.db.local;
 
+import com.mar.dto.rest.UserDtoRs;
 import jakarta.annotation.PostConstruct;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -7,16 +8,15 @@ import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.core.Ehcache;
 import org.mar.telegram.bot.service.bot.db.UserService;
-import org.mar.telegram.bot.service.db.dto.UserDto;
-import org.mar.telegram.bot.service.jms.MQSender;
+import com.mar.interfaces.mq.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
 import java.util.UUID;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -31,49 +31,49 @@ public class UserInfoLocalService implements UserService {
     @Autowired
     private MQSender mqSender;
 
-    private Ehcache<Long, UserDto> userCache;
+    private Ehcache<Long, UserDtoRs> userCache;
 
     @PostConstruct
     public void initCache() {
-        userCache = (Ehcache<Long, UserDto>) cacheManager
+        userCache = (Ehcache<Long, UserDtoRs>) cacheManager
                 .createCache(
                         USER_ACTION_CACHE,
                         CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                                Long.class, UserDto.class,
+                                Long.class, UserDtoRs.class,
                                 ResourcePoolsBuilder.heap(100)
                         )
                 );
     }
 
     @Override
-    public UserDto getByUserId(String rqUuid, long userId) {
-        Cache.Entry<Long, UserDto> entry = null;
-        for (Cache.Entry<Long, UserDto> userDto : userCache) {
+    public UserDtoRs getByUserId(String rqUuid, long userId) {
+        Cache.Entry<Long, UserDtoRs> entry = null;
+        for (Cache.Entry<Long, UserDtoRs> userDto : userCache) {
             if (userDto.getValue().getUserId().equals(userId)) {
                 entry = userDto;
                 break;
             }
         }
 
-        UserDto user = entry == null ? null : entry.getValue();
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Load user by userID: {}, dto: {}", userId, user);
+        UserDtoRs user = entry == null ? null : entry.getValue();
+        mqSender.sendLog(rqUuid, DEBUG, "Load user by userID: {}, dto: {}", userId, user);
 
         if (isNull(user)) {
-            user = create(rqUuid, new UserDto().withUserId(userId));
+            user = create(rqUuid, new UserDtoRs().withUserId(userId));
         }
 
         return user;
     }
 
     @Override
-    public UserDto create(String rqUuid, UserDto user) {
+    public UserDtoRs create(String rqUuid, UserDtoRs user) {
         if (nonNull(user)) {
             if (isNull(user.getId())) {
                 user.setId(new Random().nextLong());
             }
             userCache.put(user.getId(), user);
         }
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save user: {}", user);
+        mqSender.sendLog(rqUuid, DEBUG, "Save user: {}", user);
         return user;
     }
 }

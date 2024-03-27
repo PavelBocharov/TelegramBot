@@ -1,6 +1,14 @@
 package org.mar.telegram.bot.utils;
 
+import com.mar.dto.mq.LogEvent;
+import com.mar.dto.mq.URLInfo;
+import com.mar.dto.tbot.ContentType;
+import com.mar.dto.tbot.PhotoSizeDto;
+import com.mar.exception.BaseException;
+import com.mar.interfaces.mq.MQSender;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -8,18 +16,33 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
-import org.mar.telegram.bot.controller.dto.PhotoSizeDto;
-import org.mar.telegram.bot.service.jms.dto.URLInfo;
+import org.mar.telegram.bot.utils.data.WatermarkInfo;
+import org.springframework.stereotype.Component;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import javax.imageio.ImageIO;
 
-import static org.mar.telegram.bot.utils.ContentType.*;
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
+import static com.mar.dto.tbot.ContentType.Gif;
+import static com.mar.dto.tbot.ContentType.Picture;
+import static com.mar.dto.tbot.ContentType.Text;
+import static com.mar.dto.tbot.ContentType.Video;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-@UtilityClass
+@Component
+@RequiredArgsConstructor
 public class Utils {
+
+    private final MQSender mqSender;
 
     public static final String IMGUR_URL = "https://i.imgur.com/";
     public static final String IMGUR_GIFV_TYPE = ".gifv";
@@ -55,13 +78,13 @@ public class Utils {
             return URLInfo.builder().contentType(Text).url(url).build();
         }
         if (MP4_Type.endsWith(type)) {
-            return URLInfo.builder().contentType(Video).url(url).build();
+            return URLInfo.builder().contentType(Video).url(url).fileType(type).build();
         }
         if (GIF_Type.endsWith(type)) {
-            return URLInfo.builder().contentType(Gif).url(url).build();
+            return URLInfo.builder().contentType(Gif).url(url).fileType(type).build();
         }
         if (PICTURE_Type_List.contains(type)) {
-            return URLInfo.builder().contentType(Picture).url(url).build();
+            return URLInfo.builder().contentType(Picture).url(url).fileType(type).build();
         }
         if ((rez = itsImgurHosting(url)) != null) {
             return rez;
@@ -141,5 +164,98 @@ public class Utils {
         } catch (Exception ex) {
             return ExceptionUtils.getStackTrace(ex);
         }
+    }
+
+    public String addWatermark(String rqUuid, String imagePath, WatermarkInfo watermark) {
+        BufferedImage img = null;
+        File f = null;
+        if (watermark != null) {
+            f = new File(watermark.getImagePath());
+            if (isBlank(watermark.getText()) && !f.exists()) {
+                mqSender.sendLog(rqUuid, DEBUG, "Cannot add watermark on image - path: '{}', watermark info: {}", imagePath, watermark);
+                return null;
+            }
+        }
+
+        mqSender.sendLog(rqUuid, DEBUG, "Add watermark on image - path: '{}', watermark info: {}", imagePath, watermark);
+
+        try {
+            // IMAGE
+            f = new File(imagePath);
+            img = ImageIO.read(f);
+
+            BufferedImage temp = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+            Graphics graphics = temp.getGraphics();
+            graphics.drawImage(img, 0, 0, null);
+
+            if (isNotBlank(watermark.getImagePath())) {
+                mqSender.sendLog(rqUuid, DEBUG, "Add image on image - watermark image path: {}", watermark.getImagePath());
+                addImageOnImage(graphics, img.getWidth(), img.getHeight(), watermark);
+            }
+
+            if (isNotBlank(watermark.getText())) {
+                mqSender.sendLog(rqUuid, DEBUG, "Add text on image - watermark text: {}", watermark.getText());
+                addTextOnImage(graphics, img.getWidth(), img.getHeight(), watermark);
+            }
+
+            graphics.dispose();
+            URLInfo imageInfo = whatIsUrl(imagePath);
+            ImageIO.write(temp, imageInfo.getFileType(), f); // перезаписать
+
+            f = new File(
+                    f.getAbsolutePath().replace(f.getName(), "")
+                            + new Date().getTime()
+                            + "." + imageInfo.getFileType()
+            );
+            ImageIO.write(temp, imageInfo.getFileType(), f);
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            ImageIO.write(temp, imageInfo.getFileType(), baos);
+//            FileUtils.writeByteArrayToFile(f, baos.toByteArray());
+
+            if (f.exists()) {
+                return f.getAbsolutePath();
+            } else {
+                mqSender.sendLog(rqUuid, DEBUG, "Cannot used new image with watermark - used old file.");
+                return null;
+            }
+        } catch (Exception e) {
+            throw new BaseException(rqUuid, new Date(), 500, "Cannot add watermark on image: " + ExceptionUtils.getRootCauseMessage(e), e);
+        }
+    }
+
+    private void addImageOnImage(Graphics mainImage, int imgWidth, int imgHeight, WatermarkInfo watermark) throws IOException {
+        BufferedImage mwImg = null;
+        File wm = null;
+        wm = new File(watermark.getImagePath());
+        mwImg = ImageIO.read(wm);
+        mainImage.drawImage(
+                mwImg,
+                imgWidth - watermark.getImageSizeX(), imgHeight - watermark.getImageSizeY(), // location
+                watermark.getImageSizeX(), watermark.getImageSizeY(), // size
+                null
+        );
+    }
+
+    private void addTextOnImage(Graphics mainImage, int imgWidth, int imgHeight, WatermarkInfo watermark) {
+        mainImage.setFont(new Font(watermark.getTextFontName(), Font.PLAIN, watermark.getTextFontSize()));
+        int[] textColor = Utils.convertColor(watermark.getTextColorHex());
+        mainImage.setColor(new Color(textColor[0], textColor[1], textColor[2], watermark.getTextColorAlpha()));
+
+        mainImage.drawString(watermark.getText(), 1, watermark.getTextFontSize());
+//        mainImage.drawString(watermark.getText(), imgWidth / 10, imgHeight / 10);
+    }
+
+    public static int[] convertColor(String hex) {
+        assert isNotBlank(hex);
+
+        String hexCode = hex.replace("#", "");
+
+        assert hexCode.length() == 6;
+
+        return new int[]{
+                Integer.valueOf(hexCode.substring(0, 2), 16),
+                Integer.valueOf(hexCode.substring(2, 4), 16),
+                Integer.valueOf(hexCode.substring(4, 6), 16)
+        };
     }
 }

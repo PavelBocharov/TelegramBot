@@ -1,5 +1,7 @@
 package org.mar.telegram.bot.service.db.local;
 
+import com.mar.dto.rest.PostInfoDtoRq;
+import com.mar.dto.rest.PostInfoDtoRs;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.ehcache.Cache;
@@ -10,8 +12,6 @@ import org.ehcache.core.Ehcache;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
-import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
-import org.mar.telegram.bot.service.db.dto.PostInfoDtoRq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class PostServiceImpl implements PostService {
     private CacheManager cacheManager;
 
     private Ehcache<Long, PostInfoDtoRs> postInfoCache;
-    private DBIntegrationMapper postInfoMapper = Mappers.getMapper(DBIntegrationMapper.class);
+    private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
 
     @PostConstruct
     public void initCache() {
@@ -63,7 +63,7 @@ public class PostServiceImpl implements PostService {
 
         PostInfoDtoRs dto;
         if (isNull(cacheData) || isNull(cacheData.getValue())) {
-            dto = save(rqUuid, new PostInfoDtoRs().withIsSend(false));
+            dto = save(rqUuid, new PostInfoDtoRq().withIsSend(false));
         } else {
             dto = cacheData.getValue();
         }
@@ -88,15 +88,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostInfoDtoRs save(String rqUuid, PostInfoDtoRs postInfo) {
+    public PostInfoDtoRs save(String rqUuid, PostInfoDtoRq postInfo) {
+        PostInfoDtoRs data = mapper.mapRqToRs(postInfo);
         if (nonNull(postInfo)) {
             if (isNull(postInfo.getId())) {
                 postInfo.setId(new Random().nextLong());
+                data.setId(postInfo.getId());
             }
             log.debug("Save post info: {}", postInfo);
-            postInfoCache.put(postInfo.getId(), postInfo);
+
+            postInfoCache.put(postInfo.getId(), data);
         }
-        return postInfo;
+        return data;
     }
 
     @Override

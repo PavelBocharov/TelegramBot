@@ -1,17 +1,17 @@
 package com.mar.tbot.views.post;
 
 import com.google.common.collect.ImmutableMap;
-import com.mar.tbot.dto.BaseRs;
-import com.mar.tbot.dto.HashTagDto;
-import com.mar.tbot.dto.PostInfoDto;
-import com.mar.tbot.dto.PostTypeDtoRs;
-import com.mar.tbot.service.TbotException;
+import com.mar.dto.rest.BaseRs;
+import com.mar.dto.rest.HashTagDto;
+import com.mar.dto.rest.PostTypeDtoRs;
+import com.mar.dto.rest.SendPostRq;
+import com.mar.exception.TbotException;
 import com.mar.tbot.utils.ButtonBuilder;
-import com.mar.tbot.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.ContentView;
 import com.mar.tbot.views.RootView;
 import com.mar.tbot.views.hashtag.HashtagsViewDialog;
+import com.mar.utils.Utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -78,7 +78,7 @@ public class SendPostView implements ContentView {
                 .color(ButtonBuilder.Color.GREEN)
                 .clickListener(clkEvent -> {
                     try {
-                        PostInfoDto rq = getPostInfoDto();
+                        SendPostRq rq = getPostInfoDto();
                         BaseRs msg = rootView.getApiService().sendPost(rq);
                         ViewUtils.showSuccessMsg("Send post success.", msg.getHTML());
                     } catch (Exception ex) {
@@ -168,9 +168,10 @@ public class SendPostView implements ContentView {
 
                 log.debug("SucceededListener --> filename: {}, size: {} byte, MIME: {}, byteLength: {}", uploadFileName, contentLength, mimeType, uploadFileData.length);
 
-                FileUtils.writeByteArrayToFile(new File(
-                        rootView.getDownloadPath() + uploadFileName
-                ), uploadFileData);
+                FileUtils.writeByteArrayToFile(
+                        new File(rootView.getDownloadPath() + uploadFileName),
+                        uploadFileData
+                );
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -219,8 +220,8 @@ public class SendPostView implements ContentView {
         return hashtagView;
     }
 
-    private PostInfoDto getPostInfoDto() {
-        PostInfoDto info = new PostInfoDto();
+    private SendPostRq getPostInfoDto() {
+        SendPostRq info = new SendPostRq();
         info.setRqUuid(Utils.rqUuid());
         info.setRqTm(new Date());
 

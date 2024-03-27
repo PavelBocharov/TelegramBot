@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.config;
 
+import com.mar.Const;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -11,16 +12,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.*;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaAdmin;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
 public class MQConf {
-
-    public static final String TELEGRAM_BOT_MQ = "telegram_queue";
-    public static final String TELEGRAM_BOT_MQ_GROUP = "tbot_consumers_group";
 
     @Value("${spring.kafka.bootstrap-servers:in_image_profile}")
     private String bootstrapAddress;
@@ -36,7 +39,7 @@ public class MQConf {
     @Bean
     @Profile("!local")
     public NewTopic telegramFilesTopic() {
-        return new NewTopic(TELEGRAM_BOT_MQ, 1, (short) 1);
+        return new NewTopic(Const.TELEGRAM_BOT_MQ, 1, (short) 1);
     }
 
     @Bean
@@ -60,7 +63,7 @@ public class MQConf {
     public ConsumerFactory<String, String> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, TELEGRAM_BOT_MQ_GROUP);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, Const.TELEGRAM_BOT_MQ_GROUP);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(props);

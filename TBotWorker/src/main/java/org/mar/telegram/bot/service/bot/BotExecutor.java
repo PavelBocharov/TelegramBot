@@ -1,5 +1,7 @@
 package org.mar.telegram.bot.service.bot;
 
+import com.mar.dto.rest.PostInfoDtoRs;
+import com.mar.interfaces.mq.MQSender;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
@@ -7,17 +9,18 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.BaseResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.mapstruct.factory.Mappers;
+import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
-import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
-import org.mar.telegram.bot.service.jms.MQSender;
 import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
+import static com.mar.dto.mq.LogEvent.LogLevel.ERROR;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -35,19 +38,21 @@ public class BotExecutor {
     @Autowired
     private MQSender mqSender;
 
+    private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
+
     public BaseResponse sendPost(final String rqUuid, final long id, BaseRequest sendMessage) {
         return sendPost(
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
-                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
+                        mqSender.sendLog(rqUuid, ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
                     } else {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
-                            mqSender.sendLog(rqUuid, LogLevel.DEBUG, "<< Send msg execute");
+                            mqSender.sendLog(rqUuid, DEBUG, "<< Send msg execute");
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
                                 PostInfoDtoRs postInfo = postService.getPostById(rqUuid, id);
-                                mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">> Get post: {}", postInfo);
+                                mqSender.sendLog(rqUuid, DEBUG, ">> Get post: {}", postInfo);
 
                                 postInfo.setIsSend(true);
                                 postInfo.setMessageId(rs.message().messageId());
@@ -56,18 +61,18 @@ public class BotExecutor {
                                     final String filePath = postInfo.getMediaPath();
                                     String exStr = Utils.removeFile(filePath);
                                     if (isNotBlank(exStr)) {
-                                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not remove file. Path: {}\n{}", filePath, exStr);
+                                        mqSender.sendLog(rqUuid, ERROR, "Not remove file. Path: {}\n{}", filePath, exStr);
                                     }
 
                                     postInfo.setMediaPath(String.format("https://t.me/%s/%d", rs.message().chat().username(), rs.message().messageId()));
                                 }
-                                mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">> Upd post: {}", postInfo);
-                                postService.save(rqUuid, postInfo);
+                                mqSender.sendLog(rqUuid, DEBUG, ">> Upd post: {}", postInfo);
+                                postService.save(rqUuid, mapper.mapRsToRq(postInfo));
                             }
                         }
                     }
                 },
-                throwable -> mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
+                throwable -> mqSender.sendLog(rqUuid, ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
         );
     }
 
@@ -80,10 +85,10 @@ public class BotExecutor {
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
-                        mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
+                        mqSender.sendLog(rqUuid, ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
                     }
                 },
-                throwable -> mqSender.sendLog(rqUuid, LogLevel.ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
+                throwable -> mqSender.sendLog(rqUuid, ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
         );
     }
 

@@ -1,9 +1,9 @@
 package com.mar.tbot.service.bot;
 
-import com.mar.tbot.dto.sendMsg.TelegramMessage;
+import com.mar.tbot.dto.sendMsg.TelegramMessageRq;
 import com.mar.tbot.mapper.TelegramDataMapper;
 import com.mar.tbot.service.ApiService;
-import com.mar.tbot.utils.Utils;
+import com.mar.utils.Utils;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
@@ -41,7 +41,7 @@ public class TelegramBotListener {
         try {
             if (nonNull(update)) {
                 log.warn(">> msg - {}", update.message());
-                TelegramMessage msg = new TelegramMessage();
+                TelegramMessageRq msg = new TelegramMessageRq();
                 msg.setRqUuid(Utils.rqUuid());
                 msg.setRqTm(new Date());
                 msg.setMsg(TelegramDataMapper.toDto(update.message()));

@@ -1,21 +1,21 @@
 package org.mar.telegram.bot.service.db.docker;
 
+import com.mar.dto.tbot.ActionEnum;
+import com.mar.dto.rest.ActionPostDtoRs;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.db.RestApiService;
-import org.mar.telegram.bot.service.db.dto.ActionEnum;
-import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
-import org.mar.telegram.bot.service.jms.MQSender;
+import com.mar.interfaces.mq.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
 import static java.util.Objects.isNull;
 
 @Service
@@ -39,7 +39,7 @@ public class ActionPostService implements ActionService {
         if (isNull(actionPost)) {
             actionPost = new ActionPostDtoRs().withUserId(userId).withPostId(postInfoId);
         }
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionPost);
+        mqSender.sendLog(rqUuid, DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionPost);
         return actionPost;
     }
 
@@ -47,7 +47,7 @@ public class ActionPostService implements ActionService {
     public ActionPostDtoRs save(String rqUuid, ActionPostDtoRs actionPost) {
         final String url = dbUrl + "/action";
         ActionPostDtoRs rs = restApiService.post(rqUuid, url, mapper.mapRsToRq(actionPost), ActionPostDtoRs.class, "save action post");
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save action: {}", rs);
+        mqSender.sendLog(rqUuid, DEBUG, "Save action: {}", rs);
         return rs;
     }
 
@@ -55,7 +55,7 @@ public class ActionPostService implements ActionService {
     public Map<ActionEnum, Long> countByPostIdAndAction(String rqUuid, Long postId) {
         final String url = String.format("%s/action/count/%d", dbUrl, postId);
         Map rs = restApiService.get(rqUuid, url, Map.class, "get countByPostIdAndAction");
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Get count action: {}", rs);
+        mqSender.sendLog(rqUuid, DEBUG, "Get count action: {}", rs);
 
         Map<ActionEnum, Long> rez = new HashMap<>();
 

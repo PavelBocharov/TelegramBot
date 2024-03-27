@@ -1,13 +1,13 @@
 package com.mar.tbot.service;
 
-import com.mar.tbot.dto.BaseRs;
-import com.mar.tbot.dto.HashTagDto;
-import com.mar.tbot.dto.HashTagListDtoRs;
-import com.mar.tbot.dto.PostInfoDto;
-import com.mar.tbot.dto.PostTypeDtoRq;
-import com.mar.tbot.dto.PostTypeDtoRs;
-import com.mar.tbot.dto.PostTypeListDtoRs;
-import com.mar.tbot.dto.sendMsg.TelegramMessage;
+import com.mar.dto.rest.BaseRs;
+import com.mar.dto.rest.HashTagDto;
+import com.mar.dto.rest.HashTagListDtoRs;
+import com.mar.dto.rest.PostTypeDtoRq;
+import com.mar.dto.rest.PostTypeDtoRs;
+import com.mar.dto.rest.PostTypeListDtoRs;
+import com.mar.dto.rest.SendPostRq;
+import com.mar.tbot.dto.sendMsg.TelegramMessageRq;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -17,20 +17,19 @@ import java.util.List;
 @Service
 @Profile("local")
 public class LocalMockApiService implements ApiService {
+
     @Override
-    public BaseRs sendPost(PostInfoDto body) {
-        return BaseRs.builder()
-                .rqUuid(body.getRqUuid())
-                .rqTm(new Date())
-                .build();
+    public BaseRs sendPost(SendPostRq post) {
+        return new BaseRs()
+                .withRqUuid(post.getRqUuid())
+                .withRqTm(new Date());
     }
 
     @Override
-    public BaseRs sendMsg(TelegramMessage body) {
-        return BaseRs.builder()
-                .rqUuid(body.getRqUuid())
-                .rqTm(new Date())
-                .build();
+    public BaseRs sendMsg(TelegramMessageRq body) {
+        return new BaseRs()
+                .withRqUuid(body.getRqUuid())
+                .withRqTm(new Date());
     }
 
     @Override
@@ -71,10 +70,9 @@ public class LocalMockApiService implements ApiService {
 
     @Override
     public BaseRs removeHashtag(String rqUuid, Long id) {
-        return BaseRs.builder()
-                .rqUuid(rqUuid)
-                .rqTm(new Date())
-                .build();
+        return new BaseRs()
+                .withRqUuid(rqUuid)
+                .withRqTm(new Date());
     }
 
     @Override

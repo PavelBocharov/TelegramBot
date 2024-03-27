@@ -1,12 +1,8 @@
 package com.mar.telegram.db.mapper;
 
-import com.mar.telegram.db.dto.ActionPostDto;
-import com.mar.telegram.db.dto.HashTagDto;
-import com.mar.telegram.db.dto.HashTagListDto;
-import com.mar.telegram.db.entity.ActionPost;
+import com.mar.dto.rest.HashTagDto;
 import com.mar.telegram.db.entity.HashTag;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

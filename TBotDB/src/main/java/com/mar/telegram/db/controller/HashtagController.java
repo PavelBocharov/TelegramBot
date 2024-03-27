@@ -1,8 +1,8 @@
 package com.mar.telegram.db.controller;
 
-import com.mar.telegram.db.dto.BaseDto;
-import com.mar.telegram.db.dto.HashTagListDto;
-import com.mar.telegram.db.exception.BaseException;
+import com.mar.dto.rest.HashTagListDtoRq;
+import com.mar.dto.rest.HashTagListDtoRs;
+import com.mar.exception.BaseException;
 import com.mar.telegram.db.jpa.HashTagRepository;
 import com.mar.telegram.db.mapper.HashtagMapper;
 import jakarta.validation.Valid;
@@ -11,7 +11,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,49 +35,49 @@ public class HashtagController {
     private HashtagMapper mapper = Mappers.getMapper(HashtagMapper.class);
 
     @PostMapping
-    public Mono<HashTagListDto> create(@RequestBody @Valid HashTagListDto rq) {
+    public Mono<HashTagListDtoRs> create(@RequestBody @Valid HashTagListDtoRq rq) {
         return Flux.fromIterable(rq.getTags())
                 .map(mapper::mapToEntity)
                 .map(repository::save)
                 .map(mapper::mapToDto)
                 .collectList()
-                .map(HashTagListDto::new)
+                .map(HashTagListDtoRs::new)
                 .map(dto -> updateRs(dto, rq.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())));
     }
 
     @GetMapping
-    public Mono<HashTagListDto> getAll(@RequestHeader("RqUuid") @NotBlank String rqUuid) {
+    public Mono<HashTagListDtoRs> getAll(@RequestHeader("RqUuid") @NotBlank String rqUuid) {
         return Mono.just(repository.findAll())
                 .map(mapper::mapToDto)
-                .map(HashTagListDto::new)
+                .map(HashTagListDtoRs::new)
                 .map(dto -> updateRs(dto, rqUuid))
                 .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())));
     }
 
     @DeleteMapping
-    public Mono<BaseDto> removeById(@RequestHeader("RqUuid") @NotBlank String rqUuid, @RequestHeader("Id") @NotNull Long id) {
+    public Mono<HashTagListDtoRs> removeById(@RequestHeader("RqUuid") @NotBlank String rqUuid, @RequestHeader("Id") @NotNull Long id) {
         return Mono.just(id)
                 .map(idForDelete -> {
                     repository.deleteById(idForDelete);
-                    return new BaseDto().withRqUuid(rqUuid).withRqTm(new Date());
+                    return updateRs(new HashTagListDtoRs(), rqUuid);
                 })
                 .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())));
     }
 
     @PutMapping
-    public Mono<HashTagListDto> update(@RequestBody @Valid HashTagListDto rq) {
+    public Mono<HashTagListDtoRs> update(@RequestBody @Valid HashTagListDtoRq rq) {
         return Flux.fromIterable(rq.getTags())
                 .map(mapper::mapToEntity)
                 .map(repository::save)
                 .map(mapper::mapToDto)
                 .collectList()
-                .map(HashTagListDto::new)
+                .map(HashTagListDtoRs::new)
                 .map(dto -> updateRs(dto, rq.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())));
     }
 
-    private HashTagListDto updateRs(HashTagListDto rs, String rqUuid) {
+    private HashTagListDtoRs updateRs(HashTagListDtoRs rs, String rqUuid) {
         rs.setRqUuid(rqUuid);
         rs.setRqTm(new Date());
         return rs;

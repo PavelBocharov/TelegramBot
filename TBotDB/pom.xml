@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.mar</groupId>
+        <groupId>com.mar</groupId>
         <artifactId>TelegramBot</artifactId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -15,6 +15,14 @@
     <version>${tbot.db.version}</version>
 
     <dependencies>
+        <!--    TBot    -->
+        <dependency>
+            <groupId>com.mar</groupId>
+            <artifactId>TBotDto</artifactId>
+            <version>${tbot.dto.version}</version>
+        </dependency>
+
+        <!--    Spring    -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>

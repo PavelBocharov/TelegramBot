@@ -1,26 +1,28 @@
 package org.mar.telegram.bot.controller;
 
+import com.mar.dto.rest.PostInfoDtoRq;
+import com.mar.dto.tbot.ContentType;
+import com.mar.dto.mq.URLInfo;
+import com.mar.dto.rest.ActionPostDtoRs;
+import com.mar.dto.rest.BaseRs;
+import com.mar.dto.rest.PostInfoDtoRs;
+import com.mar.dto.rest.SendPostRq;
+import com.mar.dto.rest.UserDtoRs;
+import com.mar.dto.tbot.TelegramMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.mar.telegram.bot.controller.dto.BaseRs;
-import org.mar.telegram.bot.controller.dto.SendPost;
-import org.mar.telegram.bot.controller.dto.TelegramMessage;
+import org.mapstruct.factory.Mappers;
+import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.TelegramBotSendUtils;
 import org.mar.telegram.bot.service.bot.TelegramBotService;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
-import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
-import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
-import org.mar.telegram.bot.service.db.dto.UserDto;
-import org.mar.telegram.bot.service.jms.MQSender;
-import org.mar.telegram.bot.service.jms.dto.URLInfo;
-import org.mar.telegram.bot.utils.ContentType;
+import com.mar.interfaces.mq.MQSender;
 import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -47,6 +50,8 @@ public class SendPostController {
     private final ActionService actionService;
     private final UserService userService;
 
+    private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
+
     @Value("${application.group.chat.id}")
     private Long groupChatId;
 
@@ -55,21 +60,24 @@ public class SendPostController {
 
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     @Operation(summary = "Отправка сообщения", description = "Передача данных боту, чтоб он запостил это в группу.")
-    public BaseRs sendMsg(@RequestBody @Valid SendPost rq) {
-        mqSender.sendLog(rq.getRqUuid(), LogLevel.DEBUG, "REST API: {}", rq);
+    public BaseRs sendMsg(@RequestBody @Valid SendPostRq rq) {
+        mqSender.sendLog(rq.getRqUuid(), DEBUG, "REST API: {}", rq);
 
         URLInfo fileInfo = Utils.whatIsUrl(rq.getFilePath());
 
         if (Objects.nonNull(fileInfo) && !ContentType.Text.equals(fileInfo.getContentType())) {
 
-            UserDto user = userService.getByUserId(rq.getRqUuid(), rq.getUserId());
+            UserDtoRs user = userService.getByUserId(rq.getRqUuid(), rq.getUserId());
 
-            PostInfoDtoRs postInfoDto = postService.save(rq.getRqUuid(), new PostInfoDtoRs()
+            PostInfoDtoRq savePostRq = new PostInfoDtoRq()
                     .withChatId(groupChatId)
                     .withMediaPath(rq.getFilePath())
                     .withCaption(getCaption(rq.getCaption(), rq.getHashTags()))
-                    .withTypeDir(fileInfo.getContentType().getTypeDit())
-            );
+                    .withTypeDir(fileInfo.getContentType().getTypeDir());
+            savePostRq.setRqUuid(rq.getRqUuid());
+            savePostRq.setRqTm(new Date());
+
+            PostInfoDtoRs postInfoDto = postService.save(rq.getRqUuid(), savePostRq);
 
             if (postInfoDto.getErrorCode() != null && postInfoDto.getErrorCode() > 0) {
                 throw new RuntimeException("Cannot create post info. TBotDB msg: " + postInfoDto.getErrorMsg());

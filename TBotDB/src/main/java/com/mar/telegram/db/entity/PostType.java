@@ -1,7 +1,20 @@
 package com.mar.telegram.db.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.With;
 
 import java.util.List;
 
@@ -15,7 +28,7 @@ import java.util.List;
 public class PostType {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE, generator = "post_type_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_type_seq")
     private Long id;
 
     @Column(name = "title", nullable = false, unique = true)

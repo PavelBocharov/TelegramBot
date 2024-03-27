@@ -20,5 +20,7 @@ public class SendPostDto implements Serializable {
     private String filePath;
     private Map<String, String> caption;
     private List<String> hashTags;
+    private Boolean sendFlag = false;
+    private Date scheduleSendTime;
 
 }

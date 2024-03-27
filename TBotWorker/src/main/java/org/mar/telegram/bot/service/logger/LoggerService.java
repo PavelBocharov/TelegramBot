@@ -3,9 +3,9 @@ package org.mar.telegram.bot.service.logger;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mar.dto.mq.LogEvent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.mar.telegram.bot.service.jms.dto.LogEvent;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Stream;
@@ -16,7 +16,7 @@ public class LoggerService {
 
     @SneakyThrows
     public void printLog(String rqUuid, LogEvent event) {
-        String logMessage = "[" + rqUuid + "] " + event.getMsg();
+        String logMessage = event.getApplicationName() + " >>> [" + rqUuid + "] " + event.getMsg();
         ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Object[] args = Stream.of(event.getObjects()).map(obj -> getString(objectMapper, obj)).toArray();
         switch (event.getLogLevel()) {

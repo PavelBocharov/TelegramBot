@@ -1,7 +1,8 @@
 package com.mar.tbot.utils;
 
 import com.google.common.io.Resources;
-import com.mar.tbot.service.TbotException;
+import com.mar.exception.TbotException;
+import com.mar.utils.Utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;

@@ -10,7 +10,7 @@ application:
     admin:
       id: 1111111111
     directory:
-      path: 'E:\temp\test'
+      path: 'G:/temp/test'
 #      path: '/opt/app/temp'
   scheduler:
     cron: '0 0 */1 * * *'
@@ -29,7 +29,7 @@ jms:
     destination: telegram_queue
 logging:
   file:
-    path: 'E:\temp\test\logs'
+    path: 'G:/temp/test/logs'
 #    path: '/opt/app/temp/logs'
     max-size: 536870912
   level:

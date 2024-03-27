@@ -1,9 +1,9 @@
 package com.mar.tbot.views.type;
 
-import com.mar.tbot.dto.PostTypeDtoRs;
+import com.mar.dto.rest.PostTypeDtoRs;
 import com.mar.tbot.utils.ButtonBuilder;
 import com.mar.tbot.utils.DeleteDialogWidget;
-import com.mar.tbot.utils.Utils;
+import com.mar.utils.Utils;
 import com.mar.tbot.views.ContentView;
 import com.mar.tbot.views.RootView;
 import com.vaadin.flow.component.Component;

@@ -1,7 +1,7 @@
 package com.mar.tbot.views.hashtag;
 
-import com.mar.tbot.dto.HashTagDto;
-import com.mar.tbot.utils.Utils;
+import com.mar.dto.rest.HashTagDto;
+import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;

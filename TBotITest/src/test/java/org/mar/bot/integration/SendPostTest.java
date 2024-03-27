@@ -8,6 +8,7 @@ import org.mar.bot.integration.dto.SendPostDto;
 import org.mar.bot.utils.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 
@@ -42,25 +43,26 @@ public class SendPostTest extends InitContainers {
     @Test
     void initContainers_test() throws URISyntaxException, InterruptedException {
         assertAll(
-                () -> assertTrue(tbotconf.isCreated()),
-                () -> assertTrue(tbotconf.isRunning()),
-                () -> assertTrue(postgreSQL.isCreated()),
-                () -> assertTrue(postgreSQL.isRunning()),
-                () -> assertTrue(tbotDb.isCreated()),
-                () -> assertTrue(tbotDb.isRunning()),
-                () -> assertTrue(zookeeper.isCreated()),
-                () -> assertTrue(zookeeper.isRunning()),
-                () -> assertTrue(kafka.isCreated()),
-                () -> assertTrue(kafka.isRunning()),
-                () -> assertTrue(redis.isCreated()),
-                () -> assertTrue(redis.isRunning()),
-                () -> assertTrue(tbot.isCreated()),
-                () -> assertTrue(tbot.isRunning()),
-                () -> assertTrue(tbotui.isCreated()),
-                () -> assertTrue(tbotui.isRunning())
+                () -> assertTrue(tbotconf.isCreated(), "tbotconf.isCreated()"),
+                () -> assertTrue(tbotconf.isRunning(), "tbotconf.isRunning()"),
+                () -> assertTrue(postgreSQL.isCreated(), "postgreSQL.isCreated()"),
+                () -> assertTrue(postgreSQL.isRunning(), "postgreSQL.isRunning()"),
+                () -> assertTrue(tbotDb.isCreated(), "tbotDb.isCreated()"),
+                () -> assertTrue(tbotDb.isRunning(), "tbotDb.isRunning()"),
+                () -> assertTrue(zookeeper.isCreated(), "zookeeper.isCreated()"),
+                () -> assertTrue(zookeeper.isRunning(), "zookeeper.isRunning()"),
+                () -> assertTrue(kafka.isCreated(), "kafka.isCreated()"),
+                () -> assertTrue(kafka.isRunning(), "kafka.isRunning()"),
+                () -> assertTrue(redis.isCreated(), "redis.isCreated()"),
+                () -> assertTrue(redis.isRunning(), "redis.isRunning()"),
+                () -> assertTrue(tbot.isCreated(), "tbot.isCreated()"),
+                () -> assertTrue(tbot.isRunning(), "tbot.isRunning()"),
+                () -> assertTrue(tbotui.isCreated(), "tbotui.isCreated()"),
+                () -> assertTrue(tbotui.isRunning(), "tbotui.isRunning()")
         );
 
-//        tbot.followOutput(new Slf4jLogConsumer(log));
+        tbot.followOutput(new Slf4jLogConsumer(log).withPrefix("tbot"));
+        tbotDb.followOutput(new Slf4jLogConsumer(log).withPrefix("tbotDb"));
 
         String host = tbotconf.getHost();
         Integer port = tbotconf.getMappedPort(TestUtils.getPropertyInt("test.integration.config.port"));
@@ -90,7 +92,10 @@ public class SendPostTest extends InitContainers {
         // https://core.telegram.org/bots/api#html-style
         sendPost.setCaption(Map.of(
                 "<u>Test '@'</u>", "@CrzCat",
-                "<b>Test HTML link</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>"
+                "<b>Test HTML link 1</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                "<b>Test HTML link 2</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                "<b>Test HTML link 3</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                "<b>Test HTML link 4</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>"
         ));
         sendPost.setHashTags(List.of("#Test", "#IT_Test"));
 

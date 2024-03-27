@@ -1,9 +1,9 @@
 package com.mar.tbot.views.hashtag;
 
-import com.mar.tbot.dto.HashTagDto;
+import com.mar.dto.rest.HashTagDto;
 import com.mar.tbot.utils.ButtonBuilder;
 import com.mar.tbot.utils.DeleteDialogWidget;
-import com.mar.tbot.utils.Utils;
+import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.RootView;
 import com.mar.tbot.views.post.SendPostView;

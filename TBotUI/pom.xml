@@ -13,7 +13,7 @@
 
     <groupId>org.mar</groupId>
     <artifactId>TBotUI</artifactId>
-    <version>1.3.1</version>
+    <version>1.4.0</version>
 
     <repositories>
         <repository>
@@ -50,6 +50,13 @@
 
 
     <dependencies>
+        <!--    TBot    -->
+        <dependency>
+            <groupId>com.mar</groupId>
+            <artifactId>TBotDto</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
         <!--    Vaadin    -->
         <dependency>
             <groupId>com.vaadin</groupId>

@@ -1,18 +1,18 @@
 package org.mar.telegram.bot.service.db.docker;
 
+import com.mar.dto.mq.LogEvent;
+import com.mar.dto.rest.PostInfoDtoRq;
+import com.mar.dto.rest.PostInfoDtoRs;
+import com.mar.interfaces.mq.MQSender;
 import org.apache.commons.lang3.tuple.Pair;
-import org.mapstruct.factory.Mappers;
-import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.RestApiService;
-import org.mar.telegram.bot.service.db.dto.PostInfoDtoRs;
-import org.mar.telegram.bot.service.jms.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
 import static java.util.Objects.isNull;
 
 @Service
@@ -28,24 +28,22 @@ public class PostInfoService implements PostService {
     @Autowired
     private RestApiService restApiService;
 
-    private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
-
     public PostInfoDtoRs getNotSendPost(String rqUuid) {
         final String url = dbUrl + "/post/info/isNotSend";
         PostInfoDtoRs rs = restApiService.get(rqUuid, url, PostInfoDtoRs.class, "getNotSendPost");
 
         if (isNull(rs)) {
-            rs = save(rqUuid, new PostInfoDtoRs().withIsSend(false));
+            rs = save(rqUuid, new PostInfoDtoRq().withIsSend(false));
         }
 
-        log(rqUuid, rs, LogLevel.DEBUG, "Get not send postInfo: {}", rs);
+        log(rqUuid, rs, DEBUG, "Get not send postInfo: {}", rs);
         return rs;
     }
 
-    public PostInfoDtoRs save(String rqUuid, PostInfoDtoRs postInfo) {
+    public PostInfoDtoRs save(String rqUuid, PostInfoDtoRq postInfo) {
         final String url = dbUrl + "/post/info";
-        PostInfoDtoRs rs =  restApiService.post(rqUuid, url, mapper.mapRsToRq(postInfo), PostInfoDtoRs.class, "Save postInfo");
-        log(rqUuid, rs, LogLevel.DEBUG, "Save postInfo: {}", rs);
+        PostInfoDtoRs rs = restApiService.post(rqUuid, url, postInfo, PostInfoDtoRs.class, "Save postInfo");
+        log(rqUuid, rs, DEBUG, "Save postInfo: {}", rs);
         return rs;
     }
 
@@ -53,12 +51,12 @@ public class PostInfoService implements PostService {
         final String url = String.format("%s/post/info/%d/%d", dbUrl, chatId, messageId);
         PostInfoDtoRs rs = restApiService.get(rqUuid, url, PostInfoDtoRs.class, "getByChatIdAndMessageId");
 
-        log(rqUuid, rs, LogLevel.DEBUG, "Get post by chatId = {}, messageId = {}. RS: {}", chatId, messageId, rs);
+        log(rqUuid, rs, DEBUG, "Get post by chatId = {}, messageId = {}. RS: {}", chatId, messageId, rs);
 
         return rs;
     }
 
-    private PostInfoDtoRs log(String rqUuid, PostInfoDtoRs postInfoDto, LogLevel logLevel, final String message, Object... objects) {
+    private PostInfoDtoRs log(String rqUuid, PostInfoDtoRs postInfoDto, LogEvent.LogLevel logLevel, final String message, Object... objects) {
         mqSender.sendLog(rqUuid, logLevel, message, objects);
         return postInfoDto;
     }
@@ -75,10 +73,10 @@ public class PostInfoService implements PostService {
         );
 
         if (isNull(rs)) {
-            rs = save(rqUuid, new PostInfoDtoRs());
+            rs = save(rqUuid, new PostInfoDtoRq());
         }
 
-        log(rqUuid, rs, LogLevel.DEBUG, "Get not send postInfo: {}", rs);
+        log(rqUuid, rs, DEBUG, "Get not send postInfo: {}", rs);
         return rs;
     }
 }

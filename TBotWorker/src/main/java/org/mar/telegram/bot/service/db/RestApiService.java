@@ -1,14 +1,14 @@
 package org.mar.telegram.bot.service.db;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mar.dto.rest.BaseRq;
+import com.mar.dto.rest.BaseRs;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.mar.telegram.bot.controller.dto.BaseRq;
-import org.mar.telegram.bot.controller.dto.BaseRs;
-import org.mar.telegram.bot.service.jms.MQSender;
+import com.mar.interfaces.mq.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -18,6 +18,8 @@ import java.net.http.HttpResponse;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
+import static com.mar.dto.mq.LogEvent.LogLevel.ERROR;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -34,10 +36,10 @@ public class RestApiService {
 
     @SneakyThrows
     public <RS extends BaseRs, RQ extends BaseRq> RS post(String rqUuid, String url, RQ rq, Class<RS> rsClass, String logText) {
-        rq.setRqUuid(UUID.randomUUID().toString());
+        rq.setRqUuid(rqUuid);
         rq.setRqTm(new Date());
 
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">>> POST {}: url: {}, body: {}", logText, url, rq);
+        mqSender.sendLog(rqUuid, DEBUG, ">>> POST {}: url: {}, body: {}", logText, url, rq);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(rq), UTF_8))
@@ -49,14 +51,16 @@ public class RestApiService {
         if (response.statusCode() != 200) {
             throw new RuntimeException(response.body());
         }
+
+        mqSender.sendLog(rqUuid, DEBUG, "<<< POST {}: BODY {}", logText, response.body());
         RS rs = convertJsonToObject(rqUuid, rsClass, response.body());
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "<<< POST {}: {}", logText, rs);
+        mqSender.sendLog(rqUuid, DEBUG, "<<< POST {}: DTO {}", logText, rs);
         return rs;
     }
 
     @SneakyThrows
     public <RS> RS get(String rqUuid, String url, Class<RS> rsClass, String logText, Pair<String, String>... headers) {
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, ">>> GET {}: url: {}", logText, url);
+        mqSender.sendLog(rqUuid, DEBUG, ">>> GET {}: url: {}", logText, url);
         HttpRequest.Builder request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
@@ -76,19 +80,19 @@ public class RestApiService {
             throw new RuntimeException(response.body());
         }
         RS rs = convertJsonToObject(rqUuid, rsClass, response.body());
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "<<< GET {}: {}", logText, rs);
+        mqSender.sendLog(rqUuid, DEBUG, "<<< GET {}: {}", logText, rs);
         return rs;
     }
 
     private <RS> RS convertJsonToObject(String rqUuid, Class<RS> rsClass, String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Convert JSON to Obj: JSON = '{}'", json);
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mqSender.sendLog(rqUuid, DEBUG, "Convert JSON to Obj: JSON = '{}'", json);
         try {
             RS rs = mapper.readValue(json, rsClass);
-            mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Convert JSON to Obj: Obj = '{}'", rs);
+            mqSender.sendLog(rqUuid, DEBUG, "Convert JSON to Obj: Obj = '{}'", rs);
             return rs;
         } catch (Exception e) {
-            mqSender.sendLog(rqUuid, LogLevel.ERROR, "Convert JSON to Obj: Exception = {}", ExceptionUtils.getRootCauseMessage(e));
+            mqSender.sendLog(rqUuid, ERROR, "Convert JSON to Obj: Exception = {}", ExceptionUtils.getRootCauseMessage(e));
             return null;
         }
     }

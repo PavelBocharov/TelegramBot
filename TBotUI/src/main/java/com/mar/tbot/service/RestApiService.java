@@ -1,17 +1,19 @@
 package com.mar.tbot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mar.tbot.dto.BaseRq;
-import com.mar.tbot.dto.BaseRs;
-import com.mar.tbot.dto.HashTagDto;
-import com.mar.tbot.dto.HashTagListDtoRq;
-import com.mar.tbot.dto.HashTagListDtoRs;
-import com.mar.tbot.dto.PostInfoDto;
-import com.mar.tbot.dto.PostTypeDtoRq;
-import com.mar.tbot.dto.PostTypeDtoRs;
-import com.mar.tbot.dto.PostTypeListDtoRs;
-import com.mar.tbot.dto.sendMsg.TelegramMessage;
+import com.mar.dto.rest.BaseRq;
+import com.mar.dto.rest.BaseRs;
+import com.mar.dto.rest.HashTagDto;
+import com.mar.dto.rest.HashTagListDtoRq;
+import com.mar.dto.rest.HashTagListDtoRs;
+import com.mar.dto.rest.PostTypeDtoRq;
+import com.mar.dto.rest.PostTypeDtoRs;
+import com.mar.dto.rest.PostTypeListDtoRs;
+import com.mar.dto.rest.SendPostRq;
+import com.mar.exception.TbotException;
+import com.mar.tbot.dto.sendMsg.TelegramMessageRq;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -47,12 +49,12 @@ public class RestApiService implements ApiService {
             .version(HttpClient.Version.HTTP_2)
             .build();
 
-    public BaseRs sendPost(PostInfoDto body) {
+    public BaseRs sendPost(SendPostRq post) {
         final String uri = getUri(hostWorker, portWorker) + "/post";
-        return post(body.getRqUuid(), uri, body, BaseRs.class, "sendPost");
+        return post(post.getRqUuid(), uri, post, BaseRs.class, "sendPost");
     }
 
-    public BaseRs sendMsg(TelegramMessage body) {
+    public BaseRs sendMsg(TelegramMessageRq body) {
         final String uri = getUri(hostWorker, portWorker) + "/post/msg";
         return post(body.getRqUuid(), uri, body, BaseRs.class, "sendMsg");
     }
@@ -106,7 +108,7 @@ public class RestApiService implements ApiService {
         rq.setRqUuid(rqUuid);
         rq.setRqTm(new Date());
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         log.debug(">>> POST {}: uri: {}, rqUuid - {}", logText, uri, rqUuid);
         String rqBody = null;
@@ -143,7 +145,7 @@ public class RestApiService implements ApiService {
 
 
     protected <RS extends BaseRs> RS get(String rqUuid, String uri, Class<RS> rsClass, String logText) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Date rqTm = new Date();
         log.debug(">>> GET {}: uri: {}, rqUuid - {}", logText, uri, rqUuid);
 
@@ -179,7 +181,7 @@ public class RestApiService implements ApiService {
         rq.setRqUuid(rqUuid);
         rq.setRqTm(new Date());
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         String rqBody = null;
         try {
             rqBody = mapper.writeValueAsString(rq);
@@ -216,7 +218,7 @@ public class RestApiService implements ApiService {
     }
 
     protected <RS extends BaseRs> RS delete(String rqUuid, String uri, long id, Class<RS> rsClass, String logText) {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         Date rqTm = new Date();
 
         log.debug(">>> DELETE {}: uri: {}, rqUuid - {}", logText, uri, rqUuid);

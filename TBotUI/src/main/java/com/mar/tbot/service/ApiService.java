@@ -1,19 +1,19 @@
 package com.mar.tbot.service;
 
-import com.mar.tbot.dto.BaseRs;
-import com.mar.tbot.dto.HashTagDto;
-import com.mar.tbot.dto.HashTagListDtoRs;
-import com.mar.tbot.dto.PostInfoDto;
-import com.mar.tbot.dto.PostTypeDtoRq;
-import com.mar.tbot.dto.PostTypeDtoRs;
-import com.mar.tbot.dto.PostTypeListDtoRs;
-import com.mar.tbot.dto.sendMsg.TelegramMessage;
+import com.mar.dto.rest.BaseRs;
+import com.mar.dto.rest.HashTagDto;
+import com.mar.dto.rest.HashTagListDtoRs;
+import com.mar.dto.rest.PostTypeDtoRq;
+import com.mar.dto.rest.PostTypeDtoRs;
+import com.mar.dto.rest.PostTypeListDtoRs;
+import com.mar.dto.rest.SendPostRq;
+import com.mar.tbot.dto.sendMsg.TelegramMessageRq;
 
 public interface ApiService {
 
-    BaseRs sendPost(PostInfoDto body);
+    BaseRs sendPost(SendPostRq post);
 
-    BaseRs sendMsg(TelegramMessage body);
+    BaseRs sendMsg(TelegramMessageRq body);
 
     HashTagListDtoRs createHashtag(String rqUuid, HashTagDto rq);
 

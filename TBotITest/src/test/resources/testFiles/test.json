@@ -1,0 +1,16 @@
+{
+  "rqUuid": "b9a6bb57-4fd1-4363-9f74-7427761e648c",
+  "rqTm": 1711475768131,
+  "errorCode": null,
+  "errorMsg": null,
+  "id": 1,
+  "mediaPath": "/opt/app/fortest.png",
+  "caption": "<b>Test HTML link 4</b>: <a href=\\\"https://github.com/PavelBocharov/TelegramBot\\\">TelegramBot GitHub</a>\\n<b>Test HTML link 3</b>: <a href=\\\"https://github.com/PavelBocharov/TelegramBot\\\">TelegramBot GitHub</a>\\n<b>Test HTML link 2</b>: <a href=\\\"https://github.com/PavelBocharov/TelegramBot\\\">TelegramBot GitHub</a>\\n<b>Test HTML link 1</b>: <a href=\\\"https://github.com/PavelBocharov/TelegramBot\\\">TelegramBot GitHub</a>\\n<u>Test '@'</u>: @CrzCat\\n\\n#Test #IT_Test\\nHTML link to -> <a href=\\\"https://t.me/CrzCat\\\">CrzCat</a>",
+  "chatId": -1001857072975,
+  "messageId": null,
+  "isSend": false,
+  "typeDir": "photos",
+  "sendFlag": false,
+  "scheduleSendTime": null,
+  "html": "RqUUID: b9a6bb57-4fd1-4363-9f74-7427761e648c</br>RqTm: 2024-03-26T17:56:08.131Z</br>"
+}

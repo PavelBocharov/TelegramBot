@@ -1,13 +1,13 @@
 package org.mar.telegram.bot.cache;
 
-import org.mar.telegram.bot.service.jms.MQSender;
+import com.mar.Const;
+import com.mar.interfaces.cache.BotCache;
+import com.mar.interfaces.mq.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-
-import static org.mar.telegram.bot.config.CacheConf.FILENAME_CACHE;
 
 @Service
 @Profile("!local")
@@ -34,7 +34,7 @@ public class RedisCache implements BotCache {
     }
 
     private String getFileNameKey(Long chatId) {
-        return String.format("%s::%d", FILENAME_CACHE, chatId);
+        return String.format("%s::%d", Const.FILENAME_CACHE, chatId);
     }
 
 }

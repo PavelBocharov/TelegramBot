@@ -1,9 +1,9 @@
 package org.mar.telegram.bot.service.bot.db;
 
-import org.mar.telegram.bot.service.db.dto.UserDto;
+import com.mar.dto.rest.UserDtoRs;
 
 public interface UserService {
-    UserDto getByUserId(String rqUuid, long userId);
-    UserDto create(String rqUuid, UserDto user);
+    UserDtoRs getByUserId(String rqUuid, long userId);
+    UserDtoRs create(String rqUuid, UserDtoRs user);
 
 }

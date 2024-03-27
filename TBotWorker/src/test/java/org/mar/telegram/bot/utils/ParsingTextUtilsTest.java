@@ -1,17 +1,19 @@
 package org.mar.telegram.bot.utils;
 
+import com.mar.dto.tbot.ContentType;
+import com.mar.dto.mq.URLInfo;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mar.telegram.bot.service.jms.dto.URLInfo;
 
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ParsingTextUtilsTest {
 

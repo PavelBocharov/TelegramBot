@@ -1,6 +1,6 @@
 package com.mar.telegram.db.mapper;
 
-import com.mar.telegram.db.dto.ActionPostDto;
+import com.mar.dto.rest.ActionPostDtoRs;
 import com.mar.telegram.db.entity.ActionPost;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,6 +11,6 @@ public interface ActionMapper {
     @Mapping(target = "postId", source = "actionPost.post.id")
     @Mapping(target = "userId", source = "actionPost.userInfo.id")
     @Mapping(target = "actionCallbackData", source = "actionPost.action.callbackData")
-    ActionPostDto mapToDto(ActionPost actionPost);
+    ActionPostDtoRs mapToDto(ActionPost actionPost);
 
 }

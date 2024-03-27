@@ -2,7 +2,7 @@ package com.mar.tbot.views;
 
 import com.mar.tbot.service.ApiService;
 import com.mar.tbot.service.MapperService;
-import com.mar.tbot.utils.Utils;
+import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.post.SendPostView;
 import com.mar.tbot.views.type.PostTypeListView;

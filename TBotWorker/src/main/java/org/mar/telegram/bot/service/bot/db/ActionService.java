@@ -1,7 +1,7 @@
 package org.mar.telegram.bot.service.bot.db;
 
-import org.mar.telegram.bot.service.db.dto.ActionEnum;
-import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
+import com.mar.dto.tbot.ActionEnum;
+import com.mar.dto.rest.ActionPostDtoRs;
 
 import java.util.Map;
 

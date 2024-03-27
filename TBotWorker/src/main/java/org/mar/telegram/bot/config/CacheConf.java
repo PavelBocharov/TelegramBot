@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.config;
 
+import com.mar.Const;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
@@ -25,8 +26,6 @@ import java.time.Duration;
 @Configuration
 public class CacheConf {
 
-    public static final String FILENAME_CACHE = "chatIdMapFileName";
-
     @Value("${spring.redis.host:not_local}")
     private String redisHost;
 
@@ -44,7 +43,7 @@ public class CacheConf {
     @Bean
     @Profile("local")
     public Ehcache<Long, String> getFileNameCache(@Autowired CacheManager cacheManager) {
-        Ehcache<Long, String> rez = (Ehcache<Long, String>) cacheManager.createCache(FILENAME_CACHE, CacheConfigurationBuilder
+        Ehcache<Long, String> rez = (Ehcache<Long, String>) cacheManager.createCache(Const.FILENAME_CACHE, CacheConfigurationBuilder
                 .newCacheConfigurationBuilder(
                         Long.class, String.class,
                         ResourcePoolsBuilder.heap(10)

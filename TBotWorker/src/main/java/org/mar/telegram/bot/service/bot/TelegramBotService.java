@@ -1,7 +1,7 @@
 package org.mar.telegram.bot.service.bot;
 
-import org.mar.telegram.bot.controller.dto.TelegramMessage;
-import org.mar.telegram.bot.service.bot.dto.MessageStatus;
+import com.mar.dto.tbot.TelegramMessage;
+import com.mar.dto.tbot.MessageStatus;
 import org.springframework.stereotype.Service;
 
 @Service

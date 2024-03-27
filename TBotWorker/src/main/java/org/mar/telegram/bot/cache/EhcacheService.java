@@ -1,5 +1,6 @@
 package org.mar.telegram.bot.cache;
 
+import com.mar.interfaces.cache.BotCache;
 import org.ehcache.core.Ehcache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;

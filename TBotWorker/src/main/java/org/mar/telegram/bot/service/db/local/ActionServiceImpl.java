@@ -1,5 +1,7 @@
 package org.mar.telegram.bot.service.db.local;
 
+import com.mar.dto.tbot.ActionEnum;
+import com.mar.dto.rest.ActionPostDtoRs;
 import jakarta.annotation.PostConstruct;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -9,12 +11,8 @@ import org.ehcache.core.Ehcache;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.ActionService;
-import org.mar.telegram.bot.service.db.dto.ActionEnum;
-import org.mar.telegram.bot.service.db.dto.ActionPostDtoRq;
-import org.mar.telegram.bot.service.db.dto.ActionPostDtoRs;
-import org.mar.telegram.bot.service.jms.MQSender;
+import com.mar.interfaces.mq.MQSender;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +21,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -69,7 +68,7 @@ public class ActionServiceImpl implements ActionService {
 
         ActionPostDtoRs actionDto = entry == null ? null : entry.getValue();
         mqSender.sendLog(
-                rqUuid, LogLevel.DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionDto
+                rqUuid, DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionDto
         );
         if (isNull(actionDto)) {
             actionDto = new ActionPostDtoRs()
@@ -88,7 +87,7 @@ public class ActionServiceImpl implements ActionService {
                 actionPost.setId(new Random().nextLong());
             }
             actionCache.put(actionPost.getId(), actionPost);
-            mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Save action: {}", actionPost);
+            mqSender.sendLog(rqUuid, DEBUG, "Save action: {}", actionPost);
         }
         return actionPost;
     }
@@ -101,7 +100,7 @@ public class ActionServiceImpl implements ActionService {
         rez.put(ActionEnum.COOL, getCount(ActionEnum.COOL, postId));
         rez.put(ActionEnum.BORING, getCount(ActionEnum.BORING, postId));
         rez.put(ActionEnum.DEVIL, getCount(ActionEnum.DEVIL, postId));
-        mqSender.sendLog(rqUuid, LogLevel.DEBUG, "Get count action: {}", rez);
+        mqSender.sendLog(rqUuid, DEBUG, "Get count action: {}", rez);
         return rez;
     }
 
