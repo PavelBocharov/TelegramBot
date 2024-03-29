@@ -49,7 +49,7 @@ abstract public class InitContainers {
 
     @Container
     protected static GenericContainer<?> tbotDb = new GenericContainer<>(
-            new ImageFromDockerfile("tbotDb/test/" + Base58.randomString(16).toLowerCase() , true)
+            new ImageFromDockerfile("tbotDb/test/" + Base58.randomString(16).toLowerCase(), true)
                     .withDockerfile(Path.of("../TBotDB/Dockerfile"))
 //            DockerImageName.parse("marolok/telegram_db:2.0.0")
     )
@@ -96,7 +96,7 @@ abstract public class InitContainers {
             ));
 
     @Container
-    protected static GenericContainer<?> tbot =  new GenericContainer<>(
+    protected static GenericContainer<?> tbot = new GenericContainer<>(
             new ImageFromDockerfile("tbot/test/" + Base58.randomString(16).toLowerCase(), true)
                     .withDockerfile(Path.of("../TBotWorker/Dockerfile"))
 //            DockerImageName.parse("marolok/telegram_bot:2.0.1")

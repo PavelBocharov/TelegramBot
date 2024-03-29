@@ -113,7 +113,7 @@ public class SendPostView implements ContentView {
                 new H3("Send post"),
                 getSelectPostType(listLines),
                 getUploadView(),
-                listLines,
+                listLines, // init in getSelectPostType
                 getHashtagView(),
                 new HorizontalLayout(sendBtn, helpBtn)
         );
@@ -139,8 +139,10 @@ public class SendPostView implements ContentView {
                 TextField lineField = new TextField(line);
                 lineField.setId("post_line_number_" + lineNumb++);
                 lineField.setWidthFull();
+                lineField.setClearButtonVisible(true);
                 listLines.add(lineField);
             }
+            hashTagSelect.clear();
         });
         return postTypeSelect;
     }
@@ -251,10 +253,11 @@ public class SendPostView implements ContentView {
 
         Set<String> idSet = new TreeSet<>(caption.keySet());
         log.info("ALL sorted id: {}", idSet);
-        ImmutableMap.Builder<String, String> sortedCaption = new ImmutableMap.Builder<String, String>();
+        ImmutableMap.Builder<Long, String> sortedCaption = new ImmutableMap.Builder<Long, String>();
+        long order = 1;
         for (String s : idSet) {
             Pair<String, String> pair = caption.get(s);
-            sortedCaption.put(pair.getKey(), pair.getValue());
+            sortedCaption.put(order++, String.format("%s: %s", pair.getKey(), pair.getValue()));
         }
         info.setCaption(sortedCaption.build());
         log.info("ALL sort caption: {}", info.getCaption());
@@ -272,6 +275,7 @@ public class SendPostView implements ContentView {
             hashTagSelect.setItemLabelGenerator(s -> s);
             hashTagSelect.setWidthFull();
             hashTagSelect.setAllowCustomValues(false);
+            hashTagSelect.setClearButtonVisible(true);
         } else {
             selectedData = hashTagSelect.getSelectedItems();
             hashTagSelect.deselectAll();

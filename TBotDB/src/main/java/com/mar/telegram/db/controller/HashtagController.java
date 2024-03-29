@@ -5,6 +5,7 @@ import com.mar.dto.rest.HashTagListDtoRs;
 import com.mar.exception.BaseException;
 import com.mar.telegram.db.jpa.HashTagRepository;
 import com.mar.telegram.db.mapper.HashtagMapper;
+import com.mar.utils.RestApiUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,8 +43,9 @@ public class HashtagController {
                 .map(mapper::mapToDto)
                 .collectList()
                 .map(HashTagListDtoRs::new)
-                .map(dto -> updateRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())));
+                .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .doOnSuccess(userDto -> log.debug("<< create hashtag: {}", userDto));
     }
 
     @GetMapping
@@ -51,8 +53,9 @@ public class HashtagController {
         return Mono.just(repository.findAll())
                 .map(mapper::mapToDto)
                 .map(HashTagListDtoRs::new)
-                .map(dto -> updateRs(dto, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())));
+                .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .doOnSuccess(userDto -> log.debug("<< get all hashtag: {}", userDto));
     }
 
     @DeleteMapping
@@ -60,9 +63,10 @@ public class HashtagController {
         return Mono.just(id)
                 .map(idForDelete -> {
                     repository.deleteById(idForDelete);
-                    return updateRs(new HashTagListDtoRs(), rqUuid);
+                    return RestApiUtils.enrichRs(new HashTagListDtoRs(), rqUuid);
                 })
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())));
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .doOnSuccess(userDto -> log.debug("<< remove hashtag by id: {}", userDto));
     }
 
     @PutMapping
@@ -73,13 +77,9 @@ public class HashtagController {
                 .map(mapper::mapToDto)
                 .collectList()
                 .map(HashTagListDtoRs::new)
-                .map(dto -> updateRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())));
+                .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .doOnSuccess(userDto -> log.debug("<< update hashtag: {}", userDto));
     }
 
-    private HashTagListDtoRs updateRs(HashTagListDtoRs rs, String rqUuid) {
-        rs.setRqUuid(rqUuid);
-        rs.setRqTm(new Date());
-        return rs;
-    }
 }

@@ -1,10 +1,10 @@
 package org.mar.bot.integration;
 
+import com.mar.dto.rest.SendPostRq;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mar.bot.integration.dto.SendPostDto;
 import org.mar.bot.utils.TestUtils;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -84,18 +84,18 @@ public class SendPostTest extends InitContainers {
         String tbotUrl = String.format("http://%s:%d/post", tbotHost, tbotPort);
 
         String rqUuid = UUID.randomUUID().toString();
-        SendPostDto sendPost = new SendPostDto();
+        SendPostRq sendPost = new SendPostRq();
         sendPost.setRqTm(new Date());
         sendPost.setRqUuid(rqUuid);
         sendPost.setUserId(TestUtils.getPropertyLong("test.integration.tbot.admin.userId"));
         sendPost.setFilePath("/opt/app/fortest.png"); //look in TBotWorker/Dockerfile
         // https://core.telegram.org/bots/api#html-style
         sendPost.setCaption(Map.of(
-                "<u>Test '@'</u>", "@CrzCat",
-                "<b>Test HTML link 1</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
-                "<b>Test HTML link 2</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
-                "<b>Test HTML link 3</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
-                "<b>Test HTML link 4</b>", "<a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>"
+                3L, "<b>Test HTML link 3</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                2L, "<b>Test HTML link 2</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                1L, "<b>Test HTML link 1</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                4L, "<b>Test HTML link 4</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                0L, "<u>Test '@'</u>: @CrzCat"
         ));
         sendPost.setHashTags(List.of("#Test", "#IT_Test"));
 
@@ -103,7 +103,7 @@ public class SendPostTest extends InitContainers {
         String rs = webClient.post()
                 .uri(tbotUrl)
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(sendPost), SendPostDto.class)
+                .body(Mono.just(sendPost), SendPostRq.class)
                 .retrieve()
                 .bodyToMono(String.class)
                 .doOnSuccess(str ->

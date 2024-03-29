@@ -28,13 +28,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
 import static io.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_JSON;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @RestController
@@ -100,18 +103,24 @@ public class SendPostController {
         return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }
 
-    private String getCaption(Map<String, String> captionMap, List<String> hashTags) {
+    private String getCaption(Map<Long, String> captionMap, List<String> hashTags) {
         StringBuilder sb = new StringBuilder();
+        Map<Long, String> map = new TreeMap<>(captionMap);
 
-        for (String key : captionMap.keySet()) {
-            if (isBlank(captionMap.get(key))) {
+        for (Long order : map.keySet()) {
+            String value = map.get(order);
+            if (isBlank(value)) {
                 sb.append("\n");
             } else {
-                sb.append(key).append(": ").append(captionMap.get(key)).append("\n");
+                sb.append(value).append("\n");
             }
         }
 
-        sb.append("\n").append(String.join(" ", hashTags)).append("\n").append(textLine);
+        if (isEmpty(hashTags)) {
+            sb.append("\n").append(textLine);
+        } else {
+            sb.append("\n").append(String.join(" ", hashTags)).append("\n").append(textLine);
+        }
 
         return sb.toString();
     }

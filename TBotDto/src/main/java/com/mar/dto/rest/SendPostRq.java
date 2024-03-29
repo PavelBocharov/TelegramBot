@@ -30,10 +30,10 @@ public class SendPostRq extends BaseRq {
     private String filePath;
 
     @Schema(description = "Сообщение: строки ключ-значение. Пример - \"caption\": {\n" +
-            "    \"Name\": \"Thomas\",\n" +
-            "    \"Bread\": \"Street cat\"\n" +
+            "    \"1\": \"Name: Thomas\",\n" +
+            "    \"2\": \"Bread: Street cat\"\n" +
             "  }")
-    private Map<String, String> caption;
+    private Map<Long, String> caption;
 
     @Schema(description = "Список хештегов. Пример - \"hashTags\": [\n" +
             "    \"string\", \"string 1\"\n" +

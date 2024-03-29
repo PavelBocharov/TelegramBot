@@ -1,6 +1,5 @@
 package com.mar.telegram.db.controller;
 
-import com.mar.dto.rest.BaseRs;
 import com.mar.dto.rest.PostInfoDtoRq;
 import com.mar.dto.rest.PostInfoDtoRs;
 import com.mar.dto.rest.PostTypeDtoRq;
@@ -10,6 +9,7 @@ import com.mar.exception.BaseException;
 import com.mar.telegram.db.jpa.PostInfoRepository;
 import com.mar.telegram.db.jpa.PostTypeRepository;
 import com.mar.telegram.db.mapper.PostMapper;
+import com.mar.utils.RestApiUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -46,7 +46,8 @@ public class PostController {
         log.debug(">> getPostBySendFlag: rqUuid - '{}'", rqUuid);
         return Mono.justOrEmpty(postInfoRepository.getByIsSend(false))
                 .map(postMapper::mapToDto)
-                .map(dto -> updateRs(dto, rqUuid))
+                .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postInfoDto -> log.debug("<< getPostBySendFlag: {}", postInfoDto));
     }
 
@@ -59,7 +60,8 @@ public class PostController {
         log.debug(">> getPostBySendFlag: rqUuid - '{}', chatId - {}, messageId - {}", rqUuid, chatId, messageId);
         return Mono.justOrEmpty(postInfoRepository.getByChatIdAndMessageId(chatId, messageId))
                 .map(postMapper::mapToDto)
-                .map(dto -> updateRs(dto, rqUuid))
+                .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postInfoDto -> log.debug("<< getPostBySendFlag: {}", postInfoDto));
     }
 
@@ -70,7 +72,8 @@ public class PostController {
                 .map(postInfo -> postInfo.withUpdateDate(new Date()))
                 .map(postInfoRepository::save)
                 .map(postMapper::mapToDto)
-                .map(dto -> updateRs(dto, rq.getRqUuid()))
+                .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postInfoDto1 -> log.debug("<< save post: {}", postInfoDto1));
     }
 
@@ -79,7 +82,8 @@ public class PostController {
         log.debug(">> getById post: {}", id);
         return Mono.just(postInfoRepository.findById(id).orElseThrow())
                 .map(postMapper::mapToDto)
-                .map(dto -> updateRs(dto, rqUuid))
+                .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postInfoDto1 -> log.debug("<< getById post: {}", postInfoDto1));
     }
 
@@ -89,7 +93,7 @@ public class PostController {
         return Mono.just(postMapper.mapToEntity(rq))
                 .map(postTypeRepository::save)
                 .map(postMapper::mapToDto)
-                .map(dto -> updateRs(dto, rq.getRqUuid()))
+                .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postTypeDto -> log.debug("<< createType: {}", postTypeDto));
     }
@@ -101,7 +105,7 @@ public class PostController {
                 .map(postMapper::mapToDto)
                 .collectList()
                 .map(PostTypeListDtoRs::new)
-                .map(dto -> updateRs(dto, rqUuid))
+                .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
                 .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postTypeListDto -> log.debug("<< getAllType: {}", postTypeListDto));
     }
@@ -114,7 +118,7 @@ public class PostController {
                     postTypeRepository.deleteById(postTypeId);
                     return new PostTypeDtoRs();
                 })
-                .map(rs -> updateRs(rs, rqUuid))
+                .map(rs -> RestApiUtils.enrichRs(rs, rqUuid))
                 .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
                 .doOnSuccess(rs -> log.debug("<< removeTypeById: {}", rs));
     }
@@ -126,15 +130,9 @@ public class PostController {
                 .map(postMapper::mapToEntity)
                 .map(postTypeRepository::save)
                 .map(postMapper::mapToDto)
-                .map(dto -> updateRs(dto, rq.getRqUuid()))
+                .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postTypeDto -> log.debug("<< updateType: {}", postTypeDto));
-    }
-
-    private <T extends BaseRs> T updateRs(T rs, String rqUuid) {
-        rs.setRqUuid(rqUuid);
-        rs.setRqTm(new Date());
-        return rs;
     }
 
 }

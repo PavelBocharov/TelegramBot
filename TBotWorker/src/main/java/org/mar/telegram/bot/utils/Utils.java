@@ -1,14 +1,11 @@
 package org.mar.telegram.bot.utils;
 
-import com.mar.dto.mq.LogEvent;
 import com.mar.dto.mq.URLInfo;
 import com.mar.dto.tbot.ContentType;
 import com.mar.dto.tbot.PhotoSizeDto;
 import com.mar.exception.BaseException;
 import com.mar.interfaces.mq.MQSender;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.UtilityClass;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -199,18 +195,13 @@ public class Utils {
             }
 
             graphics.dispose();
-            URLInfo imageInfo = whatIsUrl(imagePath);
-            ImageIO.write(temp, imageInfo.getFileType(), f); // перезаписать
 
             f = new File(
                     f.getAbsolutePath().replace(f.getName(), "")
                             + new Date().getTime()
-                            + "." + imageInfo.getFileType()
+                            + ".png"
             );
-            ImageIO.write(temp, imageInfo.getFileType(), f);
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            ImageIO.write(temp, imageInfo.getFileType(), baos);
-//            FileUtils.writeByteArrayToFile(f, baos.toByteArray());
+            ImageIO.write(temp, "png", f);
 
             if (f.exists()) {
                 return f.getAbsolutePath();
