@@ -3,6 +3,8 @@ package com.mar.tbot.service;
 import com.mar.dto.rest.BaseRs;
 import com.mar.dto.rest.HashTagDto;
 import com.mar.dto.rest.HashTagListDtoRs;
+import com.mar.dto.rest.PostInfoActionListRs;
+import com.mar.dto.rest.PostInfoActionRq;
 import com.mar.dto.rest.PostTypeDtoRq;
 import com.mar.dto.rest.PostTypeDtoRs;
 import com.mar.dto.rest.PostTypeListDtoRs;
@@ -30,5 +32,7 @@ public interface ApiService {
     PostTypeDtoRs removePostType(String rqUuid, long postTypeId);
 
     PostTypeListDtoRs getAllPostType(String rqUuid);
+
+    PostInfoActionListRs getPostInfoActionList(PostInfoActionRq rq);
 
 }

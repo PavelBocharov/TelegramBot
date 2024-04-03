@@ -31,9 +31,9 @@ abstract public class InitContainers {
             ))
             .waitingFor(
                     Wait.forHttp("/actuator/health")
-                            .forStatusCode(TestUtils.getPropertyInt("test.integration.config.health.code"))
+                            .forStatusCode(200)
                             .forPort(TestUtils.getPropertyInt("test.integration.config.port"))
-                            .withReadTimeout(Duration.ofSeconds(TestUtils.getPropertyInt("test.integration.config.health.timeout")))
+                            .withReadTimeout(Duration.ofSeconds(10))
             );
 
     @Container
@@ -60,7 +60,13 @@ abstract public class InitContainers {
             .withEnv(Map.of(
                     "BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.db.profile"),
                     "SPRING_CLOUD_CONFIG_SERVER", TestUtils.getPropertyStr("test.integration.tbot.db.config.server")
-            ));
+            ))
+            .waitingFor(
+                    Wait.forHttp("/actuator/health")
+                            .forStatusCode(200)
+                            .forPort(TestUtils.getPropertyInt("test.integration.tbot.db.port"))
+                            .withReadTimeout(Duration.ofSeconds(10))
+            );
 
     @Container
     protected static GenericContainer<?> zookeeper = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.zookeeper.image")))
@@ -105,7 +111,14 @@ abstract public class InitContainers {
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.alias"))
             .dependsOn(tbotconf, redis, kafka, tbotDb)
-            .withEnv("BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.profile"));
+            .withEnv("BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.profile"))
+            .waitingFor(
+                    Wait.forHttp("/actuator/health")
+                            .forStatusCode(200)
+                            .forPort(TestUtils.getPropertyInt("test.integration.tbot.port"))
+                            .withReadTimeout(Duration.ofSeconds(10))
+            );
+
     @Container
     protected static GenericContainer<?> tbotui = new GenericContainer<>(
             new ImageFromDockerfile("tbotui/test/" + Base58.randomString(16).toLowerCase(), true)

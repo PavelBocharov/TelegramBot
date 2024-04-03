@@ -3,9 +3,9 @@ package com.mar.tbot.views.type;
 import com.mar.dto.rest.PostTypeDtoRs;
 import com.mar.tbot.utils.ButtonBuilder;
 import com.mar.tbot.utils.DeleteDialogWidget;
-import com.mar.utils.Utils;
 import com.mar.tbot.views.ContentView;
 import com.mar.tbot.views.RootView;
+import com.mar.utils.Utils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -22,7 +22,7 @@ import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.icon.VaadinIcon.BAN;
 import static com.vaadin.flow.component.icon.VaadinIcon.PENCIL;
 import static com.vaadin.flow.component.icon.VaadinIcon.PLUS;
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 @RequiredArgsConstructor
 public class PostTypeListView implements ContentView {

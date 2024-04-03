@@ -2,6 +2,7 @@ package com.mar.tbot.views;
 
 import com.mar.tbot.service.ApiService;
 import com.mar.tbot.service.MapperService;
+import com.mar.tbot.views.post.PostInfoListView;
 import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.post.SendPostView;
@@ -32,6 +33,7 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import java.io.IOException;
 import java.util.Properties;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.CHART_GRID;
 import static com.vaadin.flow.component.icon.VaadinIcon.EXIT_O;
 import static com.vaadin.flow.component.icon.VaadinIcon.HOME;
 import static com.vaadin.flow.component.icon.VaadinIcon.PIN_POST;
@@ -54,7 +56,7 @@ public class RootView extends AppLayout {
     private ApiService apiService;
 
     @Getter
-    @Value("${application.bot.admin.id}") //TODO NEED ?????
+    @Value("${application.bot.admin.id}")
     private Long adminId;
     @Getter
     @Value("${application.bot.directory.path}")
@@ -65,6 +67,8 @@ public class RootView extends AppLayout {
     private final PostTypeListView postTypeListView;
     @Getter
     private final SendPostView sendPostView;
+    @Getter
+    private final PostInfoListView postInfoListView;
 
     private final StartPageView startPageView;
 
@@ -72,6 +76,7 @@ public class RootView extends AppLayout {
     public RootView() throws IOException {
         startPageView = new StartPageView();
         postTypeListView = new PostTypeListView(this);
+        postInfoListView = new PostInfoListView(this);
         sendPostView = new SendPostView(this);
 
         DrawerToggle toggle = new DrawerToggle();
@@ -93,6 +98,7 @@ public class RootView extends AppLayout {
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         tabs.add(getTab("Main page", HOME, startPageView));
         tabs.add(getTab("Send post", PIN_POST, sendPostView));
+        tabs.add(getTab("Post list", CHART_GRID, postInfoListView));
         tabs.add(getTab("Post type list", TASKS, postTypeListView));
         tabs.add(getLogoutButton());
 

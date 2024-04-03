@@ -7,6 +7,24 @@ application:
       textLine: 'Welcome to chat'
   bot:
     token: '1111111111:222222222222222222222222222222222'
+    watermark:
+      text:
+        value: ''
+      image:
+#        path: ''
+#        path: 'G:\Cache\1.jpg'
+        path: 'G:\temp\test\logs\2.jpg'
+#        path: 'G:\Cache\3.webp'
+#        path: 'G:\Cache\4.bmp'
+#        location: 'center'
+#        location: 'left'
+#        location: 'right'
+#        location: 'up'
+#        location: 'down'
+#        location: 'right_down'
+        size:
+          x: 128
+          y: 128
     admin:
       id: 1111111111
     directory:

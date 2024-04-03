@@ -1,5 +1,7 @@
 package com.mar.telegram.db.controller;
 
+import com.mar.dto.rest.PostInfoActionListRs;
+import com.mar.dto.rest.PostInfoActionRq;
 import com.mar.dto.rest.PostInfoDtoRq;
 import com.mar.dto.rest.PostInfoDtoRs;
 import com.mar.dto.rest.PostTypeDtoRq;
@@ -16,6 +18,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +33,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @RestController()
@@ -87,6 +95,42 @@ public class PostController {
                 .doOnSuccess(postInfoDto1 -> log.debug("<< getById post: {}", postInfoDto1));
     }
 
+    @PostMapping("/search")
+    public Mono<PostInfoActionListRs> getPostInfoList(@RequestBody @Valid PostInfoActionRq rq) {
+        return Mono.just(rq)
+                .map(rq1 -> {
+                            List<Map<String, Object>> m;
+                            PageRequest pageRequest = PageRequest.of(
+                                    rq1.getPage(),
+                                    rq1.getSize(),
+                                    Sort.by(getDirection(rq1.getOrderType()), rq1.getOrderColumn().getTableName())
+                            );
+                            m = isBlank(rq1.getLikeCaption()) ?
+                                    postInfoRepository.getPostInfo(
+                                            rq1.getAdminId(),
+                                            pageRequest
+                                    )
+                                    :
+                                    postInfoRepository.getPostInfo(
+                                            rq1.getAdminId(),
+                                            '%' + rq1.getLikeCaption().trim() + '%',
+                                            pageRequest
+                                    );
+                            return m;
+                        }
+                )
+                .map(m ->
+                        postMapper.convert(m)
+                )
+                .map(postInfoActions -> RestApiUtils.enrichRs(
+                                new PostInfoActionListRs(postInfoActions, postInfoRepository.getCountPostInfo()),
+                                rq.getRqUuid()
+                        )
+                )
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .doOnSuccess(postTypeListDto -> log.debug("<< getPostInfoList: {}", postTypeListDto));
+    }
+
     @PostMapping("/type")
     public Mono<PostTypeDtoRs> createType(@RequestBody @Valid PostTypeDtoRq rq) {
         log.debug(">> createType: {}", rq);
@@ -133,6 +177,10 @@ public class PostController {
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postTypeDto -> log.debug("<< updateType: {}", postTypeDto));
+    }
+
+    public Sort.Direction getDirection(PostInfoActionRq.OrderType direction) {
+        return Sort.Direction.fromString(direction.getTableName());
     }
 
 }

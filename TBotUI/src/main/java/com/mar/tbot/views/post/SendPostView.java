@@ -237,13 +237,16 @@ public class SendPostView implements ContentView {
         Map<String, Pair<String, String>> caption = new HashMap<>();
         listLines.getChildren().forEach(
                 component -> {
-                    if (component instanceof TextField) {
-                        TextField line = (TextField) component;
+                    if (component instanceof TextField line) {
                         String id = line.getId().orElse(null);
                         if (nonNull(id)) {
                             String text = ViewUtils.getTextFieldValue(line);
-                            log.info("READ line: id - {}, label - {}, text - {}", id, line.getLabel(), text);
-                            caption.put(id, Pair.of(line.getLabel(), text));
+                            if (text != null) {
+                                log.info("READ line: id - {}, label - {}, text - {}", id, line.getLabel(), text);
+                                caption.put(id, Pair.of(line.getLabel(), text));
+                            } else {
+                                log.info("IGNORE line: id - {}, label - {}, text - null", id, line.getLabel());
+                            }
                         }
                     }
                 }

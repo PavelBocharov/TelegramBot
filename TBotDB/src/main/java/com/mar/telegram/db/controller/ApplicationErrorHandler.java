@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @ControllerAdvice
@@ -25,7 +26,15 @@ public class ApplicationErrorHandler {
     public ResponseEntity<BaseRs> handleRuntimeException(Throwable ex) {
         log.error("<<< Response Throwable: {}", ExceptionUtils.getRootCauseMessage(ex));
         ex.printStackTrace();
-        return ResponseEntity.status(HttpStatus.OK)
+
+        if (ex instanceof ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .body(new BaseRs()
+                            .withErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .withErrorMsg(ExceptionUtils.getRootCauseMessage(ex))
+                    );
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new BaseRs()
                         .withErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .withErrorMsg(ExceptionUtils.getRootCauseMessage(ex))
