@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,8 @@ import java.util.Date;
 public class ActionPost {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "action_post_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "action_post_gen")
+    @SequenceGenerator(name = "action_post_gen", sequenceName = "action_post_seq", allocationSize = 1)
     private Long id;
 
     @OneToOne

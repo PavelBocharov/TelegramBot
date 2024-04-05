@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,8 @@ import lombok.With;
 public class HashTag {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hashtag_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "hashtag_gen")
+    @SequenceGenerator(name = "hashtag_gen", sequenceName = "hashtag_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "tag")

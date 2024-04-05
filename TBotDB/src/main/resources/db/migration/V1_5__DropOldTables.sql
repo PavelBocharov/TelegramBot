@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS hashtag_old, user_info_old, post_type_old, line_old, post_info_old, action_post_old;

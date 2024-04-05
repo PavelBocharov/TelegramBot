@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +29,8 @@ import java.util.List;
 public class PostType {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_type_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_type_gen")
+    @SequenceGenerator(name = "post_type_gen", sequenceName = "post_type_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "title", nullable = false, unique = true)

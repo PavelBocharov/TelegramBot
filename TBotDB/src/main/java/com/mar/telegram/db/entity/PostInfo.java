@@ -6,7 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +27,8 @@ import java.util.Date;
 public class PostInfo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "rand_task_seq")  // ???? 'rand_task_seq' WTF ????
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "post_info_gen")
+    @SequenceGenerator(name = "post_info_gen", sequenceName = "post_info_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "media_path")
