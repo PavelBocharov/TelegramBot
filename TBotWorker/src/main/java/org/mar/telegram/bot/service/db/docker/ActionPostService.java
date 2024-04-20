@@ -39,7 +39,7 @@ public class ActionPostService implements ActionService {
         if (isNull(actionPost)) {
             actionPost = new ActionPostDtoRs().withUserId(userId).withPostId(postInfoId);
         }
-        mqSender.sendLog(rqUuid, DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionPost);
+        mqSender.sendLog(rqUuid, DEBUG, "Get action by postId: {} and userId: {}. Action: {}", postInfoId, userId, actionPost);
         return actionPost;
     }
 

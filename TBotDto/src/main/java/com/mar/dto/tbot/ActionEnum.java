@@ -11,8 +11,8 @@ public enum ActionEnum {
 
     FIRE_HEART("❤️\u200D\uD83D\uDD25", "fire"),
     DEVIL("\uD83D\uDE08", "devil"),
-    COOL("\uD83D\uDE31", "0_0"),
-    BORING("\uD83D\uDE15", "0-0");
+    BORING("\uD83D\uDE15", "0_0"),
+    BAD("\uD83D\uDC4E", "0-0");
 
     private String code;
     private String callbackData;

@@ -97,8 +97,8 @@ public class ActionServiceImpl implements ActionService {
         Map<ActionEnum, Long> rez = new HashMap<>();
 
         rez.put(ActionEnum.FIRE_HEART, getCount(ActionEnum.FIRE_HEART, postId));
-        rez.put(ActionEnum.COOL, getCount(ActionEnum.COOL, postId));
         rez.put(ActionEnum.BORING, getCount(ActionEnum.BORING, postId));
+        rez.put(ActionEnum.BAD, getCount(ActionEnum.BAD, postId));
         rez.put(ActionEnum.DEVIL, getCount(ActionEnum.DEVIL, postId));
         mqSender.sendLog(rqUuid, DEBUG, "Get count action: {}", rez);
         return rez;

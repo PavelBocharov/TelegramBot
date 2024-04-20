@@ -19,9 +19,9 @@
     <properties>
         <!--    Versions    -->
         <tbot.db.version>2.3.2</tbot.db.version>
-        <tbot.worker.version>2.4.1</tbot.worker.version>
-        <tbot.ui.version>1.6.0</tbot.ui.version>
-        <tbot.dto.version>1.3.0</tbot.dto.version>
+        <tbot.worker.version>2.5.0</tbot.worker.version>
+        <tbot.ui.version>1.7.0</tbot.ui.version>
+        <tbot.dto.version>1.4.0</tbot.dto.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>

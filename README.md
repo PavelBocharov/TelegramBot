@@ -4,9 +4,9 @@ Small project for learn etc. and actual skills.
 <img alt="Art by Olena Yemelianova" height="512" src="./TBotWorker/src/main/resources/img/telegram.jpg"/></br><sup><sub>Art by Olena Yemelianova</sub></sup>
 
 ## 💫 Release versions
-* Telegram Bot (main): `marolok/telegram_bot:2.4.1`
-* Telegram Bot UI: `marolok/telegram-bot-ui:1.5.2`
-* Telegram Bot DB: `marolok/telegram_db:2.1.2`
+* Telegram Bot (main): `marolok/telegram_bot:2.5.0`
+* Telegram Bot UI: `marolok/telegram-bot-ui:1.7.0`
+* Telegram Bot DB: `marolok/telegram_db:2.3.2`
 * Telegram Bot Config: `marolok/telegram_conf:1.2.0`
 
 ## 🔗 Links

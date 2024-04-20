@@ -70,11 +70,11 @@ public class PostInfoListView implements ContentView {
                 .setKey(PostInfoActionRq.OrderColumn.ACTION_1.getTableName())
                 .setWidth("5%");
         grid.addColumn(PostInfoActionRs::getAction2)
-                .setHeader(ActionEnum.COOL.getCode())
+                .setHeader(ActionEnum.BORING.getCode())
                 .setKey(PostInfoActionRq.OrderColumn.ACTION_2.getTableName())
                 .setWidth("5%");
         grid.addColumn(PostInfoActionRs::getAction3)
-                .setHeader(ActionEnum.BORING.getCode())
+                .setHeader(ActionEnum.BAD.getCode())
                 .setKey(PostInfoActionRq.OrderColumn.ACTION_3.getTableName())
                 .setWidth("5%");
         grid.addColumn(postInfoAction -> Boolean.TRUE.equals(postInfoAction.getAdminAction()) ? "✓" : "")
