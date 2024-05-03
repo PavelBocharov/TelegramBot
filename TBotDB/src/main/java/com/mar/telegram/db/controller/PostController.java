@@ -8,6 +8,7 @@ import com.mar.dto.rest.PostTypeDtoRq;
 import com.mar.dto.rest.PostTypeDtoRs;
 import com.mar.dto.rest.PostTypeListDtoRs;
 import com.mar.exception.BaseException;
+import com.mar.telegram.db.jpa.CustomRepository;
 import com.mar.telegram.db.jpa.PostInfoRepository;
 import com.mar.telegram.db.jpa.PostTypeRepository;
 import com.mar.telegram.db.mapper.PostMapper;
@@ -18,8 +19,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,9 +33,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 @RestController()
@@ -44,6 +40,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @RequiredArgsConstructor
 public class PostController {
 
+    private final CustomRepository customRepository;
     private final PostInfoRepository postInfoRepository;
     private final PostTypeRepository postTypeRepository;
 
@@ -99,31 +96,26 @@ public class PostController {
     public Mono<PostInfoActionListRs> getPostInfoList(@RequestBody @Valid PostInfoActionRq rq) {
         return Mono.just(rq)
                 .map(rq1 -> {
-                            List<Map<String, Object>> m;
-                            PageRequest pageRequest = PageRequest.of(
-                                    rq1.getPage(),
+                            List<Object[]> m = customRepository.getPostInfo(
+                                    rq1.getAdminId(),
+                                    rq1.getLikeCaption(),
+                                    rq1.getPage() * rq1.getSize(),
                                     rq1.getSize(),
-                                    Sort.by(getDirection(rq1.getOrderType()), rq1.getOrderColumn().getTableName())
+                                    rq1.getOrderColumn(),
+                                    rq1.getOrderType()
                             );
-                            m = isBlank(rq1.getLikeCaption()) ?
-                                    postInfoRepository.getPostInfo(
-                                            rq1.getAdminId(),
-                                            pageRequest
-                                    )
-                                    :
-                                    postInfoRepository.getPostInfo(
-                                            rq1.getAdminId(),
-                                            '%' + rq1.getLikeCaption().trim() + '%',
-                                            pageRequest
-                                    );
                             return m;
                         }
                 )
-                .map(m ->
-                        postMapper.convert(m)
-                )
+                .map(m -> postMapper.convert(m))
                 .map(postInfoActions -> RestApiUtils.enrichRs(
-                                new PostInfoActionListRs(postInfoActions, postInfoRepository.getCountPostInfo()),
+                                new PostInfoActionListRs(postInfoActions, customRepository.getPostInfo(
+                                        rq.getAdminId(),
+                                        rq.getLikeCaption(),
+                                        null, null,
+                                        rq.getOrderColumn(),
+                                        rq.getOrderType()
+                                ).size()),
                                 rq.getRqUuid()
                         )
                 )
@@ -177,10 +169,6 @@ public class PostController {
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
                 .doOnSuccess(postTypeDto -> log.debug("<< updateType: {}", postTypeDto));
-    }
-
-    public Sort.Direction getDirection(PostInfoActionRq.OrderType direction) {
-        return Sort.Direction.fromString(direction.getTableName());
     }
 
 }

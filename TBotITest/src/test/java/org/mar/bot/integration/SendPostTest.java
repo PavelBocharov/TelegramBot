@@ -92,9 +92,9 @@ public class SendPostTest extends InitContainers {
         // https://core.telegram.org/bots/api#html-style
         sendPost.setCaption(Map.of(
                 3L, "<b>Test HTML link 3</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
-                2L, "<b>Test HTML link 2</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
-                1L, "<b>Test HTML link 1</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
-                4L, "<b>Test HTML link 4</b>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                2L, "<code>Test HTML link 2</code>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                1L, "<i>Test HTML link 1</i>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
+                4L, "<s>Test HTML link 4</s>: <a href=\"https://github.com/PavelBocharov/TelegramBot\">TelegramBot GitHub</a>",
                 0L, "<u>Test '@'</u>: @CrzCat"
         ));
         sendPost.setHashTags(List.of("#Test", "#IT_Test"));

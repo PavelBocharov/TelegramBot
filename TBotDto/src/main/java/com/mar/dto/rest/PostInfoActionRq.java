@@ -19,9 +19,9 @@ public class PostInfoActionRq extends BaseRq {
     private Long adminId;
     private String likeCaption;
     @Min(0)
-    private Integer page;
+    private Long page;
     @Min(1)
-    private Integer size;
+    private Long size;
     @NotNull
     private OrderColumn orderColumn;
     @NotNull
@@ -32,14 +32,15 @@ public class PostInfoActionRq extends BaseRq {
     @AllArgsConstructor
     public enum OrderColumn {
 
-        ID("id"),
-        ACTION_0("action0"),
-        ACTION_1("action1"),
-        ACTION_2("action2"),
-        ACTION_3("action3"),
-        CAPTION("caption");
+        ID("id", "Default", OrderType.DESC),
+        RATE_DESC("ord", "Rate ↑", OrderType.DESC),
+        RATE_ASC("ord", "Rate ↓", OrderType.ASC),
+        ADMIN_DESC("admin_action", "Super user ↑", OrderType.DESC),
+        ADMIN_ASC("admin_action", "Super user ↓", OrderType.ASC);
 
         private String tableName;
+        private String title;
+        private OrderType orderType;
 
     }
 
@@ -47,10 +48,10 @@ public class PostInfoActionRq extends BaseRq {
     @NoArgsConstructor
     @AllArgsConstructor
     public enum OrderType {
-        DESC("desc"),
-        ASC("asc");
+        DESC("desc nulls last"),
+        ASC("asc nulls first");
 
-        private String tableName;
+        private String sqlQuery;
 
     }
 

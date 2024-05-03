@@ -29,14 +29,23 @@ public interface PostMapper {
 
     PostTypeDtoRs mapToDto(PostType entity);
 
-    default PostInfoAction convert(Map<String, Object> map) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.convertValue(map, PostInfoAction.class);
+    default PostInfoAction convert(Object[] map) {
+        PostInfoAction pia = new PostInfoAction();
+
+        pia.setId((Long) map[0]);
+        pia.setAction0((Long) map[1]);
+        pia.setAction1((Long) map[2]);
+        pia.setAction2((Long) map[3]);
+        pia.setAction3((Long) map[4]);
+        pia.setCaption((String) map[5]);
+        pia.setAdminAction((Boolean) map[6]);
+
+        return pia;
     };
 
     PostInfoActionRs convert (PostInfoAction entity);
 
-    List<PostInfoActionRs> convert(List<Map<String, Object>> map);
+    List<PostInfoActionRs> convert(List<Object[]> map);
 
     default ContentType getContentTypeByDir(String typeDir) {
         return ContentType.getTypeByDir(typeDir);

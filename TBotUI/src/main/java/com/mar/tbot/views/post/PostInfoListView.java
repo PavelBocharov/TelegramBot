@@ -21,7 +21,9 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,38 +46,55 @@ public class PostInfoListView implements ContentView {
 
     private Grid<PostInfoActionRs> grid;
     private IntegerField pageField;
-    private Label countPageLable;
+    private Label countPageLabel;
+
+    private Select<PostInfoActionRq.OrderColumn> selectOrder;
+    private TextField searchField;
 
     @Override
     public Component getContent() {
         H2 label = new H2("Post list");
+        label.setWidthFull();
+
+        selectOrder = new Select<>(PostInfoActionRq.OrderColumn.values());
+        selectOrder.setTextRenderer(PostInfoActionRq.OrderColumn::getTitle
+        );
+        selectOrder.setLabel("Sort column");
+        selectOrder.setPlaceholder("Select sort");
+        selectOrder.addValueChangeListener(event -> initGridData(0));
+
+        searchField = new TextField("Search caption");
+        searchField.setWidth(20, Unit.PERCENTAGE);
+        searchField.addKeyPressListener(Key.ENTER, event -> initGridData(0));
+
+        HorizontalLayout top = new HorizontalLayout(label, selectOrder, searchField);
+        top.setAlignSelf(FlexComponent.Alignment.START, label);
+        top.setAlignSelf(FlexComponent.Alignment.END, selectOrder);
+        top.setAlignSelf(FlexComponent.Alignment.END, searchField);
+        top.setWidthFull();
+
+
         // TABLE
         grid = new Grid<>();
         // column
         grid.addColumn(PostInfoActionRs::getId)
                 .setHeader("ID")
-                .setKey(PostInfoActionRq.OrderColumn.ID.getTableName())
                 .setAutoWidth(false)
                 .setWidth("5%");
         grid.addColumn(PostInfoActionRs::getCaption)
                 .setHeader("Caption")
-                .setKey(PostInfoActionRq.OrderColumn.CAPTION.getTableName())
                 .setWidth("70%");
         grid.addColumn(PostInfoActionRs::getAction0)
                 .setHeader("❤️")
-                .setKey(PostInfoActionRq.OrderColumn.ACTION_0.getTableName())
                 .setWidth("5%");
         grid.addColumn(PostInfoActionRs::getAction1)
                 .setHeader(ActionEnum.DEVIL.getCode())
-                .setKey(PostInfoActionRq.OrderColumn.ACTION_1.getTableName())
                 .setWidth("5%");
         grid.addColumn(PostInfoActionRs::getAction2)
                 .setHeader(ActionEnum.BORING.getCode())
-                .setKey(PostInfoActionRq.OrderColumn.ACTION_2.getTableName())
                 .setWidth("5%");
         grid.addColumn(PostInfoActionRs::getAction3)
                 .setHeader(ActionEnum.BAD.getCode())
-                .setKey(PostInfoActionRq.OrderColumn.ACTION_3.getTableName())
                 .setWidth("5%");
         grid.addColumn(postInfoAction -> Boolean.TRUE.equals(postInfoAction.getAdminAction()) ? "✓" : "")
                 .setHeader("\uD83D\uDC51")
@@ -88,34 +107,42 @@ public class PostInfoListView implements ContentView {
 
         // create view
         HorizontalLayout btns = getPaginationButtons();
+
         VerticalLayout verticalLayout = new VerticalLayout();
         verticalLayout.setSizeFull();
-        verticalLayout.setHorizontalComponentAlignment(FlexComponent.Alignment.START, label);
+        verticalLayout.setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, top);
         verticalLayout.setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, grid);
         verticalLayout.setHorizontalComponentAlignment(FlexComponent.Alignment.CENTER, btns);
-        verticalLayout.add(label, grid, btns);
+        verticalLayout.add(top, grid, btns);
 
         // init data
-        initGridData(0, PostInfoActionRq.OrderColumn.ID, PostInfoActionRq.OrderType.DESC);
+        initGridData(0);
         return verticalLayout;
     }
 
-    private void initGridData(int page, PostInfoActionRq.OrderColumn column, PostInfoActionRq.OrderType orderType) {
-        PostInfoActionListRs data = getData(page, column, orderType);
+    private void initGridData(int page) {
+        PostInfoActionListRs data = getData(page);
         List<PostInfoActionRs> typeList = data.getData();
 
         grid.setItems(typeList);
 
         pageField.setValue(page + 1);
-        countPageLable.setText(String.valueOf((int) Math.ceil(data.getTotalCount() * 1.0 / GRID_PAGE_ITEM_COUNT)));
+        countPageLabel.setText(String.valueOf((int) Math.ceil(data.getTotalCount() * 1.0 / GRID_PAGE_ITEM_COUNT)));
     }
 
-    private PostInfoActionListRs getData(int page, PostInfoActionRq.OrderColumn column, PostInfoActionRq.OrderType orderType) {
+    private PostInfoActionListRs getData(int page) {
+        PostInfoActionRq.OrderColumn column = selectOrder.getValue();
+        if (column == null) {
+            column = PostInfoActionRq.OrderColumn.ID;
+        }
+        PostInfoActionRq.OrderType orderType = column.getOrderType();
+        String searchText = searchField.getValue();
+
         PostInfoActionRq rq = new PostInfoActionRq(
                 rootView.getAdminId(),
-                "",
-                page,
-                GRID_PAGE_ITEM_COUNT,
+                searchText,
+                (long) page,
+                (long) GRID_PAGE_ITEM_COUNT,
                 column,
                 orderType
         );
@@ -131,26 +158,22 @@ public class PostInfoListView implements ContentView {
         pageField = new IntegerField();
         pageField.addKeyPressListener(Key.ENTER, event -> {
             int newPage = saveCastInt(pageField.getValue(), -1);
-            int totalCntPage = saveParseInt(countPageLable.getText(), -1);
+            int totalCntPage = saveParseInt(countPageLabel.getText(), -1);
             if (newPage > 0 && newPage <= totalCntPage) {
-                initGridData(
-                        newPage - 1,
-                        PostInfoActionRq.OrderColumn.ID,
-                        PostInfoActionRq.OrderType.DESC
-                );
+                initGridData(newPage - 1);
             } else {
                 ViewUtils.showErrorMsg("Incorrect search page number.", new TbotException(Utils.rqUuid(), new Date(), "Need 'newPage > 0 && newPage <= totalCntPage'"));
             }
         });
 
         Icon dots = new Icon(ELLIPSIS_DOTS_H);
-        countPageLable = new Label("???");
+        countPageLabel = new Label("???");
 
 
         Button llBtn = ButtonBuilder.createButton()
                 .icon(ANGLE_DOUBLE_LEFT)
                 .color(ButtonBuilder.Color.BLACK)
-                .clickListener(btnClick -> initGridData(0, PostInfoActionRq.OrderColumn.ID, PostInfoActionRq.OrderType.DESC))
+                .clickListener(btnClick -> initGridData(0))
                 .build();
 
         Button lBtn = ButtonBuilder.createButton()
@@ -161,7 +184,7 @@ public class PostInfoListView implements ContentView {
                     if (newPage > 1) {
                         newPage--;
                     }
-                    initGridData(newPage - 1, PostInfoActionRq.OrderColumn.ID, PostInfoActionRq.OrderType.DESC);
+                    initGridData(newPage - 1);
                 })
                 .build();
 
@@ -169,28 +192,28 @@ public class PostInfoListView implements ContentView {
                 .icon(ANGLE_RIGHT)
                 .color(ButtonBuilder.Color.BLACK)
                 .clickListener(btnClick -> {
-                    int totalCntPage = saveParseInt(countPageLable.getText(), 1);
+                    int totalCntPage = saveParseInt(countPageLabel.getText(), 1);
                     int newPage = saveCastInt(pageField.getValue(), totalCntPage);
                     if (newPage < totalCntPage) {
                         newPage++;
                     } else {
                         newPage = totalCntPage;
                     }
-                    initGridData(newPage - 1, PostInfoActionRq.OrderColumn.ID, PostInfoActionRq.OrderType.DESC);
+                    initGridData(newPage - 1);
                 })
                 .build();
         Button rrBtn = ButtonBuilder.createButton()
                 .icon(ANGLE_DOUBLE_RIGHT)
                 .color(ButtonBuilder.Color.BLACK)
                 .clickListener(btnClick -> {
-                    int totalCntPage = saveParseInt(countPageLable.getText(), 1);
-                    initGridData(totalCntPage - 1, PostInfoActionRq.OrderColumn.ID, PostInfoActionRq.OrderType.DESC);
+                    int totalCntPage = saveParseInt(countPageLabel.getText(), 1);
+                    initGridData(totalCntPage - 1);
                 })
                 .build();
 
         btns.add(
                 llBtn, lBtn,
-                pageField, dots, countPageLable,
+                pageField, dots, countPageLabel,
                 rBtn, rrBtn
         );
         return btns;

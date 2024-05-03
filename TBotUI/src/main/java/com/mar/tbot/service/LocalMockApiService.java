@@ -129,7 +129,8 @@ public class LocalMockApiService implements ApiService {
         return RestApiUtils.post(rq.getRqUuid(), uri, rq, PostInfoActionListRs.class, "getPostInfoActionList");
 
 
-//        PostInfoActionListRs rs = new PostInfoActionListRs( Stream.generate(() -> new PostInfoAction(
+//        PostInfoActionListRs rs = new PostInfoActionListRs(Stream
+//                .generate(() -> new PostInfoActionRs(
 //                                new Random().nextLong(1, 100),
 //                                UUID.randomUUID().toString() + UUID.randomUUID().toString() + UUID.randomUUID().toString() + UUID.randomUUID().toString(),
 //                                new Random().nextBoolean(),
@@ -140,7 +141,9 @@ public class LocalMockApiService implements ApiService {
 //                        )
 //                )
 //                .limit(95)
-//                .collect(Collectors.toList()));
+//                .collect(Collectors.toList()),
+//                95
+//        );
 //        rs.setRqUuid(rq.getRqUuid());
 //        rs.setRqTm(new Date());
 //        return rs;

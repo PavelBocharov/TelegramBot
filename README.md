@@ -5,8 +5,8 @@ Small project for learn etc. and actual skills.
 
 ## 💫 Release versions
 * Telegram Bot (main): `marolok/telegram_bot:2.5.0`
-* Telegram Bot UI: `marolok/telegram-bot-ui:1.7.0`
-* Telegram Bot DB: `marolok/telegram_db:2.3.2`
+* Telegram Bot UI: `marolok/telegram-bot-ui:1.8.0`
+* Telegram Bot DB: `marolok/telegram_db:2.4.0`
 * Telegram Bot Config: `marolok/telegram_conf:1.2.0`
 
 ## 🔗 Links
