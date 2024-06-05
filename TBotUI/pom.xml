@@ -13,7 +13,7 @@
 
     <groupId>org.mar</groupId>
     <artifactId>TBotUI</artifactId>
-    <version>1.8.0</version>
+    <version>1.9.1</version>
 
     <repositories>
         <repository>
@@ -43,7 +43,7 @@
         <vaadin.version>14.7.3</vaadin.version>
         <vaadin.gatanaso>2.5.0</vaadin.gatanaso>
         <!--    Utils    -->
-        <telegram.bot.api.version>6.8.0</telegram.bot.api.version>
+        <telegram.bot.api.version>7.2.1</telegram.bot.api.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <guava.version>31.0.1-jre</guava.version>
     </properties>

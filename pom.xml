@@ -20,14 +20,14 @@
         <!--    Versions    -->
         <tbot.db.version>2.4.0</tbot.db.version>
         <tbot.worker.version>2.5.0</tbot.worker.version>
-        <tbot.ui.version>1.8.0</tbot.ui.version>
+        <tbot.ui.version>1.9.1</tbot.ui.version>
         <tbot.dto.version>1.5.0</tbot.dto.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--    Main    -->
-        <telegram.bot.api.version>7.1.0</telegram.bot.api.version>
+        <telegram.bot.api.version>7.2.1</telegram.bot.api.version>
         <!--    Spring    -->
         <spring.cloud.config.version>4.0.4</spring.cloud.config.version>
         <!--    Utils    -->

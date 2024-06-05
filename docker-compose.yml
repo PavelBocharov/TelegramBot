@@ -144,7 +144,7 @@ services:
       retries: 3
 
   tbotconf:
-    image: marolok/telegram_conf:1.0.0
+    image: marolok/telegram_conf:1.2.0
     environment:
       GIT_URL: 'git@github.com:user/conf_repo.git'
       PRIVATE_KEY: |

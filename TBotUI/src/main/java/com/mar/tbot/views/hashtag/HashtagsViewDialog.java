@@ -3,10 +3,10 @@ package com.mar.tbot.views.hashtag;
 import com.mar.dto.rest.HashTagDto;
 import com.mar.tbot.utils.ButtonBuilder;
 import com.mar.tbot.utils.DeleteDialogWidget;
-import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.RootView;
 import com.mar.tbot.views.post.SendPostView;
+import com.mar.utils.Utils;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
@@ -85,6 +85,10 @@ public class HashtagsViewDialog {
             return;
         }
         dialog.removeAll();
+        dialog.addDialogCloseActionListener(event -> {
+            dialog.close();
+            parentView.reloadHashtagView();
+        });
         dialog.add(
                 new Label("#Hashtag list"),
                 itemStatusList,

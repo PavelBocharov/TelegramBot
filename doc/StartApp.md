@@ -63,7 +63,7 @@
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files
 * Set ENV in [docker-compose](../docker-compose.yml)
     - `tbotconf.GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
-    - `tbotconf.PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
+    - `tbotconf.PRIVATE_KEY` - use SSH private key for connect ([Generate pair ⚠️without passphrase⚠️](https://docs.github.com/ru/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) and [add to GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
 * Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml), example [YAML](../TBotWorker/src/main/resources/example.yaml))
 * Start
      ```bash

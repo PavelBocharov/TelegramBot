@@ -195,7 +195,7 @@ spec:
     spec:
       containers:
         - name: telegram-conf
-          image: marolok/telegram_conf:1.0.0
+          image: marolok/telegram_conf:1.2.0
           ports:
             - containerPort: 8888
           envFrom:

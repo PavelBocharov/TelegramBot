@@ -35,6 +35,7 @@ import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOUBLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_LEFT;
 import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_RIGHT;
 import static com.vaadin.flow.component.icon.VaadinIcon.ELLIPSIS_DOTS_H;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -79,9 +80,18 @@ public class PostInfoListView implements ContentView {
         // column
         grid.addColumn(PostInfoActionRs::getId)
                 .setHeader("ID")
-                .setAutoWidth(false)
                 .setWidth("5%");
-        grid.addColumn(PostInfoActionRs::getCaption)
+        grid.addColumn(postInfoActionRs -> {
+                    String caption = postInfoActionRs.getCaption();
+                    if (isNotBlank(caption)) {
+                        String[] lines = caption.split("\n");
+                        if (lines.length > 0) {
+                            return lines[0];
+                        }
+                        return "";
+                    }
+                    return "";
+                })
                 .setHeader("Caption")
                 .setWidth("70%");
         grid.addColumn(PostInfoActionRs::getAction0)

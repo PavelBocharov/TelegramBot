@@ -7,6 +7,7 @@ import com.mar.dto.rest.PostTypeDtoRs;
 import com.mar.dto.rest.SendPostRq;
 import com.mar.exception.TbotException;
 import com.mar.tbot.utils.ButtonBuilder;
+import com.mar.tbot.utils.PropertiesLoader;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.ContentView;
 import com.mar.tbot.views.RootView;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -62,6 +64,7 @@ public class SendPostView implements ContentView {
 
     private VerticalLayout listLines;
     private MultiselectComboBox<String> hashTagSelect;
+    private Upload singleFileUpload;
     private byte[] uploadFileData;
     private String uploadFileName;
     private int contentLength;
@@ -89,7 +92,6 @@ public class SendPostView implements ContentView {
                 .build();
 
         Button helpBtn = ButtonBuilder.createButton()
-                .text("Help")
                 .icon(VaadinIcon.QUESTION_CIRCLE_O)
                 .clickListener(clkEvent -> {
                     ViewUtils.showSuccessMsg(
@@ -109,13 +111,23 @@ public class SendPostView implements ContentView {
                 })
                 .build();
 
+        Button cleanBtn = ButtonBuilder.createButton()
+                .icon(VaadinIcon.TRASH)
+                .color(ButtonBuilder.Color.RED)
+                .clickListener(event -> {
+                    rootView.setContent(getContent());
+                    uploadFileData = null;
+                    uploadFileName = null;
+                })
+                .build();
+
         VerticalLayout verticalLayout = new VerticalLayout(
                 new H3("Send post"),
                 getSelectPostType(listLines),
-                getUploadView(),
+                initAndGetUploadView(),
                 listLines, // init in getSelectPostType
                 getHashtagView(),
-                new HorizontalLayout(sendBtn, helpBtn)
+                new HorizontalLayout(sendBtn, helpBtn, cleanBtn)
         );
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         return verticalLayout;
@@ -147,9 +159,9 @@ public class SendPostView implements ContentView {
         return postTypeSelect;
     }
 
-    private Upload getUploadView() {
+    private Upload initAndGetUploadView() {
         MemoryBuffer memoryBuffer = new MemoryBuffer();
-        Upload singleFileUpload = new Upload(memoryBuffer);
+        singleFileUpload = new Upload(memoryBuffer);
 
         singleFileUpload.addSucceededListener(event -> {
             InputStream fileData = memoryBuffer.getInputStream();
@@ -189,7 +201,11 @@ public class SendPostView implements ContentView {
         singleFileUpload.addStartedListener(event -> log.debug("StartedListener --> filename: {}, MIME: {}", event.getFileName(), event.getMIMEType()));
         singleFileUpload.addProgressListener(progressUpdateEvent -> log.debug("ProgressListener: --> length: {}", progressUpdateEvent.getContentLength()));
 
-        singleFileUpload.setMaxFileSize(10 * 1024 * 1024);
+        String maxFileSize = PropertiesLoader
+                .loadProperties("application.properties")
+                .getProperty("spring.servlet.multipart.max-file-size", "10MB");
+        Integer fileSize = Integer.parseInt(maxFileSize.substring(0, maxFileSize.length() - 2)) * 1024 * 1024;
+        singleFileUpload.setMaxFileSize(fileSize);
         singleFileUpload.setAcceptedFileTypes(
                 IMAGE_GIF_VALUE,
                 IMAGE_JPEG_VALUE,
@@ -201,6 +217,7 @@ public class SendPostView implements ContentView {
         Button uploadBtn = new Button("Upload file...", new Icon(VaadinIcon.UPLOAD));
         uploadBtn.setWidth(100, Unit.PERCENTAGE);
         singleFileUpload.setUploadButton(uploadBtn);
+        singleFileUpload.setAutoUpload(true);
         return singleFileUpload;
     }
 
@@ -209,7 +226,7 @@ public class SendPostView implements ContentView {
         hashtagView.setWidth(80, Unit.PERCENTAGE);
 
         reloadHashtagView();
-
+        hashTagSelect.clear();
         hashtagView.add(
                 hashTagSelect,
                 ButtonBuilder.createButton()
