@@ -12,8 +12,9 @@ Small project for learn etc. and actual skills.
 ## 🔗 Links
 * [🚀 Start application ](./doc/StartApp.md)
 * [💾 How to use...](./doc/HowWork.md)
-* [GitHub](https://github.com/PavelBocharov/TelegramBot)
-* [Docker HUB](https://hub.docker.com/repositories/marolok)
+* [👷 Applications architecture](./doc/Applications_architecture.md)
+* [♻️ GitHub](https://github.com/PavelBocharov/TelegramBot)
+* [🚢 Docker HUB](https://hub.docker.com/repositories/marolok)
 
 ## 📚 Project stack
 - Language - Java 17

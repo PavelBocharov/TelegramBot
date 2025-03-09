@@ -1,0 +1,41 @@
+{
+	"nodes":[
+		{"id":"921d2049eae93008","type":"group","x":-780,"y":-380,"width":1610,"height":760,"color":"#2d678b","label":"TelegramBot"},
+		{"id":"aefa3555d470e949","type":"group","x":-260,"y":-500,"width":290,"height":219,"color":"#882f93","label":"Configuration"},
+		{"id":"df189c4c53dbeabd","type":"group","x":240,"y":-120,"width":570,"height":100,"color":"2","label":"Database"},
+		{"id":"b49919867ad36023","type":"group","x":-20,"y":180,"width":290,"height":180,"color":"5","label":"Queue"},
+		{"id":"1043003a89a5b3d0","type":"text","text":"[1-n] **TBotWorker** (Spring)","x":-240,"y":-100,"width":250,"height":60,"color":"4"},
+		{"id":"a770e889235f0e59","type":"text","text":"**TelegramConf** (Spring)","x":-240,"y":-361,"width":250,"height":60,"color":"6"},
+		{"id":"a8aa04a9eb62f25b","type":"text","text":"Git","x":-240,"y":-480,"width":250,"height":60,"color":"6"},
+		{"id":"2a344dfb77974a95","type":"text","text":"[1] **TBotUI** (Spring + Vaadin 14)","x":-760,"y":-100,"width":300,"height":60,"color":"4"},
+		{"id":"fae92f3a25b92cfb","type":"text","text":"*User*","x":-1018,"y":-100,"width":140,"height":60},
+		{"id":"4a8c98495f2b516b","type":"text","text":"Redis","x":-460,"y":170,"width":220,"height":60,"color":"1"},
+		{"id":"0458bbbbbdae6873","type":"text","text":"PostgreSQL","x":540,"y":-100,"width":250,"height":60,"color":"3"},
+		{"id":"5ba1e5cca03dc676","type":"text","text":"**TBotDB** (FLUX + Netty)","x":260,"y":-100,"width":250,"height":60,"color":"4"},
+		{"id":"647c0d8014417c35","type":"text","text":"ZooKeeper","x":0,"y":280,"width":250,"height":60,"color":"5"},
+		{"id":"10ac535f154149ca","type":"text","text":"Kafka","x":0,"y":200,"width":250,"height":60,"color":"5"},
+		{"id":"cb6a3d4a9ca4ead1","type":"text","text":"~~Telegram (Bot API)~~","x":-1073,"y":40,"width":250,"height":60,"color":"2"}
+	],
+	"edges":[
+		{"id":"4b03fccf3ffaee54","fromNode":"a8aa04a9eb62f25b","fromSide":"bottom","toNode":"a770e889235f0e59","toSide":"top","label":"SSH"},
+		{"id":"7f5d2d02dc27877d","fromNode":"a770e889235f0e59","fromSide":"left","toNode":"2a344dfb77974a95","toSide":"top","label":"APP Config"},
+		{"id":"52f7f44fd423c93f","fromNode":"a770e889235f0e59","fromSide":"bottom","toNode":"1043003a89a5b3d0","toSide":"top","label":"APP Config"},
+		{"id":"db72b62678ff8e68","fromNode":"a770e889235f0e59","fromSide":"right","toNode":"5ba1e5cca03dc676","toSide":"top","label":"APP Config"},
+		{"id":"822856938f4a4048","fromNode":"fae92f3a25b92cfb","fromSide":"right","toNode":"2a344dfb77974a95","toSide":"left","label":"Web UI"},
+		{"id":"000ab1dada374fe9","fromNode":"5ba1e5cca03dc676","fromSide":"right","toNode":"0458bbbbbdae6873","toSide":"left"},
+		{"id":"741f9ce6b3a76afb","fromNode":"1043003a89a5b3d0","fromSide":"bottom","toNode":"4a8c98495f2b516b","toSide":"top"},
+		{"id":"df37f77f85063def","fromNode":"1043003a89a5b3d0","fromSide":"bottom","toNode":"b49919867ad36023","toSide":"top"},
+		{"id":"3f6b04d421eb3c3c","fromNode":"2a344dfb77974a95","fromSide":"right","toNode":"1043003a89a5b3d0","toSide":"left","label":"REST API"},
+		{"id":"c60f34e8bfb8723f","fromNode":"1043003a89a5b3d0","fromSide":"right","toNode":"5ba1e5cca03dc676","toSide":"left","label":"REST API"},
+		{"id":"6dfa736c1ba43c3f","fromNode":"2a344dfb77974a95","fromSide":"bottom","toNode":"5ba1e5cca03dc676","toSide":"bottom","label":"REST API"},
+		{"id":"08e942137dde5e4b","fromNode":"fae92f3a25b92cfb","fromSide":"bottom","toNode":"cb6a3d4a9ca4ead1","toSide":"top","label":"  ➣  "},
+		{"id":"53d6680f045237fd","fromNode":"4a8c98495f2b516b","fromSide":"top","toNode":"1043003a89a5b3d0","toSide":"bottom"},
+		{"id":"9c9fbd2dc69904e5","fromNode":"b49919867ad36023","fromSide":"top","toNode":"1043003a89a5b3d0","toSide":"bottom"},
+		{"id":"5fc80d84dc9df310","fromNode":"1043003a89a5b3d0","fromSide":"left","toNode":"2a344dfb77974a95","toSide":"right"},
+		{"id":"dc238e837e66759e","fromNode":"5ba1e5cca03dc676","fromSide":"bottom","toNode":"2a344dfb77974a95","toSide":"bottom"},
+		{"id":"062e96a74288efaf","fromNode":"5ba1e5cca03dc676","fromSide":"left","toNode":"1043003a89a5b3d0","toSide":"right"},
+		{"id":"f02c8443ac684747","fromNode":"0458bbbbbdae6873","fromSide":"left","toNode":"5ba1e5cca03dc676","toSide":"right"},
+		{"id":"fca83d61d66b5029","fromNode":"2a344dfb77974a95","fromSide":"left","toNode":"fae92f3a25b92cfb","toSide":"right"},
+		{"id":"172b169e80acba23","fromNode":"cb6a3d4a9ca4ead1","fromSide":"right","toNode":"1043003a89a5b3d0","toSide":"left","label":"Chat Bot"}
+	]
+}
