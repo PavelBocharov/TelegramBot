@@ -2,9 +2,9 @@ package com.mar.tbot.views.type;
 
 import com.mar.dto.rest.PostTypeDtoRq;
 import com.mar.tbot.utils.ButtonBuilder;
-import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
 import com.mar.tbot.views.RootView;
+import com.mar.utils.Utils;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;

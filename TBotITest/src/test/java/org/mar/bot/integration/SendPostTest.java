@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mar.bot.utils.TestUtils;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
@@ -34,8 +33,6 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 @Testcontainers
 public class SendPostTest extends InitContainers {
 
-    protected static WebClient webClient = WebClient.create();
-
     @BeforeAll
     public static void init() {
     }
@@ -43,29 +40,24 @@ public class SendPostTest extends InitContainers {
     @Test
     void initContainers_test() throws URISyntaxException, InterruptedException {
         assertAll(
-                () -> assertTrue(tbotconf.isCreated(), "tbotconf.isCreated()"),
-                () -> assertTrue(tbotconf.isRunning(), "tbotconf.isRunning()"),
+                () -> assertTrue(tbotConf.isCreated(), "tbotconf.isCreated()"),
+                () -> assertTrue(tbotConf.isRunning(), "tbotconf.isRunning()"),
                 () -> assertTrue(postgreSQL.isCreated(), "postgreSQL.isCreated()"),
                 () -> assertTrue(postgreSQL.isRunning(), "postgreSQL.isRunning()"),
                 () -> assertTrue(tbotDb.isCreated(), "tbotDb.isCreated()"),
                 () -> assertTrue(tbotDb.isRunning(), "tbotDb.isRunning()"),
-                () -> assertTrue(zookeeper.isCreated(), "zookeeper.isCreated()"),
-                () -> assertTrue(zookeeper.isRunning(), "zookeeper.isRunning()"),
-                () -> assertTrue(kafka.isCreated(), "kafka.isCreated()"),
-                () -> assertTrue(kafka.isRunning(), "kafka.isRunning()"),
-                () -> assertTrue(redis.isCreated(), "redis.isCreated()"),
-                () -> assertTrue(redis.isRunning(), "redis.isRunning()"),
-                () -> assertTrue(tbot.isCreated(), "tbot.isCreated()"),
-                () -> assertTrue(tbot.isRunning(), "tbot.isRunning()"),
-                () -> assertTrue(tbotui.isCreated(), "tbotui.isCreated()"),
-                () -> assertTrue(tbotui.isRunning(), "tbotui.isRunning()")
+                () -> assertTrue(tbotWorker.isCreated(), "tbot.isCreated()"),
+                () -> assertTrue(tbotWorker.isRunning(), "tbot.isRunning()"),
+                () -> assertTrue(tbotUi.isCreated(), "tbotui.isCreated()"),
+                () -> assertTrue(tbotUi.isRunning(), "tbotui.isRunning()")
         );
 
-        tbot.followOutput(new Slf4jLogConsumer(log).withPrefix("tbot"));
+        tbotWorker.followOutput(new Slf4jLogConsumer(log).withPrefix("tbot"));
+        tbotUi.followOutput(new Slf4jLogConsumer(log).withPrefix("tbot"));
         tbotDb.followOutput(new Slf4jLogConsumer(log).withPrefix("tbotDb"));
 
-        String host = tbotconf.getHost();
-        Integer port = tbotconf.getMappedPort(TestUtils.getPropertyInt("test.integration.config.port"));
+        String host = tbotConf.getHost();
+        Integer port = tbotConf.getMappedPort(TestUtils.getPropertyInt("test.integration.config.port"));
         String url = String.format("http://%s:%d/telegram-bot/test", host, port);
         System.out.println("TBotWorker test API: " + host + ":" + port + " --> " + url);
 
@@ -77,10 +69,10 @@ public class SendPostTest extends InitContainers {
 
         assertTrue(isNotBlank(xml));
 
-        Thread.sleep(TestUtils.getPropertyInt("test.integration.kafka.start.sleep"));
+//        Thread.sleep(TestUtils.getPropertyInt("test.integration.kafka.start.sleep"));
 
-        String tbotHost = tbot.getHost();
-        int tbotPort = tbot.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.port"));
+        String tbotHost = tbotWorker.getHost();
+        int tbotPort = tbotWorker.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.port"));
         String tbotUrl = String.format("http://%s:%d/post", tbotHost, tbotPort);
 
         String rqUuid = UUID.randomUUID().toString();
@@ -119,8 +111,8 @@ public class SendPostTest extends InitContainers {
 
         System.out.println("TBotDB get not send post API: " + tdbHost + ":" + tdbPort + " --> " + tdbUrl);
 
-        String tbotUiHost = tbotui.getHost();
-        int tbotUiPort = tbotui.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.ui.port"));
+        String tbotUiHost = tbotUi.getHost();
+        int tbotUiPort = tbotUi.getMappedPort(TestUtils.getPropertyInt("test.integration.tbot.ui.port"));
         String tbotuiUrl = String.format("http://%s:%d/actuator/health", tbotUiHost, tbotUiPort);
 
         System.out.println("TBotDB get not send post API: " + tbotUiHost + ":" + tbotUiPort + " --> " + tbotuiUrl);

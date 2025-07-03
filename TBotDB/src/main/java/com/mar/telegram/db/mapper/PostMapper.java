@@ -1,6 +1,5 @@
 package com.mar.telegram.db.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mar.dto.rest.PostInfoActionRs;
 import com.mar.dto.rest.PostInfoDtoRq;
 import com.mar.dto.rest.PostInfoDtoRs;
@@ -14,7 +13,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface PostMapper {
@@ -41,9 +39,11 @@ public interface PostMapper {
         pia.setAdminAction((Boolean) map[6]);
 
         return pia;
-    };
+    }
 
-    PostInfoActionRs convert (PostInfoAction entity);
+    ;
+
+    PostInfoActionRs convert(PostInfoAction entity);
 
     List<PostInfoActionRs> convert(List<Object[]> map);
 

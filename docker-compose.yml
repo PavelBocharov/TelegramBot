@@ -2,7 +2,7 @@ version: '3'
 
 services:
   tbotui:
-#    image: marolok/telegram-bot-ui:1.0.0
+#    image: marolok/telegram-bot-ui:1.9.2
     build:
       context: TBotUI
       dockerfile: Dockerfile
@@ -13,7 +13,7 @@ services:
     env_file:
       - .env
     volumes:
-      - "${LOCAL_PC_MOUNT_DIR}:/opt/app/temp/"
+      - "${LOCAL_PC_MOUNT_DIR}/tbot:/opt/app/temp/"
     tty: true
     restart: always
     networks:
@@ -24,23 +24,21 @@ services:
       mode: replicated
       replicas: 1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 10s
       timeout: 10s
       retries: 5
 
   tbot:
-#    image: marolok/telegram_bot:1.7.2
+#    image: marolok/telegram_bot:2.6.0
     build:
       context: TBotWorker
       dockerfile: Dockerfile
     depends_on:
       - tbotconf
-      - redis
-      - kafka
       - tbotdb
     volumes:
-      - "${LOCAL_PC_MOUNT_DIR}:/opt/app/temp/"
+      - "${LOCAL_PC_MOUNT_DIR}/tbot:/opt/app/temp/"
     tty: true
     restart: always
     environment:
@@ -51,61 +49,13 @@ services:
       mode: replicated
       replicas: 1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 10s
       timeout: 10s
       retries: 5
 
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - ':6379'
-    command: redis-server --save 20 1 --loglevel warning
-    volumes:
-      - cache:/data
-    networks:
-      - bridge
-    healthcheck:
-      test: ["CMD", "redis-cli", "-p", "7000", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    env_file:
-      - .env
-    ports:
-      - '22181:2181'
-    networks:
-      - bridge
-    healthcheck:
-      test: nc -z localhost 2181 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 10
-
-  kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
-    ports:
-      - '29092:29092'
-    networks:
-      - bridge
-    env_file:
-      - .env
-    healthcheck:
-      test: nc -z localhost 9092 || exit -1
-      start_period: 15s
-      interval: 5s
-      timeout: 10s
-      retries: 10
-
   tbotdb:
-#    image: marolok/telegram_db:1.3.0
+#    image: marolok/telegram_db:2.4.1
     build:
       context: TBotDB
       dockerfile: Dockerfile
@@ -121,13 +71,14 @@ services:
       - bridge
       - pgnet
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
       interval: 10s
       timeout: 10s
       retries: 5
 
   pgsql:
-    image: postgres:14
+    image: postgres:14-alpine
+    tty: true
     restart: always
     env_file:
       - .env
@@ -138,15 +89,22 @@ services:
     volumes:
       - "${LOCAL_PC_MOUNT_DIR}/db:/var/lib/postgresql/data"
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
       interval: 10s
       timeout: 3s
       retries: 3
+  adminer:
+    image: adminer
+    restart: always
+    networks:
+      - pgnet
+    ports:
+      - 8081:8080
 
   tbotconf:
     image: marolok/telegram_conf:1.2.0
     environment:
-      GIT_URL: 'git@github.com:user/conf_repo.git'
+      GIT_URL: 'git@github.com:PavelBocharov/TelegramConf.git'
       PRIVATE_KEY: |
         -----BEGIN RSA PRIVATE KEY-----
         *******************************
@@ -157,7 +115,7 @@ services:
     networks:
       - bridge
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
       interval: 10s
       timeout: 10s
       retries: 5

@@ -24,10 +24,9 @@ import java.util.Date;
 @RequestMapping(value = "/user")
 public class UserController {
 
+    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     @Autowired
     private UserInfoRepository userInfoRepository;
-
-    private final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @GetMapping(value = "/uid/{userId}")
     public Mono<UserDtoRs> getUserById(@RequestHeader("RqUuid") @NotBlank String rqUuid, @PathVariable Long userId) {

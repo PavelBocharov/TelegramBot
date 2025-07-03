@@ -6,4 +6,4 @@ spring:
   profiles:
     active: local
   config:
-    import:  'optional:configserver:http://tbotconf:8888'
+    import: 'optional:configserver:http://tbotconf:8888'

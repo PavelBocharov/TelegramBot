@@ -2,11 +2,11 @@ package com.mar.tbot.views;
 
 import com.mar.tbot.service.ApiService;
 import com.mar.tbot.service.MapperService;
-import com.mar.tbot.views.post.PostInfoListView;
-import com.mar.utils.Utils;
 import com.mar.tbot.utils.ViewUtils;
+import com.mar.tbot.views.post.PostInfoListView;
 import com.mar.tbot.views.post.SendPostView;
 import com.mar.tbot.views.type.PostTypeListView;
+import com.mar.utils.Utils;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -49,28 +49,24 @@ import static com.vaadin.flow.component.icon.VaadinIcon.TASKS;
 public class RootView extends AppLayout {
 
     @Getter
+    private final PostTypeListView postTypeListView;
+    @Getter
+    private final SendPostView sendPostView;
+    @Getter
+    private final PostInfoListView postInfoListView;
+    private final StartPageView startPageView;
+    @Getter
     @Autowired
     private MapperService mapperService;
     @Getter
     @Autowired
     private ApiService apiService;
-
     @Getter
     @Value("${application.bot.admin.id}")
     private Long adminId;
     @Getter
     @Value("${application.bot.directory.path}")
     private String downloadPath;
-
-
-    @Getter
-    private final PostTypeListView postTypeListView;
-    @Getter
-    private final SendPostView sendPostView;
-    @Getter
-    private final PostInfoListView postInfoListView;
-
-    private final StartPageView startPageView;
 
     @SneakyThrows
     public RootView() throws IOException {

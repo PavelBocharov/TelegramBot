@@ -4,7 +4,6 @@ import com.mar.dto.mq.URLInfo;
 import com.mar.dto.tbot.ContentType;
 import com.mar.dto.tbot.PhotoSizeDto;
 import com.mar.exception.BaseException;
-import com.mar.interfaces.mq.MQSender;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -13,10 +12,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.mar.telegram.bot.utils.data.WatermarkInfo;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -38,8 +40,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @RequiredArgsConstructor
 public class Utils {
 
-    private final MQSender mqSender;
-
     public static final String IMGUR_URL = "https://i.imgur.com/";
     public static final String IMGUR_GIFV_TYPE = ".gifv";
     // Video
@@ -55,13 +55,13 @@ public class Utils {
     public static final String JPG_Type = ".jpg";
     public static final String JPEG_Type = ".jpeg";
     public static final String BMP_Type = ".bmp";
-
     public static final List<String> PICTURE_Type_List = Arrays.stream(ArrayUtils.toArray(
             PNG_Type.substring(1),
             JPG_Type.substring(1),
             JPEG_Type.substring(1),
             BMP_Type.substring(1)
     )).toList();
+    private final LoggerService loggerService;
 
     public static URLInfo whatIsUrl(String url) {
         URLInfo rez = null;
@@ -162,18 +162,32 @@ public class Utils {
         }
     }
 
+    public static int[] convertColor(String hex) {
+        assert isNotBlank(hex);
+
+        String hexCode = hex.replace("#", "");
+
+        assert hexCode.length() == 6;
+
+        return new int[]{
+                Integer.valueOf(hexCode.substring(0, 2), 16),
+                Integer.valueOf(hexCode.substring(2, 4), 16),
+                Integer.valueOf(hexCode.substring(4, 6), 16)
+        };
+    }
+
     public String addWatermark(String rqUuid, String imagePath, WatermarkInfo watermark) {
         BufferedImage img = null;
         File f = null;
         if (watermark != null) {
             f = new File(watermark.getImagePath());
             if (isBlank(watermark.getText()) && !f.exists()) {
-                mqSender.sendLog(rqUuid, DEBUG, "Cannot add watermark on image - path: '{}', watermark info: {}", imagePath, watermark);
+                loggerService.sendLog(rqUuid, DEBUG, "Cannot add watermark on image - path: '{}', watermark info: {}", imagePath, watermark);
                 return null;
             }
         }
 
-        mqSender.sendLog(rqUuid, DEBUG, "Add watermark on image - path: '{}', watermark info: {}", imagePath, watermark);
+        loggerService.sendLog(rqUuid, DEBUG, "Add watermark on image - path: '{}', watermark info: {}", imagePath, watermark);
 
         try {
             // IMAGE
@@ -185,12 +199,12 @@ public class Utils {
             graphics.drawImage(img, 0, 0, null);
 
             if (isNotBlank(watermark.getImagePath())) {
-                mqSender.sendLog(rqUuid, DEBUG, "Add image on image - watermark image path: {}", watermark.getImagePath());
+                loggerService.sendLog(rqUuid, DEBUG, "Add image on image - watermark image path: {}", watermark.getImagePath());
                 addImageOnImage(graphics, img.getWidth(), img.getHeight(), watermark);
             }
 
             if (isNotBlank(watermark.getText())) {
-                mqSender.sendLog(rqUuid, DEBUG, "Add text on image - watermark text: {}", watermark.getText());
+                loggerService.sendLog(rqUuid, DEBUG, "Add text on image - watermark text: {}", watermark.getText());
                 addTextOnImage(graphics, img.getWidth(), img.getHeight(), watermark);
             }
 
@@ -206,7 +220,7 @@ public class Utils {
             if (f.exists()) {
                 return f.getAbsolutePath();
             } else {
-                mqSender.sendLog(rqUuid, DEBUG, "Cannot used new image with watermark - used old file.");
+                loggerService.sendLog(rqUuid, DEBUG, "Cannot used new image with watermark - used old file.");
                 return null;
             }
         } catch (Exception e) {
@@ -234,19 +248,5 @@ public class Utils {
 
         mainImage.drawString(watermark.getText(), 1, watermark.getTextFontSize());
 //        mainImage.drawString(watermark.getText(), imgWidth / 10, imgHeight / 10);
-    }
-
-    public static int[] convertColor(String hex) {
-        assert isNotBlank(hex);
-
-        String hexCode = hex.replace("#", "");
-
-        assert hexCode.length() == 6;
-
-        return new int[]{
-                Integer.valueOf(hexCode.substring(0, 2), 16),
-                Integer.valueOf(hexCode.substring(2, 4), 16),
-                Integer.valueOf(hexCode.substring(4, 6), 16)
-        };
     }
 }

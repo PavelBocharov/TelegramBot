@@ -2,6 +2,7 @@ package org.mar.bot.integration;
 
 import org.apache.commons.io.FileUtils;
 import org.mar.bot.utils.TestUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -19,9 +20,10 @@ import java.util.Map;
 abstract public class InitContainers {
 
     protected static Network bridge = Network.newNetwork();
+    protected static WebClient webClient = WebClient.create();
 
     @Container
-    protected static GenericContainer<?> tbotconf = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.config.image")))
+    protected static GenericContainer<?> tbotConf = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.config.image")))
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.config.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.config.alias"))
@@ -56,7 +58,7 @@ abstract public class InitContainers {
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.tbot.db.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.db.alias"))
-            .dependsOn(tbotconf, postgreSQL)
+            .dependsOn(tbotConf, postgreSQL)
             .withEnv(Map.of(
                     "BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.db.profile"),
                     "SPRING_CLOUD_CONFIG_SERVER", TestUtils.getPropertyStr("test.integration.tbot.db.config.server")
@@ -69,40 +71,7 @@ abstract public class InitContainers {
             );
 
     @Container
-    protected static GenericContainer<?> zookeeper = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.zookeeper.image")))
-            .withNetwork(bridge)
-            .withNetworkAliases(TestUtils.getPropertyStr("test.integration.zookeeper.alias"))
-            .withEnv(Map.of(
-                    "ZOOKEEPER_CLIENT_PORT", TestUtils.getPropertyStr("test.integration.zookeeper.client.port"),
-                    "ZOOKEEPER_TICK_TIME", TestUtils.getPropertyStr("test.integration.zookeeper.tick.time")
-            ));
-
-    @Container
-    protected static GenericContainer<?> kafka = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.kafka.image")))
-            .withNetwork(bridge)
-            .withNetworkAliases(TestUtils.getPropertyStr("test.integration.kafka.alias"))
-            .dependsOn(zookeeper)
-            .withEnv(Map.of(
-                    "KAFKA_BROKER_ID", "1",
-                    "KAFKA_ZOOKEEPER_CONNECT", String.format("%s:%d", TestUtils.getPropertyStr("test.integration.zookeeper.alias"), TestUtils.getPropertyInt("test.integration.zookeeper.client.port")),
-                    "KAFKA_ADVERTISED_LISTENERS", "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092",
-                    "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP", "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT",
-                    "KAFKA_INTER_BROKER_LISTENER_NAME", "PLAINTEXT",
-                    "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1"
-            ));
-
-    @Container
-    protected static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse(TestUtils.getPropertyStr("test.integration.redis.image")))
-            .withNetwork(bridge)
-            .withNetworkAliases(TestUtils.getPropertyStr("test.integration.redis.alias"))
-            .withCommand("redis-server --save 20 1 --loglevel warning")
-            .withEnv(Map.of(
-                    "ZOOKEEPER_CLIENT_PORT", "2181",
-                    "ZOOKEEPER_TICK_TIME", "2000"
-            ));
-
-    @Container
-    protected static GenericContainer<?> tbot = new GenericContainer<>(
+    protected static GenericContainer<?> tbotWorker = new GenericContainer<>(
             new ImageFromDockerfile("tbot/test/" + Base58.randomString(16).toLowerCase(), true)
                     .withDockerfile(Path.of("../TBotWorker/Dockerfile"))
 //            DockerImageName.parse("marolok/telegram_bot:2.0.1")
@@ -110,7 +79,7 @@ abstract public class InitContainers {
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.tbot.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.alias"))
-            .dependsOn(tbotconf, redis, kafka, tbotDb)
+            .dependsOn(tbotConf, tbotDb)
             .withEnv("BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.profile"))
             .waitingFor(
                     Wait.forHttp("/actuator/health")
@@ -120,7 +89,7 @@ abstract public class InitContainers {
             );
 
     @Container
-    protected static GenericContainer<?> tbotui = new GenericContainer<>(
+    protected static GenericContainer<?> tbotUi = new GenericContainer<>(
             new ImageFromDockerfile("tbotui/test/" + Base58.randomString(16).toLowerCase(), true)
                     .withDockerfile(Path.of("../TBotUI/Dockerfile"))
 //            DockerImageName.parse("marolok/telegram-bot-ui:1.0.2")
@@ -128,7 +97,7 @@ abstract public class InitContainers {
             .withExposedPorts(TestUtils.getPropertyInt("test.integration.tbot.ui.port"))
             .withNetwork(bridge)
             .withNetworkAliases(TestUtils.getPropertyStr("test.integration.tbot.ui.alias"))
-            .dependsOn(tbotconf, tbotDb, tbot)
+            .dependsOn(tbotConf, tbotDb, tbotWorker)
             .withEnv("BOT_PROFILE", TestUtils.getPropertyStr("test.integration.tbot.ui.profile"))
             .waitingFor(
                     Wait.forHttp("/actuator/health")

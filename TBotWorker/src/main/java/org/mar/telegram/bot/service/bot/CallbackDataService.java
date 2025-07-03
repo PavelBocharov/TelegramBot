@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
-import com.mar.interfaces.mq.MQSender;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.stereotype.Service;
 
 import static com.mar.dto.mq.LogEvent.LogLevel.DEBUG;
@@ -25,11 +25,11 @@ public class CallbackDataService {
     private final UserService userService;
     private final PostService postService;
     private final ActionService actionService;
-    private final MQSender mqSender;
+    private final LoggerService loggerService;
 
     public boolean checkCallbackData(String rqUuid, CallbackQueryDto query) {
         if (nonNull(query)) {
-            mqSender.sendLog(rqUuid, DEBUG, "Callback query: {}", query);
+            loggerService.sendLog(rqUuid, DEBUG, "Callback query: {}", query);
             Long chatId = query.getMsgChatId();
             Integer messageId = query.getMessageId();
             Long userId = query.getFromUserId();

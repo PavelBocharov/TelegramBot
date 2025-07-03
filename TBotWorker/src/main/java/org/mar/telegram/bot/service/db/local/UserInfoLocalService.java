@@ -8,7 +8,7 @@ import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.core.Ehcache;
 import org.mar.telegram.bot.service.bot.db.UserService;
-import com.mar.interfaces.mq.MQSender;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class UserInfoLocalService implements UserService {
     @Autowired
     private CacheManager cacheManager;
     @Autowired
-    private MQSender mqSender;
+    private LoggerService loggerService;
 
     private Ehcache<Long, UserDtoRs> userCache;
 
@@ -56,7 +56,7 @@ public class UserInfoLocalService implements UserService {
         }
 
         UserDtoRs user = entry == null ? null : entry.getValue();
-        mqSender.sendLog(rqUuid, DEBUG, "Load user by userID: {}, dto: {}", userId, user);
+        loggerService.sendLog(rqUuid, DEBUG, "Load user by userID: {}, dto: {}", userId, user);
 
         if (isNull(user)) {
             user = create(rqUuid, new UserDtoRs().withUserId(userId));
@@ -73,7 +73,7 @@ public class UserInfoLocalService implements UserService {
             }
             userCache.put(user.getId(), user);
         }
-        mqSender.sendLog(rqUuid, DEBUG, "Save user: {}", user);
+        loggerService.sendLog(rqUuid, DEBUG, "Save user: {}", user);
         return user;
     }
 }

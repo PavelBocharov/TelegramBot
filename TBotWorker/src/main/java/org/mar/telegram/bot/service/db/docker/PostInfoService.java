@@ -3,10 +3,10 @@ package org.mar.telegram.bot.service.db.docker;
 import com.mar.dto.mq.LogEvent;
 import com.mar.dto.rest.PostInfoDtoRq;
 import com.mar.dto.rest.PostInfoDtoRs;
-import com.mar.interfaces.mq.MQSender;
 import org.apache.commons.lang3.tuple.Pair;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.db.RestApiService;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -23,7 +23,7 @@ public class PostInfoService implements PostService {
     private String dbUrl;
 
     @Autowired
-    private MQSender mqSender;
+    private LoggerService loggerService;
 
     @Autowired
     private RestApiService restApiService;
@@ -57,7 +57,7 @@ public class PostInfoService implements PostService {
     }
 
     private PostInfoDtoRs log(String rqUuid, PostInfoDtoRs postInfoDto, LogEvent.LogLevel logLevel, final String message, Object... objects) {
-        mqSender.sendLog(rqUuid, logLevel, message, objects);
+        loggerService.sendLog(rqUuid, logLevel, message, objects);
         return postInfoDto;
     }
 

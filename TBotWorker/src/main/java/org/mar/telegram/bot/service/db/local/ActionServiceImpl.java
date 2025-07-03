@@ -1,7 +1,7 @@
 package org.mar.telegram.bot.service.db.local;
 
-import com.mar.dto.tbot.ActionEnum;
 import com.mar.dto.rest.ActionPostDtoRs;
+import com.mar.dto.tbot.ActionEnum;
 import jakarta.annotation.PostConstruct;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -11,7 +11,7 @@ import org.ehcache.core.Ehcache;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.ActionService;
-import com.mar.interfaces.mq.MQSender;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class ActionServiceImpl implements ActionService {
     @Autowired
     private CacheManager cacheManager;
     @Autowired
-    private MQSender mqSender;
+    private LoggerService loggerService;
 
     private Ehcache<Long, ActionPostDtoRs> actionCache;
     private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
@@ -67,7 +67,7 @@ public class ActionServiceImpl implements ActionService {
         }
 
         ActionPostDtoRs actionDto = entry == null ? null : entry.getValue();
-        mqSender.sendLog(
+        loggerService.sendLog(
                 rqUuid, DEBUG, "Get action by postId: {} and uerId: {}. Action: {}", postInfoId, userId, actionDto
         );
         if (isNull(actionDto)) {
@@ -87,7 +87,7 @@ public class ActionServiceImpl implements ActionService {
                 actionPost.setId(new Random().nextLong());
             }
             actionCache.put(actionPost.getId(), actionPost);
-            mqSender.sendLog(rqUuid, DEBUG, "Save action: {}", actionPost);
+            loggerService.sendLog(rqUuid, DEBUG, "Save action: {}", actionPost);
         }
         return actionPost;
     }
@@ -100,7 +100,7 @@ public class ActionServiceImpl implements ActionService {
         rez.put(ActionEnum.BORING, getCount(ActionEnum.BORING, postId));
         rez.put(ActionEnum.BAD, getCount(ActionEnum.BAD, postId));
         rez.put(ActionEnum.DEVIL, getCount(ActionEnum.DEVIL, postId));
-        mqSender.sendLog(rqUuid, DEBUG, "Get count action: {}", rez);
+        loggerService.sendLog(rqUuid, DEBUG, "Get count action: {}", rez);
         return rez;
     }
 

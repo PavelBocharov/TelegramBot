@@ -4,7 +4,7 @@ import com.mar.dto.mq.LogEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import com.mar.interfaces.mq.MQSender;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,7 +26,7 @@ public class CleanDirScheduler {
     private String logDirPath;
 
     @Autowired
-    private MQSender sender;
+    private LoggerService loggerService;
 
     @Scheduled(cron = "${application.scheduler.cron}")
     public void cleanDir() {
@@ -38,15 +38,15 @@ public class CleanDirScheduler {
             for (File file : files) {
                 if (!file.getAbsolutePath().startsWith(logDir.getAbsolutePath())) {
                     try {
-                        sender.sendLog(UUID.randomUUID().toString(), LogEvent.LogLevel.WARN, "Delete file - {}", file.getAbsolutePath());
+                        loggerService.sendLog(UUID.randomUUID().toString(), LogEvent.LogLevel.WARN, "Delete file - {}", file.getAbsolutePath());
                         FileUtils.delete(file);
                     } catch (IOException e) {
-                        sender.sendLog(UUID.randomUUID().toString(), LogEvent.LogLevel.ERROR, "Delete file FAIL - {}, {}", file.getAbsolutePath(), ExceptionUtils.getRootCauseMessage(e));
+                        loggerService.sendLog(UUID.randomUUID().toString(), LogEvent.LogLevel.ERROR, "Delete file FAIL - {}, {}", file.getAbsolutePath(), ExceptionUtils.getRootCauseMessage(e));
                     }
                 }
             }
         } else {
-            sender.sendLog(UUID.randomUUID().toString(), LogEvent.LogLevel.ERROR, "'{}' is not dir", downloadPath);
+            loggerService.sendLog(UUID.randomUUID().toString(), LogEvent.LogLevel.ERROR, "'{}' is not dir", downloadPath);
         }
 
     }
