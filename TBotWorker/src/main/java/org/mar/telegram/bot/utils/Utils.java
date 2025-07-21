@@ -176,7 +176,19 @@ public class Utils {
         };
     }
 
-    public String addWatermark(String rqUuid, String imagePath, WatermarkInfo watermark) {
+    /**
+     *
+     * @param rqUuid
+     * @param imagePath
+     * @param watermark
+     * @param position      NULL - не печатать, 1 - top left, 2 - top right, 3 - down left, 4 - down right.
+     * @return
+     */
+    public String addWatermark(String rqUuid, String imagePath, WatermarkInfo watermark, Integer position) {
+        if (position == null || (position != 1 && position != 2 && position != 3 && position != 4)) {
+            loggerService.sendLog(rqUuid, DEBUG, "Not add watermark on image - watermark position: {}", position);
+            return null;
+        }
         BufferedImage img = null;
         File f = null;
         if (watermark != null) {
@@ -200,7 +212,7 @@ public class Utils {
 
             if (isNotBlank(watermark.getImagePath())) {
                 loggerService.sendLog(rqUuid, DEBUG, "Add image on image - watermark image path: {}", watermark.getImagePath());
-                addImageOnImage(graphics, img.getWidth(), img.getHeight(), watermark);
+                addImageOnImage(graphics, img.getWidth(), img.getHeight(), watermark, position);
             }
 
             if (isNotBlank(watermark.getText())) {
@@ -228,14 +240,34 @@ public class Utils {
         }
     }
 
-    private void addImageOnImage(Graphics mainImage, int imgWidth, int imgHeight, WatermarkInfo watermark) throws IOException {
+    private void addImageOnImage(Graphics mainImage, int imgWidth, int imgHeight, WatermarkInfo watermark, int position) throws IOException {
         BufferedImage mwImg = null;
         File wm = null;
         wm = new File(watermark.getImagePath());
         mwImg = ImageIO.read(wm);
+        int posX = 0;
+        int posY = 0;
+        // 1 - top left, 2 - top right, 3 - down left, 4 - down right
+        if (position == 1) {
+            posX = 0;
+            posY = 0;
+        }
+        if (position == 2) {
+            posX = 0;
+            posY = imgHeight - watermark.getImageSizeY();
+        }
+        if (position == 3) {
+            posX = imgWidth - watermark.getImageSizeX();
+            posY = 0;
+        }
+        if (position == 4) {
+            posX = imgWidth - watermark.getImageSizeX();
+            posY = imgHeight - watermark.getImageSizeY();
+        }
+
         mainImage.drawImage(
                 mwImg,
-                imgWidth - watermark.getImageSizeX(), imgHeight - watermark.getImageSizeY(), // location
+                posX, posY, // location
                 watermark.getImageSizeX(), watermark.getImageSizeY(), // size
                 null
         );

@@ -14,6 +14,7 @@ import com.mar.tbot.views.RootView;
 import com.mar.tbot.views.hashtag.HashtagsViewDialog;
 import com.mar.utils.Utils;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H3;
@@ -22,11 +23,15 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.provider.ListDataProvider;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -68,6 +73,7 @@ public class SendPostView implements ContentView {
     private String uploadFileName;
     private int contentLength;
     private String mimeType;
+    private RadioButtonGroup<WatermarkPosition> watermarkPosition;
 
     @Override
     public Component getContent() {
@@ -120,14 +126,19 @@ public class SendPostView implements ContentView {
                 })
                 .build();
 
+        log.debug("GET WATERMARK FLAG: {}", rootView.getWatermarkEnable());
+
         VerticalLayout verticalLayout = new VerticalLayout(
                 new H3("Send post"),
                 getSelectPostType(listLines),
                 initAndGetUploadView(),
                 listLines, // init in getSelectPostType
-                getHashtagView(),
-                new HorizontalLayout(sendBtn, helpBtn, cleanBtn)
+                getHashtagView()
         );
+        if (Boolean.TRUE.equals(rootView.getWatermarkEnable())) {
+            verticalLayout.add(getWatermarkPosition());
+        }
+        verticalLayout.add(new HorizontalLayout(sendBtn, helpBtn, cleanBtn));
         verticalLayout.setAlignItems(FlexComponent.Alignment.CENTER);
         return verticalLayout;
     }
@@ -282,6 +293,7 @@ public class SendPostView implements ContentView {
         log.info("ALL sort caption: {}", info.getCaption());
 
         info.setHashTags(new ArrayList<>(hashTagSelect.getSelectedItems()));
+        info.setPrintWatermark(watermarkPosition.getValue().code);
 
         return info;
     }
@@ -314,5 +326,25 @@ public class SendPostView implements ContentView {
 
             hashTagSelect.select(newSelected);
         }
+    }
+
+    private Component getWatermarkPosition() {
+        watermarkPosition = new RadioButtonGroup<WatermarkPosition>();
+        watermarkPosition.setLabel("Watermark position");
+        watermarkPosition.setItems(WatermarkPosition.TOP_LEFT, WatermarkPosition.TOP_RIGHT, WatermarkPosition.DOWN_LEFT, WatermarkPosition.DOWN_RIGHT);
+        watermarkPosition.setValue(WatermarkPosition.DOWN_RIGHT);
+        watermarkPosition.setRenderer(new ComponentRenderer<>(wp -> new Text(wp.text)));
+        return watermarkPosition;
+    }
+
+    @AllArgsConstructor
+    public enum WatermarkPosition {
+        TOP_LEFT("Top left", 1),
+        TOP_RIGHT("Top right", 2),
+        DOWN_LEFT("Down left", 3),
+        DOWN_RIGHT("Down right", 4);
+
+        final String text;
+        final Integer code;
     }
 }

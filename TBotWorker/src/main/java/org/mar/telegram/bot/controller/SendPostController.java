@@ -90,7 +90,7 @@ public class SendPostController {
                     new ActionPostDtoRs().withPostId(postInfoDto.getId()).withUserId(user.getId())
             );
 
-            sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto);
+            sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto, rq.getPrintWatermark());
         }
         return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }

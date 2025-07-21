@@ -90,6 +90,7 @@ public class SendPostTest extends InitContainers {
                 0L, "<u>Test '@'</u>: @CrzCat"
         ));
         sendPost.setHashTags(List.of("#Test", "#IT_Test"));
+        sendPost.setPrintWatermark(1);
 
 
         String rs = webClient.post()

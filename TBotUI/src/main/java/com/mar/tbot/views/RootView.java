@@ -67,6 +67,9 @@ public class RootView extends AppLayout {
     @Getter
     @Value("${application.bot.directory.path}")
     private String downloadPath;
+    @Getter
+    @Value("${application.bot.watermark.enable:}")
+    private Boolean watermarkEnable;
 
     @SneakyThrows
     public RootView() throws IOException {
