@@ -177,11 +177,10 @@ public class Utils {
     }
 
     /**
-     *
      * @param rqUuid
      * @param imagePath
      * @param watermark
-     * @param position      NULL - не печатать, 1 - top left, 2 - top right, 3 - down left, 4 - down right.
+     * @param position  NULL - не печатать, 1 - top left, 2 - top right, 3 - down left, 4 - down right.
      * @return
      */
     public String addWatermark(String rqUuid, String imagePath, WatermarkInfo watermark, Integer position) {
@@ -253,12 +252,12 @@ public class Utils {
             posY = 0;
         }
         if (position == 2) {
-            posX = 0;
-            posY = imgHeight - watermark.getImageSizeY();
-        }
-        if (position == 3) {
             posX = imgWidth - watermark.getImageSizeX();
             posY = 0;
+        }
+        if (position == 3) {
+            posX = 0;
+            posY = imgHeight - watermark.getImageSizeY();
         }
         if (position == 4) {
             posX = imgWidth - watermark.getImageSizeX();

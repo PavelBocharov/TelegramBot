@@ -68,7 +68,7 @@ public class RootView extends AppLayout {
     @Value("${application.bot.directory.path}")
     private String downloadPath;
     @Getter
-    @Value("${application.bot.watermark.enable:}")
+    @Value("${application.bot.watermark.enable:false}")
     private Boolean watermarkEnable;
 
     @SneakyThrows

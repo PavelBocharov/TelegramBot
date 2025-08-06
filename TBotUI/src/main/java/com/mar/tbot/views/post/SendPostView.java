@@ -31,7 +31,6 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -293,7 +292,9 @@ public class SendPostView implements ContentView {
         log.info("ALL sort caption: {}", info.getCaption());
 
         info.setHashTags(new ArrayList<>(hashTagSelect.getSelectedItems()));
-        info.setPrintWatermark(watermarkPosition.getValue().code);
+        if (watermarkPosition != null && watermarkPosition.getValue() != null) {
+            info.setPrintWatermark(watermarkPosition.getValue().code);
+        }
 
         return info;
     }
@@ -331,7 +332,7 @@ public class SendPostView implements ContentView {
     private Component getWatermarkPosition() {
         watermarkPosition = new RadioButtonGroup<WatermarkPosition>();
         watermarkPosition.setLabel("Watermark position");
-        watermarkPosition.setItems(WatermarkPosition.TOP_LEFT, WatermarkPosition.TOP_RIGHT, WatermarkPosition.DOWN_LEFT, WatermarkPosition.DOWN_RIGHT);
+        watermarkPosition.setItems(WatermarkPosition.TOP_LEFT, WatermarkPosition.TOP_RIGHT, WatermarkPosition.DOWN_LEFT, WatermarkPosition.DOWN_RIGHT, WatermarkPosition.NOT_PRINT);
         watermarkPosition.setValue(WatermarkPosition.DOWN_RIGHT);
         watermarkPosition.setRenderer(new ComponentRenderer<>(wp -> new Text(wp.text)));
         return watermarkPosition;
@@ -339,6 +340,7 @@ public class SendPostView implements ContentView {
 
     @AllArgsConstructor
     public enum WatermarkPosition {
+        NOT_PRINT("Not print", null),
         TOP_LEFT("Top left", 1),
         TOP_RIGHT("Top right", 2),
         DOWN_LEFT("Down left", 3),
