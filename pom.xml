@@ -21,7 +21,7 @@
         <tbot.worker.version>2.6.0</tbot.worker.version>
         <tbot.ui.version>1.9.2</tbot.ui.version>
         <tbot.db.version>2.5.0</tbot.db.version>
-        <tbot.dto.version>1.6.0</tbot.dto.version>
+        <tbot.dto.version>1.6.1</tbot.dto.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>

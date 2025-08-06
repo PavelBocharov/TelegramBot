@@ -1,0 +1,10 @@
+type UserRs {
+    rqUuid: String
+    rqTm: String
+    errorCode: Int
+    errorMsg: String
+    id: String
+    userId: String
+    actionIds: [String]
+}
+

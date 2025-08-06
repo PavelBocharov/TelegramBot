@@ -13,7 +13,9 @@ public class BaseException extends RuntimeException {
     protected Integer errorCode;
     protected String errorMsg;
 
+    @Deprecated(since = "Use constructor with (.., Throwable cause). If you can.")
     public BaseException(String rqUuid, Date rqTm, Integer errorCode, String errorMsg) {
+        super(errorMsg);
         this.rqUuid = rqUuid;
         this.rqTm = rqTm;
         this.errorCode = errorCode;
@@ -32,7 +34,7 @@ public class BaseException extends RuntimeException {
         return new BaseRs()
                 .withErrorCode(errorCode)
                 .withErrorMsg(errorMsg)
-                .withRqTm(rqTm)
+                .withRqTm(rqTm.getTime())
                 .withRqUuid(rqUuid);
     }
 }

@@ -7,3 +7,9 @@ spring:
     active: local
   config:
     import: 'optional:configserver:http://tbotconf:8888'
+  graphql:
+    path: /api/gphql
+    schema:
+      locations: classpath:graphql/**/
+      printer:
+        enabled: true

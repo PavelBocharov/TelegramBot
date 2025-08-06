@@ -57,8 +57,8 @@ public class ActionController {
         try {
             ActionPost actionPost = actionPostRepository.findByPostIdAndUserInfoId(postId, userId);
             dto = actionMapper.mapToDto(actionPost);
-        } catch (Exception e) {
-            return Mono.error(new BaseException(rqUuid, new Date(), 500, e.getMessage()));
+        } catch (Exception ex) {
+            return Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex));
         }
         dto = RestApiUtils.enrichRs(dto, rqUuid);
         log.debug("<< get action: {}", dto);
@@ -89,7 +89,7 @@ public class ActionController {
                 .map(pair -> actionPostRepository.save(pair.getValue()))
                 .map(actionMapper::mapToDto)
                 .map(actionPostDtoRs -> RestApiUtils.enrichRs(actionPostDtoRs, actionPostDto.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(actionPostDto.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(actionPostDto.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< createAction: {}", userDto));
     }
 
@@ -100,7 +100,7 @@ public class ActionController {
                 .map(countMap -> putInMap(countMap, postId, DEVIL))
                 .map(countMap -> putInMap(countMap, postId, COOL))
                 .map(countMap -> putInMap(countMap, postId, BORING))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< countActionInPost: {}", userDto));
     }
 

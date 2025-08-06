@@ -35,7 +35,7 @@ public class UserController {
                 .map(uId -> userInfoRepository.getByUserId(uId))
                 .map(userMapper::mapToDto)
                 .map(userDtoRs -> RestApiUtils.enrichRs(userDtoRs, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< getUserById: {}", userDto));
     }
 
@@ -46,7 +46,7 @@ public class UserController {
                 .map(userInfoRepository::save)
                 .map(userMapper::mapToDto)
                 .map(userDtoRs -> RestApiUtils.enrichRs(userDtoRs, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< createUserWithUId: {}", userDto));
     }
 

@@ -36,10 +36,12 @@ public class RestApiService {
         rq.setRqUuid(rqUuid);
         rq.setRqTm(new Date());
 
-        loggerService.sendLog(rqUuid, DEBUG, ">>> POST {}: url: {}, body: {}", logText, url, rq);
+        String rqString = new ObjectMapper().writeValueAsString(rq);
+
+        loggerService.sendLog(rqUuid, DEBUG, ">>> POST {}: url: {}, body: {}", logText, url, rqString);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(rq), UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(rqString, UTF_8))
                 .setHeader("Content-Type", APPLICATION_JSON_VALUE)
                 .build();
 

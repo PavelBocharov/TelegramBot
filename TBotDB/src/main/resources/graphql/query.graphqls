@@ -1,0 +1,7 @@
+type Query {
+    getUser(rqUuid: String!, userId: String!): UserRs
+}
+
+type Mutation {
+    createUser(rqUuid: String!, userId: String!): UserRs
+}

@@ -30,7 +30,7 @@ public class BaseRs implements Serializable {
 
     @NotNull
     @Schema(description = "Время отправки сообщения клиентом")
-    protected Date rqTm;
+    protected Long rqTm;
 
     @Min(value = 0)
     @Schema(description = "Код ошибки (0 - ошибки нет).")
@@ -42,7 +42,7 @@ public class BaseRs implements Serializable {
     public String getHTML() {
         StringBuilder sb = new StringBuilder();
         sb.append("RqUUID: ").append(rqUuid).append("</br>");
-        sb.append("RqTm: ").append(Utils.getISOFormat(rqTm)).append("</br>");
+        sb.append("RqTm: ").append(Utils.getISOFormat(rqTm == null ? null : new Date(rqTm))).append("</br>");
         if (errorCode != null && errorCode > 0) {
             sb.append("Error code: ").append(errorCode).append("</br>");
             sb.append("Error msg: ").append(errorMsg);

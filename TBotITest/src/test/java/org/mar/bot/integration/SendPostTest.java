@@ -53,7 +53,7 @@ public class SendPostTest extends InitContainers {
         );
 
         tbotWorker.followOutput(new Slf4jLogConsumer(log).withPrefix("tbot"));
-        tbotUi.followOutput(new Slf4jLogConsumer(log).withPrefix("tbot"));
+//        tbotUi.followOutput(new Slf4jLogConsumer(log).withPrefix("tbotUi"));
         tbotDb.followOutput(new Slf4jLogConsumer(log).withPrefix("tbotDb"));
 
         String host = tbotConf.getHost();

@@ -52,7 +52,7 @@ public class PostController {
         return Mono.justOrEmpty(postInfoRepository.getByIsSend(false))
                 .map(postMapper::mapToDto)
                 .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postInfoDto -> log.debug("<< getPostBySendFlag: {}", postInfoDto));
     }
 
@@ -66,7 +66,7 @@ public class PostController {
         return Mono.justOrEmpty(postInfoRepository.getByChatIdAndMessageId(chatId, messageId))
                 .map(postMapper::mapToDto)
                 .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postInfoDto -> log.debug("<< getPostBySendFlag: {}", postInfoDto));
     }
 
@@ -78,7 +78,7 @@ public class PostController {
                 .map(postInfoRepository::save)
                 .map(postMapper::mapToDto)
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postInfoDto1 -> log.debug("<< save post: {}", postInfoDto1));
     }
 
@@ -88,7 +88,7 @@ public class PostController {
         return Mono.just(postInfoRepository.findById(id).orElseThrow())
                 .map(postMapper::mapToDto)
                 .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postInfoDto1 -> log.debug("<< getById post: {}", postInfoDto1));
     }
 
@@ -119,7 +119,7 @@ public class PostController {
                                 rq.getRqUuid()
                         )
                 )
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postTypeListDto -> log.debug("<< getPostInfoList: {}", postTypeListDto));
     }
 
@@ -130,7 +130,7 @@ public class PostController {
                 .map(postTypeRepository::save)
                 .map(postMapper::mapToDto)
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postTypeDto -> log.debug("<< createType: {}", postTypeDto));
     }
 
@@ -142,7 +142,7 @@ public class PostController {
                 .collectList()
                 .map(PostTypeListDtoRs::new)
                 .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postTypeListDto -> log.debug("<< getAllType: {}", postTypeListDto));
     }
 
@@ -155,7 +155,7 @@ public class PostController {
                     return new PostTypeDtoRs();
                 })
                 .map(rs -> RestApiUtils.enrichRs(rs, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(rs -> log.debug("<< removeTypeById: {}", rs));
     }
 
@@ -167,7 +167,7 @@ public class PostController {
                 .map(postTypeRepository::save)
                 .map(postMapper::mapToDto)
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(postTypeDto -> log.debug("<< updateType: {}", postTypeDto));
     }
 

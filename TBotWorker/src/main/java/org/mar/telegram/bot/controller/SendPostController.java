@@ -92,14 +92,14 @@ public class SendPostController {
 
             sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto);
         }
-        return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
+        return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date().getTime());
     }
 
     @PostMapping(value = "/msg", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     @Operation(summary = "Обработка событий из группы")
     public BaseRs workWithMsg(@RequestBody @Valid TelegramMessage rq) {
         telegramBotWorker.workWithMessage(rq);
-        return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
+        return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date().getTime());
     }
 
     private String getCaption(Map<Long, String> captionMap, List<String> hashTags) {

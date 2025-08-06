@@ -26,25 +26,21 @@ public class LoggerService {
         ObjectMapper objectMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
         Object[] args = Stream.of(event.getObjects()).map(obj -> getString(objectMapper, obj)).toArray();
         switch (event.getLogLevel()) {
-            case INFO -> {
+            case INFO:
                 log.info(logMessage, args);
                 break;
-            }
-            case DEBUG -> {
+            case DEBUG:
                 log.debug(logMessage, args);
                 break;
-            }
-            case WARN -> {
+            case WARN:
                 log.warn(logMessage, args);
                 break;
-            }
-            case ERROR -> {
+            case ERROR:
                 log.error(logMessage, args);
                 break;
-            }
-            default -> {
+            default:
                 log.trace(logMessage, args);
-            }
+                break;
         }
     }
 
@@ -52,6 +48,7 @@ public class LoggerService {
         try {
             return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
         }
         return String.valueOf(obj);
     }

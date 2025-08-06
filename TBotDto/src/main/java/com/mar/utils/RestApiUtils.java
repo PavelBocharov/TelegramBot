@@ -30,7 +30,7 @@ public class RestApiUtils {
     public static <T extends BaseRs> T enrichRs(T rs, String rqUuid) {
         if (rs != null) {
             rs.setRqUuid(rqUuid);
-            rs.setRqTm(new Date());
+            rs.setRqTm(new Date().getTime());
         }
         return rs;
     }

@@ -44,7 +44,7 @@ public class HashtagController {
                 .collectList()
                 .map(HashTagListDtoRs::new)
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< create hashtag: {}", userDto));
     }
 
@@ -54,7 +54,7 @@ public class HashtagController {
                 .map(mapper::mapToDto)
                 .map(HashTagListDtoRs::new)
                 .map(dto -> RestApiUtils.enrichRs(dto, rqUuid))
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< get all hashtag: {}", userDto));
     }
 
@@ -65,7 +65,7 @@ public class HashtagController {
                     repository.deleteById(idForDelete);
                     return RestApiUtils.enrichRs(new HashTagListDtoRs(), rqUuid);
                 })
-                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rqUuid, new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< remove hashtag by id: {}", userDto));
     }
 
@@ -78,7 +78,7 @@ public class HashtagController {
                 .collectList()
                 .map(HashTagListDtoRs::new)
                 .map(dto -> RestApiUtils.enrichRs(dto, rq.getRqUuid()))
-                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .onErrorResume(ex -> Mono.error(new BaseException(rq.getRqUuid(), new Date(), 500, ex.getMessage(), ex)))
                 .doOnSuccess(userDto -> log.debug("<< update hashtag: {}", userDto));
     }
 
