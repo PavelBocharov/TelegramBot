@@ -7,8 +7,8 @@ Art by Olena Yemelianova</sub></sup>
 
 ## 💫 Release versions
 
-* Telegram Bot (main): `marolok/telegram_bot:2.6.0`
-* Telegram Bot UI: `marolok/telegram-bot-ui:1.9.2`
+* Telegram Bot (main): `marolok/telegram_bot:2.7.0`
+* Telegram Bot UI: `marolok/telegram-bot-ui:1.10.0`
 * Telegram Bot DB: `marolok/telegram_db:2.5.0`
 * Telegram Bot Config: `marolok/telegram_conf:1.2.0`
 

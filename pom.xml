@@ -18,7 +18,7 @@
 
     <properties>
         <!--    Versions    -->
-        <tbot.worker.version>2.6.0</tbot.worker.version>
+        <tbot.worker.version>2.7.0</tbot.worker.version>
         <tbot.ui.version>1.10.0</tbot.ui.version>
         <tbot.db.version>2.5.0</tbot.db.version>
         <tbot.dto.version>1.7.0</tbot.dto.version>
