@@ -9,6 +9,7 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendPhoto;
 import com.pengrad.telegrambot.request.SendVideo;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.logger.LoggerService;
@@ -40,6 +41,7 @@ public class TelegramBotSendUtils {
     private final LoggerService loggerService;
     private final Utils utils;
 
+    @Getter
     @Value("${application.bot.watermark.image.path:}")
     private String watermarkImagePath;
 
@@ -55,7 +57,7 @@ public class TelegramBotSendUtils {
     @Value("${application.group.chat.chatLink:}")
     private String chatLink;
 
-    public void sendPost(String rqUuid, Long groupChatID, PostInfoDtoRs postInfo) {
+    public void sendPost(String rqUuid, Long groupChatID, PostInfoDtoRs postInfo, Integer watermarkPosition) {
         loggerService.sendLog(rqUuid, LogEvent.LogLevel.DEBUG, "Send post to chat ID: {}, post info: {}", groupChatID, postInfo);
         ContentType postType = ContentType.getTypeByDir(postInfo.getTypeDir());
         if (Doc.equals(postType)) {
@@ -67,7 +69,7 @@ public class TelegramBotSendUtils {
                 break;
             }
             case Picture -> {
-                String newImageWithWatermark = utils.addWatermark(rqUuid, postInfo.getMediaPath(), getWatermarkInfo(rqUuid));
+                String newImageWithWatermark = utils.addWatermark(rqUuid, postInfo.getMediaPath(), getWatermarkInfo(rqUuid), watermarkPosition);
                 if (isNotBlank(newImageWithWatermark)) {
                     postInfo.setMediaPath(newImageWithWatermark);
                     loggerService.sendLog(rqUuid, LogEvent.LogLevel.DEBUG, "Set new image path: {}", newImageWithWatermark);
