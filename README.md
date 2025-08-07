@@ -9,7 +9,7 @@ Art by Olena Yemelianova</sub></sup>
 
 * Telegram Bot (main): `marolok/telegram_bot:2.7.0`
 * Telegram Bot UI: `marolok/telegram-bot-ui:1.10.0`
-* Telegram Bot DB: `marolok/telegram_db:2.5.0`
+* Telegram Bot DB: `marolok/telegram_db:2.6.3`
 * Telegram Bot Config: `marolok/telegram_conf:1.2.0`
 
 ## 🔗 Links
