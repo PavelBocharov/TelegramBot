@@ -67,6 +67,15 @@ public class ActionController {
 
     @PostMapping()
     public Mono<ActionPostDtoRs> createAction(@RequestBody ActionPostDtoRq actionPostDto) {
+        log.debug(">> createAction rq: {}", actionPostDto);
+        if (actionPostDto != null && actionPostDto.getId() != null) {
+            ActionEnum action = ActionEnum.getActionByCallbackData(actionPostDto.getActionCallbackData());
+            ActionPost actionPost = actionPostRepository.findById(actionPostDto.getId()).orElse(null);
+            if (actionPost != null && action.equals(actionPost.getAction())) {
+                log.debug(">> createAction -> dropAction");
+                return dropAction(actionPostDto);
+            }
+        }
         return Mono.just(actionPostDto)
                 .map(dto -> Pair.of(
                         dto,
@@ -91,6 +100,18 @@ public class ActionController {
                 .map(actionPostDtoRs -> RestApiUtils.enrichRs(actionPostDtoRs, actionPostDto.getRqUuid()))
                 .onErrorResume(ex -> Mono.error(new BaseException(actionPostDto.getRqUuid(), new Date(), 500, ex.getMessage())))
                 .doOnSuccess(userDto -> log.debug("<< createAction: {}", userDto));
+    }
+
+    @PostMapping("/drop")
+    public Mono<ActionPostDtoRs> dropAction(@RequestBody ActionPostDtoRq actionPostDto) {
+        return Mono.just(actionPostDto)
+                .map(rq -> {
+                    actionPostRepository.deleteById(rq.getId());
+                    return new ActionPostDtoRs();
+                })
+                .map(rs -> RestApiUtils.enrichRs(rs, actionPostDto.getRqUuid()))
+                .onErrorResume(ex -> Mono.error(new BaseException(actionPostDto.getRqUuid(), new Date(), 500, ex.getMessage())))
+                .doOnSuccess(rs -> log.debug("<< dropAction: {}", rs));
     }
 
     @GetMapping("/count/{postId}")
