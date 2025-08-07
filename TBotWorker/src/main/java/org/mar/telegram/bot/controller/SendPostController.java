@@ -1,13 +1,13 @@
 package org.mar.telegram.bot.controller;
 
-import com.mar.dto.rest.PostInfoDtoRq;
-import com.mar.dto.tbot.ContentType;
 import com.mar.dto.mq.URLInfo;
 import com.mar.dto.rest.ActionPostDtoRs;
 import com.mar.dto.rest.BaseRs;
+import com.mar.dto.rest.PostInfoDtoRq;
 import com.mar.dto.rest.PostInfoDtoRs;
 import com.mar.dto.rest.SendPostRq;
 import com.mar.dto.rest.UserDtoRs;
+import com.mar.dto.tbot.ContentType;
 import com.mar.dto.tbot.TelegramMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +20,7 @@ import org.mar.telegram.bot.service.bot.TelegramBotService;
 import org.mar.telegram.bot.service.bot.db.ActionService;
 import org.mar.telegram.bot.service.bot.db.PostService;
 import org.mar.telegram.bot.service.bot.db.UserService;
-import com.mar.interfaces.mq.MQSender;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Tag(name = "Контроллер отправки сообщений", description = "API для отправки сообщений через бота в группу.")
 public class SendPostController {
 
-    private final MQSender mqSender;
+    private final LoggerService loggerService;
     private final TelegramBotSendUtils sendUtils;
     private final TelegramBotService telegramBotWorker;
     private final PostService postService;
@@ -64,7 +63,7 @@ public class SendPostController {
     @PostMapping(consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     @Operation(summary = "Отправка сообщения", description = "Передача данных боту, чтоб он запостил это в группу.")
     public BaseRs sendMsg(@RequestBody @Valid SendPostRq rq) {
-        mqSender.sendLog(rq.getRqUuid(), DEBUG, "REST API: {}", rq);
+        loggerService.sendLog(rq.getRqUuid(), DEBUG, "REST API: {}", rq);
 
         URLInfo fileInfo = Utils.whatIsUrl(rq.getFilePath());
 
@@ -91,7 +90,7 @@ public class SendPostController {
                     new ActionPostDtoRs().withPostId(postInfoDto.getId()).withUserId(user.getId())
             );
 
-            sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto);
+            sendUtils.sendPost(rq.getRqUuid(), groupChatId, postInfoDto, rq.getPrintWatermark());
         }
         return new BaseRs().withRqUuid(rq.getRqUuid()).withRqTm(new Date());
     }

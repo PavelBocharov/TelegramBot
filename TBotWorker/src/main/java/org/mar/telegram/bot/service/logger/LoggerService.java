@@ -8,11 +8,17 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class LoggerService {
+
+    public void sendLog(String rqUuid, LogEvent.LogLevel logLevel, final String message, Object... objects) {
+        printLog(rqUuid, new LogEvent("t_worker", message, logLevel, objects, new Date()));
+    }
+
 
     @SneakyThrows
     public void printLog(String rqUuid, LogEvent event) {

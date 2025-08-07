@@ -5,17 +5,20 @@ import com.mar.dto.rest.HashTagDto;
 import com.mar.dto.rest.HashTagListDtoRs;
 import com.mar.dto.rest.PostInfoActionListRs;
 import com.mar.dto.rest.PostInfoActionRq;
+import com.mar.dto.rest.PostInfoActionRs;
 import com.mar.dto.rest.PostTypeDtoRq;
 import com.mar.dto.rest.PostTypeDtoRs;
 import com.mar.dto.rest.PostTypeListDtoRs;
 import com.mar.dto.rest.SendPostRq;
 import com.mar.tbot.dto.sendMsg.TelegramMessageRq;
-import com.mar.utils.RestApiUtils;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Profile("local")
@@ -125,27 +128,31 @@ public class LocalMockApiService implements ApiService {
 
     @Override
     public PostInfoActionListRs getPostInfoActionList(PostInfoActionRq rq) {
-        final String uri = RestApiUtils.getUri("localhost", 8081) + "/post/search";
-        return RestApiUtils.post(rq.getRqUuid(), uri, rq, PostInfoActionListRs.class, "getPostInfoActionList");
+//        final String uri = RestApiUtils.getUri("localhost", 8081) + "/post/search";
+//        return RestApiUtils.post(rq.getRqUuid(), uri, rq, PostInfoActionListRs.class, "getPostInfoActionList");
 
 
-//        PostInfoActionListRs rs = new PostInfoActionListRs(Stream
-//                .generate(() -> new PostInfoActionRs(
-//                                new Random().nextLong(1, 100),
-//                                UUID.randomUUID().toString() + UUID.randomUUID().toString() + UUID.randomUUID().toString() + UUID.randomUUID().toString(),
-//                                new Random().nextBoolean(),
-//                                new Random().nextLong(1, 100),
-//                                new Random().nextLong(1, 100),
-//                                new Random().nextLong(1, 100),
-//                                new Random().nextLong(1, 100)
-//                        )
-//                )
-//                .limit(95)
-//                .collect(Collectors.toList()),
-//                95
-//        );
-//        rs.setRqUuid(rq.getRqUuid());
-//        rs.setRqTm(new Date());
-//        return rs;
+        PostInfoActionListRs rs = new PostInfoActionListRs(Stream
+                .generate(() -> new PostInfoActionRs(
+                                new Random().nextLong(1, 100),
+                                """
+                                        11111111111111111111\n
+                                        2222222222222222222222222222\n
+                                        333333333333333333333333
+                                        """,
+                                new Random().nextBoolean(),
+                                new Random().nextLong(1, 100),
+                                new Random().nextLong(1, 100),
+                                new Random().nextLong(1, 100),
+                                new Random().nextLong(1, 100)
+                        )
+                )
+                .limit(95)
+                .collect(Collectors.toList()),
+                95
+        );
+        rs.setRqUuid(rq.getRqUuid());
+        rs.setRqTm(new Date());
+        return rs;
     }
 }

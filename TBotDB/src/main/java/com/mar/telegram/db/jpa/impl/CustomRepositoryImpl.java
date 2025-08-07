@@ -66,8 +66,8 @@ public class CustomRepositoryImpl implements CustomRepository {
         String sql = GET_POST_INFO.formatted(
                 adminId,
                 isBlank(likeCaption) ? "" : LIKE_CAPTION.formatted("'%" + likeCaption.trim() + "%'"),
-                orderColumn != null ?  orderColumn.getTableName() : "id",
-                orderType != null ?  orderType.getSqlQuery() : PostInfoActionRq.OrderType.DESC.getSqlQuery(),
+                orderColumn != null ? orderColumn.getTableName() : "id",
+                orderType != null ? orderType.getSqlQuery() : PostInfoActionRq.OrderType.DESC.getSqlQuery(),
                 limit != null ? "limit " + limit : "",
                 offset != null ? "offset " + offset : ""
         );

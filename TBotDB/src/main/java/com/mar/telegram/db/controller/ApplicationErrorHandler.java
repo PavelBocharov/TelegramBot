@@ -18,7 +18,6 @@ public class ApplicationErrorHandler {
     public ResponseEntity<BaseRs> handleRuntimeException(BaseException ex) {
         BaseRs rs = ex.getResponse();
         log.error("<<< Response BaseException: {}", rs);
-        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.OK).body(rs);
     }
 

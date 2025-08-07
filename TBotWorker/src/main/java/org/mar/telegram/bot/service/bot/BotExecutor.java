@@ -1,7 +1,6 @@
 package org.mar.telegram.bot.service.bot;
 
 import com.mar.dto.rest.PostInfoDtoRs;
-import com.mar.interfaces.mq.MQSender;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.BaseRequest;
@@ -12,6 +11,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.mar.telegram.bot.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,7 +36,7 @@ public class BotExecutor {
     @Autowired
     private PostService postService;
     @Autowired
-    private MQSender mqSender;
+    private LoggerService loggerService;
 
     private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
 
@@ -45,14 +45,14 @@ public class BotExecutor {
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
-                        mqSender.sendLog(rqUuid, ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
+                        loggerService.sendLog(rqUuid, ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
                     } else {
                         if (baseResponse instanceof SendResponse) {
                             SendResponse rs = ((SendResponse) baseResponse);
-                            mqSender.sendLog(rqUuid, DEBUG, "<< Send msg execute");
+                            loggerService.sendLog(rqUuid, DEBUG, "<< Send msg execute");
                             if (nonNull(rs.message()) && isNull(rs.message().editDate())) {
                                 PostInfoDtoRs postInfo = postService.getPostById(rqUuid, id);
-                                mqSender.sendLog(rqUuid, DEBUG, ">> Get post: {}", postInfo);
+                                loggerService.sendLog(rqUuid, DEBUG, ">> Get post: {}", postInfo);
 
                                 postInfo.setIsSend(true);
                                 postInfo.setMessageId(rs.message().messageId());
@@ -61,18 +61,18 @@ public class BotExecutor {
                                     final String filePath = postInfo.getMediaPath();
                                     String exStr = Utils.removeFile(filePath);
                                     if (isNotBlank(exStr)) {
-                                        mqSender.sendLog(rqUuid, ERROR, "Not remove file. Path: {}\n{}", filePath, exStr);
+                                        loggerService.sendLog(rqUuid, ERROR, "Not remove file. Path: {}\n{}", filePath, exStr);
                                     }
 
                                     postInfo.setMediaPath(String.format("https://t.me/%s/%d", rs.message().chat().username(), rs.message().messageId()));
                                 }
-                                mqSender.sendLog(rqUuid, DEBUG, ">> Upd post: {}", postInfo);
+                                loggerService.sendLog(rqUuid, DEBUG, ">> Upd post: {}", postInfo);
                                 postService.save(rqUuid, mapper.mapRsToRq(postInfo));
                             }
                         }
                     }
                 },
-                throwable -> mqSender.sendLog(rqUuid, ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
+                throwable -> loggerService.sendLog(rqUuid, ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
         );
     }
 
@@ -85,10 +85,10 @@ public class BotExecutor {
                 sendMessage,
                 baseResponse -> {
                     if (!baseResponse.isOk()) {
-                        mqSender.sendLog(rqUuid, ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
+                        loggerService.sendLog(rqUuid, ERROR, "Not send msg: {} - {}", baseResponse.errorCode(), baseResponse.description());
                     }
                 },
-                throwable -> mqSender.sendLog(rqUuid, ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
+                throwable -> loggerService.sendLog(rqUuid, ERROR, "Not send msg: {}", ExceptionUtils.getStackTrace(throwable))
         );
     }
 

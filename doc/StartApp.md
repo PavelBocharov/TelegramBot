@@ -1,11 +1,14 @@
 # 🚀 Start application
+
 ## 🔗 Links
+
 * [🟢 Spring Boot application](#-spring-boot-application)
 * [🚢 Docker compose](#-docker-compose)
 * [☸️ Kubernetes](#-kubernetes)
 * [🚧 WIP 🏗️ Start with JKube Maven Plugin - **⚠️NOT WORK⚠️**](#-wip--start-with-jkube-maven-plugin-not-work)
 
 ## 🟢 Spring Boot application (only TBotWorker (REST API + cache))
+
 * Install min JDK 17 - https://adoptopenjdk.net/
 * Set environment in [application-local.yml](../TBotWorker/src/main/resources/application-local.yml):
     - `application.bot.token` - Telegram Bot token
@@ -25,31 +28,33 @@
         java -jar ./target/TelegramBot*.jar
         ```
     - Test API
-      - Swagger (OpenAPI)
-        - http://localhost:8080/webjars/swagger-ui/index.html
-        - http://localhost:8080/v3/api-docs
-      - Actuator
-        - http://localhost:8080/actuator
+        - Swagger (OpenAPI)
+            - http://localhost:8080/webjars/swagger-ui/index.html
+            - http://localhost:8080/v3/api-docs
+        - Actuator
+            - http://localhost:8080/actuator
 * Integration test (need [Docker](https://www.baeldung.com/ops/docker-compose))
-  * End steps [🚢 Docker compose](#-docker-compose)
-  * Set `test.integration.config.ssh.path` in [application-test.properties](../TBotITest/src/test/resources/application-test.properties)
-    ```bash 
-    mvn clean install -U -P build_with_it_test
-    ```
+    * End steps [🚢 Docker compose](#-docker-compose)
+    * Set `test.integration.config.ssh.path`
+      in [application-test.properties](../TBotITest/src/test/resources/application-test.properties)
+      ```bash 
+      mvn clean install -U -P build_with_it_test
+      ```
 
 ## 🚢 Docker compose
+
 * [Start info](https://www.baeldung.com/ops/docker-compose)
 * For build TBotUI
-   * Install nvm - [Windows](https://github.com/coreybutler/nvm-windows), [Linux](https://github.com/nvm-sh/nvm)
-   * Install Node
-      ```bash
-      nvm install 16.13.1 64
-      nvm use 16.13.1
-      ```
-   * Init `npm` in **TBotUI** module
-      ```bash
-      npm install
-      ```
+    * Install nvm - [Windows](https://github.com/coreybutler/nvm-windows), [Linux](https://github.com/nvm-sh/nvm)
+    * Install Node
+       ```bash
+       nvm install 16.13.1 64
+       nvm use 16.13.1
+       ```
+    * Init `npm` in **TBotUI** module
+       ```bash
+       npm install
+       ```
 * Create dir `docker_files` and download JDK 17 (or JRE)
 * Update `ADD` in [Dockerfile](../TBotUI/Dockerfile) for TBotUI
     * Example: `ADD docker_files/jdk_17_x64_alpine.tar.gz /opt/app/java`
@@ -62,9 +67,14 @@
 * Set environment in [.env](../.env)
     - `LOCAL_PC_MOUNT_DIR` - local directory for download files
 * Set ENV in [docker-compose](../docker-compose.yml)
-    - `tbotconf.GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
-    - `tbotconf.PRIVATE_KEY` - use SSH private key for connect ([Generate pair ⚠️without passphrase⚠️](https://docs.github.com/ru/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) and [add to GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
-* Set config in your Git repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml), example [YAML](../TBotWorker/src/main/resources/example.yaml))
+    - `tbotconf.GIT_URL` - your Git config (
+      more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
+    - `tbotconf.PRIVATE_KEY` - use SSH private key for
+      connect ([Generate pair ⚠️without passphrase⚠️](https://docs.github.com/ru/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
+      and [add to GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
+* Set config in your Git
+  repo ([TelegramConf](https://github.com/PavelBocharov/TelegramConf/blob/main/telegram-bot-image.yml),
+  example [YAML](../TBotWorker/src/main/resources/example.yaml))
 * Start
      ```bash
      docker compose up
@@ -75,6 +85,7 @@
      ```
 
 ## ☸️ Kubernetes
+
 * ⚠️Kubernetes work with image in [Docker HUB](https://hub.docker.com/repositories/marolok)⚠️
 * Install Kubernetes(Minikube) - **[LINK](https://kubernetes.io/ru/docs/setup/learning-environment/minikube/)**
 * Start Minikube
@@ -106,22 +117,26 @@
           ```
 
 ### 📗 Start with YAML
+
 * Build and push docker images
-  * Plugin
-    ```bash
-    cd ../
-    mvn clean install -U -P build_with_it_test
-    mvn docker:build docker:push -P build_docker_images
-    ```
-  * CMD (in root module)
-    ```bash
-    docker build -t marolok/telegram_bot:*.*.* .
-    docker push marolok/telegram_bot:*.*.*
-    ```
+    * Plugin
+      ```bash
+      cd ../
+      mvn clean install -U -P build_with_it_test
+      mvn docker:build docker:push -P build_docker_images
+      ```
+    * CMD (in root module)
+      ```bash
+      docker build -t marolok/telegram_bot:*.*.* .
+      docker push marolok/telegram_bot:*.*.*
+      ```
 * Set environment in [kube_conf.yaml](../k8s/kube_config.yaml) - check _"TelegramConf"_ block
-    * `BOT_PROFILE` - application profile (need for application config filename, [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
-    * `GIT_URL` - your Git config (more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
-    * `PRIVATE_KEY` - use SSH private key for connect (example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
+    * `BOT_PROFILE` - application profile (need for application config
+      filename, [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
+    * `GIT_URL` - your Git config (
+      more [Spring Cloud Config](https://docs.spring.io/spring-cloud-config/docs/current/reference/html/))
+    * `PRIVATE_KEY` - use SSH private key for connect (
+      example [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account))
 * Init config
   ```bash
   kubectl apply -f ./k8s/kube_config.yaml

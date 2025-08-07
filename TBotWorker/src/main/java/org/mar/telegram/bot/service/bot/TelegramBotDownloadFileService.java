@@ -2,7 +2,6 @@ package org.mar.telegram.bot.service.bot;
 
 import com.mar.dto.mq.LoadFileInfo;
 import com.mar.dto.rest.PostInfoDtoRs;
-import com.mar.interfaces.mq.MQSender;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import org.apache.commons.io.FileUtils;
@@ -11,6 +10,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.mapstruct.factory.Mappers;
 import org.mar.telegram.bot.mapper.DBIntegrationMapper;
 import org.mar.telegram.bot.service.bot.db.PostService;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class TelegramBotDownloadFileService {
     @Autowired
     private PostService postInfoService;
     @Autowired
-    private MQSender mqSender;
+    private LoggerService loggerService;
 
     private DBIntegrationMapper mapper = Mappers.getMapper(DBIntegrationMapper.class);
 
@@ -60,7 +60,7 @@ public class TelegramBotDownloadFileService {
                 }
             }
 
-            mqSender.sendLog(rqUuid, INFO, "File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
+            loggerService.sendLog(rqUuid, INFO, "File name: {}, path: {}, save path: {}", file.getName(), fileInfo.getFileUrl(), diskPath);
             FileUtils.copyURLToFile(new URL(fileInfo.getFileUrl()), file);
 
             PostInfoDtoRs postInfo = postInfoService.getNotSendPost(rqUuid);

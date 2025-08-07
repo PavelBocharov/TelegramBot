@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,10 +18,10 @@
 
     <properties>
         <!--    Versions    -->
-        <tbot.db.version>2.4.0</tbot.db.version>
-        <tbot.worker.version>2.5.0</tbot.worker.version>
-        <tbot.ui.version>1.9.1</tbot.ui.version>
-        <tbot.dto.version>1.5.0</tbot.dto.version>
+        <tbot.worker.version>2.7.0</tbot.worker.version>
+        <tbot.ui.version>1.10.0</tbot.ui.version>
+        <tbot.db.version>2.6.3</tbot.db.version>
+        <tbot.dto.version>1.7.0</tbot.dto.version>
 
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>

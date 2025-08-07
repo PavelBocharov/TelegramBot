@@ -1,9 +1,9 @@
 package org.mar.telegram.bot.service.db.docker;
 
+import com.mar.dto.rest.UserDtoRs;
 import org.mar.telegram.bot.service.bot.db.UserService;
 import org.mar.telegram.bot.service.db.RestApiService;
-import com.mar.dto.rest.UserDtoRs;
-import com.mar.interfaces.mq.MQSender;
+import org.mar.telegram.bot.service.logger.LoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -22,7 +22,7 @@ public class UserInfoService implements UserService {
     private String dbUrl;
 
     @Autowired
-    private MQSender mqSender;
+    private LoggerService loggerService;
     @Autowired
     private RestApiService restApiService;
 
@@ -33,14 +33,14 @@ public class UserInfoService implements UserService {
         if (isNull(userDto) || (nonNull(userDto.getErrorCode()) && userDto.getErrorCode() > 0)) {
             userDto = create(rqUuid, new UserDtoRs().withUserId(userId));
         }
-        mqSender.sendLog(rqUuid, DEBUG, "Load user by userID: {}, dto: {}", userId, userDto);
+        loggerService.sendLog(rqUuid, DEBUG, "Load user by userID: {}, dto: {}", userId, userDto);
         return userDto;
     }
 
     public UserDtoRs create(String rqUuid, UserDtoRs user) {
         final String url = dbUrl + "/user/create/uid/" + user.getUserId();
         UserDtoRs userDto = restApiService.get(rqUuid, url, UserDtoRs.class, "create user with user id " + user.getUserId());
-        mqSender.sendLog(rqUuid, DEBUG, "Create user: {}", userDto);
+        loggerService.sendLog(rqUuid, DEBUG, "Create user: {}", userDto);
         return userDto;
     }
 

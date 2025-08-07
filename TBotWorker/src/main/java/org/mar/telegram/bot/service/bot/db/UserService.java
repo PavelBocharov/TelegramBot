@@ -4,6 +4,7 @@ import com.mar.dto.rest.UserDtoRs;
 
 public interface UserService {
     UserDtoRs getByUserId(String rqUuid, long userId);
+
     UserDtoRs create(String rqUuid, UserDtoRs user);
 
 }
