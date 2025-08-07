@@ -104,7 +104,7 @@ spec:
               name: redis-storage
       volumes:
         - name: redis-storage
-          emptyDir: {}
+          emptyDir: { }
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -1,11 +1,13 @@
 # Create certificate for HTTPS/TLS
 
 Goto TBotUI resource:
+
 ```shell
 cd ../TBotUI/src/main/resources/keystore/
 ```
 
 All steps for generate keys.
+
 ```shell
 openssl genrsa -aes256 -passout pass:password -out CA-private-key.key 4096
 

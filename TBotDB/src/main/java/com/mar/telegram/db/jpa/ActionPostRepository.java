@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ActionPostRepository extends JpaRepository<ActionPost, Long> {
 
     ActionPost findByPostIdAndUserInfoId(Long postId, Long userInfoId);
+
     Long countByPostIdAndAction(Long postId, ActionEnum action);
 
 }

@@ -1,7 +1,7 @@
 package org.mar.telegram.bot.utils;
 
-import com.mar.dto.tbot.ContentType;
 import com.mar.dto.mq.URLInfo;
+import com.mar.dto.tbot.ContentType;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
@@ -27,6 +27,20 @@ class ParsingTextUtilsTest {
     public static final String PNG_TEST_URL = "https://gmlwjd9405.github.io/images/web/jsp-scriptlet-example.png";
     public static final String BMP_TEST_URL = "https://test.test/testtest.bmp";
 
+    public static Stream<Pair<String, ContentType>> argsProviderFactory() {
+        return Stream.of(
+                new ImmutablePair<>(TEXT, ContentType.Text),
+                new ImmutablePair<>(TEXT_UNKNOWN_TYPE, ContentType.Text),
+                new ImmutablePair<>(GIF_TEST_URL, ContentType.Gif),
+                new ImmutablePair<>(MP4_TEST_URL, ContentType.Video),
+                new ImmutablePair<>(GIFV_TEST_URL, ContentType.Video),
+                new ImmutablePair<>(JPG_TEST_URL, ContentType.Picture),
+                new ImmutablePair<>(JPEG_TEST_URL, ContentType.Picture),
+                new ImmutablePair<>(PNG_TEST_URL, ContentType.Picture),
+                new ImmutablePair<>(BMP_TEST_URL, ContentType.Picture)
+        );
+    }
+
     @ParameterizedTest(name = "{index} - {0}")
     @MethodSource("argsProviderFactory")
     void whatIsUrl_test(Pair<String, ContentType> testUrl) {
@@ -41,20 +55,6 @@ class ParsingTextUtilsTest {
         } else {
             Assertions.assertEquals(content.getUrl(), testUrl.getKey());
         }
-    }
-
-    public static Stream<Pair<String, ContentType>> argsProviderFactory() {
-        return Stream.of(
-                new ImmutablePair<>(TEXT, ContentType.Text),
-                new ImmutablePair<>(TEXT_UNKNOWN_TYPE, ContentType.Text),
-                new ImmutablePair<>(GIF_TEST_URL, ContentType.Gif),
-                new ImmutablePair<>(MP4_TEST_URL, ContentType.Video),
-                new ImmutablePair<>(GIFV_TEST_URL, ContentType.Video),
-                new ImmutablePair<>(JPG_TEST_URL, ContentType.Picture),
-                new ImmutablePair<>(JPEG_TEST_URL, ContentType.Picture),
-                new ImmutablePair<>(PNG_TEST_URL, ContentType.Picture),
-                new ImmutablePair<>(BMP_TEST_URL, ContentType.Picture)
-        );
     }
 
 }

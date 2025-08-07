@@ -14,7 +14,8 @@ public class ButtonBuilder {
 
     private Button button;
 
-    private ButtonBuilder() {}
+    private ButtonBuilder() {
+    }
 
     public static ButtonBuilder createButton() {
         ButtonBuilder bb = new ButtonBuilder();

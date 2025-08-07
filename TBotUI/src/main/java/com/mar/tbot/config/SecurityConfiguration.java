@@ -25,16 +25,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 
-    @Value("${application.bot.admin.login}")
-    private String login;
-    @Value("${application.bot.admin.pwd.md5}")
-    private String password;
-
     private static final String LOGIN_PROCESSING_URL = "/login";
     private static final String LOGIN_FAILURE_URL = "/login?error";
     private static final String LOGIN_URL = "/login";
     private static final String LOGOUT_SUCCESS_URL = "/login";
-
+    @Value("${application.bot.admin.login}")
+    private String login;
+    @Value("${application.bot.admin.pwd.md5}")
+    private String password;
     @Value("${nonsec.server.port}")
     private int SERVER_HTTP_PORT;
 

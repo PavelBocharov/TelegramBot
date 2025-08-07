@@ -40,4 +40,7 @@ public class SendPostRq extends BaseRq {
             "  ]")
     private List<String> hashTags;
 
+    @Schema(description = "Флаг публикации с ватермаркой. NULL - не печатать, 1 - top left, 2 - top right, 3 - down left, 4 - down right.")
+    private Integer printWatermark;
+
 }
